@@ -1,6 +1,12 @@
 import { Router } from 'express';
 import { getFilms } from '../controllers/filmController';
+import { getFilm } from '../controllers/filmController';
 
-const adminFilms = Router();
+const films = Router();
 
-export const getHomeData = adminFilms.get('/', getFilms); 
+films.get('/', getFilms); 
+films.get('/:id', getFilm);
+console.log(films);
+
+
+export default films;

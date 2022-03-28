@@ -5,7 +5,7 @@ import express, { Application } from "express";
 import bodyParser from "body-parser";
 import multer from "multer";
 import { filmCreation, getGenres } from "./routes/admin/film";
-import { getHomeData } from "./routes/film";
+import films from "./routes/film";
 import sequelize from "../util/database";
 import Film from "../models/film";
 import PaymentStatus from "../models/payment-status";
@@ -14,7 +14,6 @@ import Session from "../models/session";
 import Order from "../models/order";
 import User from "../models/user";
 import Genre from "../models/genre";
-import { getGenre } from "./controllers/admin/filmController";
 
 const app: Application = express();
 const port = 3000;
@@ -44,14 +43,15 @@ app.use(bodyParser.json());
 app.use(multer({ storage: fileStorage, fileFilter }).single('posterUrl'));
 app.use("/images", express.static(path.join(__dirname, "../front/src/images")));
 app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:8080');
+  res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE');
   res.setHeader('Access-Control-Allow-Headers', '*');
   next();
 })
 app.use('/admin', filmCreation);
 app.use('/admin', getGenres);
-app.use('/', getHomeData)
+app.use('/films', films);
+app.use('/', films);
 
 User.hasMany(Order);
 Order.belongsTo(User, { constraints: true, onDelete: "CASCADE" });

@@ -18,3 +18,11 @@ exports.getFilms = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
     const films = yield film_1.default.findAll({ include: genre_1.default });
     res.status(200).json({ films });
 });
+exports.getFilm = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const id = req.params.id;
+    const film = yield film_1.default.findByPk(id);
+    if (!film) {
+        throw new Error('Фильм с таким ID не найден');
+    }
+    res.status(200).json({ film });
+});
