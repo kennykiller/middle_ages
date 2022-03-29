@@ -2,6 +2,7 @@ export interface Film {
   name: string;
   ageRestriction: string;
   posterUrl: string;
+  description: string;
   startDate: string;
   genres: Genre[];
   endDate: string;

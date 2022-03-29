@@ -10,6 +10,7 @@ let film: Film = reactive({
   ageRestriction: "",
   posterUrl: "",
   startDate: "",
+  description: '',
   genres: [],
   endDate: "",
 });
@@ -27,6 +28,7 @@ async function createFilm() {
   formData.append("name", film.name);
   formData.append("ageRestriction", film.ageRestriction);
   formData.append("posterUrl", film.posterUrl);
+  formData.append("description", film.description);
   formData.append("startDate", film.startDate);
   formData.append("endDate", film.endDate);
   formData.append("genres", JSON.stringify(film.genres));
@@ -58,42 +60,53 @@ async function getGenres(): Promise<Genre[] | []> {
 </script>
 
 <template>
-  <div class="flex flex-col justify-center items-center max-w-sm">
-    <div class="flex py-5">
-      <label for="name" class="pr-4">Название фильма</label
-      ><input type="text" id="name" v-model="film.name" />
+  <div class="">
+    <div class="">
+      <label for="name" class="">Название фильма</label
+      ><input type="text" id="name" v-model="film.name" class="add-film__input"/>
     </div>
-    <div class="flex py-5">
-      <label for="ageRestriction" class="pr-4">Возрастное ограничение</label
-      ><input type="text" id="ageRestriction" v-model="film.ageRestriction" />
+    <div class="">
+      <label for="ageRestriction" class="">Возрастное ограничение</label
+      ><input type="text" id="ageRestriction" v-model="film.ageRestriction"  class="add-film__input"/>
     </div>
-    <div class="flex py-5">
-      <label for="posterUrl" class="pr-4">Постер фильма</label
+    <div class="">
+      <label for="posterUrl" class="">Постер фильма</label
       ><input
         type="file"
+        class="add-film__input"
         id="posterUrl"
         @change="setFile($event as HTMLInputElement, film)"
       />
     </div>
-    <div class="flex py-5">
-      <label for="startDate" class="pr-4">Дата начала проката</label
+    <div class="">
+      <label for="startDate" class="">Дата начала проката</label
       ><input
         type="date"
+        class="add-film__input"
         min="2022-01-01"
         max="2050-12-31"
         id="startDate"
         v-model="film.startDate"
       />
     </div>
-    <div class="flex py-5">
-      <label for="endDate" class="pr-4">Дата окончания проката</label
+    <div class="">
+      <label for="endDate" class="">Дата окончания проката</label
       ><input
         type="date"
         min="2022-01-01"
+        class="add-film__input"
         max="2050-12-31"
         id="endDate"
         v-model="film.endDate"
       />
+    </div>
+    <div class="">
+      <label for="description" class="">Описание фильма</label
+      ><textarea
+        id="description"
+        v-model="film.description"
+        placeholder="Введите описание фильма"
+      ></textarea>
     </div>
     <select multiple v-model="film.genres">
       <option v-for="genre in genres.value" :key="genre.name" :value="genre">
@@ -103,3 +116,11 @@ async function getGenres(): Promise<Genre[] | []> {
     <button @click="createFilm">SAVE FILM</button>
   </div>
 </template>
+
+<style lang="scss" scoped>
+.add-film__input {
+  width: 150px;
+  height: 60px;
+  border: 1px solid black;
+}
+</style>
