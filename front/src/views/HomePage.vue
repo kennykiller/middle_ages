@@ -24,12 +24,11 @@ const getFilms = async () => {
 </script>
 
 <template>
-  <div class="w-full grid grid-cols-7 gap-4">
+  <div class="homepage__container">
     <NavigationComponent
-      class="col-span-1 bg-white flex justify-start p-3"
     ></NavigationComponent>
-    <main class="col-span-6">
-      <section class="flex justify-between items-start" v-if="films.value?.length">
+    <main class="homepage-content__container">
+      <section class="home-carousel current-films__container" v-if="films.value?.length">
         <CarouselItem
           v-for="film in films.value"
           :key="JSON.stringify(film)"
@@ -39,6 +38,27 @@ const getFilms = async () => {
         >
         </CarouselItem>
       </section>
+      <section class="home-carousel discounts__container">
+      </section>
+      <section class="home-carousel future-films__container">
+      </section>
     </main>
   </div>
 </template>
+
+<style lang="scss" scoped>
+.homepage__container {
+  width: 100%;
+  display: grid;
+  padding: 1rem;
+  grid-template-columns: minmax(6rem, 10rem) 1fr;
+  .homepage-content__container {
+    display: flex;
+    flex-direction: column;
+    .home-carousel {
+      display: flex;
+      justify-content: space-between;
+    }
+  }
+}
+</style>
