@@ -27,15 +27,20 @@ const filmTypes = props.genres.map((genre) => genre.name).join(", ");
 .film__container {
   display: flex;
   flex-direction: column;
+  cursor: pointer;
   .special-box-shadow {
     box-shadow: 0 10px 15px -3px rgba(13, 49, 150, 0.8),
       0 4px 6px -4px rgba(0, 0, 0, 0.8);
-    overflow: hidden;
+    background-color: azure;
+    border-radius: 4px;
     width: 13rem;
     min-height: 17rem;
     margin-bottom: 0.5rem;
-    border-radius: 4px;
+    &:hover .film__image {
+      transform: translate(-10px, -10px) scale(1.05);
+    }
     .film__image {
+      border-radius: 4px;
       height: 100%;
       display: block;
     }
