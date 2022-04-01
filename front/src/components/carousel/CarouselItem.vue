@@ -28,6 +28,7 @@ const filmTypes = props.genres.map((genre) => genre.name).join(", ");
   display: flex;
   flex-direction: column;
   cursor: pointer;
+  margin-right: 1rem;
   .special-box-shadow {
     box-shadow: 0 10px 15px -3px rgba(13, 49, 150, 0.8),
       0 4px 6px -4px rgba(0, 0, 0, 0.8);
