@@ -6,7 +6,5 @@ const films = Router();
 
 films.get('/', getFilms); 
 films.get('/:id', getFilm);
-console.log(films);
-
 
 export default films;

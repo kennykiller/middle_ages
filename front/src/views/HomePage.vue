@@ -1,43 +1,33 @@
 <script setup lang="ts">
 import NavigationComponent from "@/components/NavigationComponent.vue";
-import { reactive, onBeforeMount, ref, onMounted } from "vue";
+import { reactive, onBeforeMount, watch, ref, Ref } from "vue";
 import CarouselItem from "@/components/carousel/CarouselItem.vue";
 import { Film } from "../../../interfaces/models";
 import axios from "axios";
 
-type destination = 'back' | 'forward';
+type mode = 'inc' | 'dec';
+
 const films: { value: Film[] | [] } = reactive({ value: [] });
+let page = ref(0);
 onBeforeMount(async () => {
-  films.value = await getFilms();
+  films.value = await getFilms(page.value);
 });
-const getFilms = async () => {
+const getFilms = async (page: number) => {
   const headers = {
     "Access-Control-Allow-Origin": "*",
   };
   try {
-    const response = await axios.get("http://localhost:3000/", { headers });
-    console.log(response);
+    const response = await axios.get(`http://localhost:3000/?page=${page}`, { headers });
     return response?.data ? response.data.films : [];
   } catch (e) {
     console.log(e);
   }
 };
-//swiping
-let sectionEl:HTMLElement;
-onMounted(() => {
-  sectionEl = document.querySelector('.home-carousel.current-films__container')!;
-  console.log(sectionEl);
-  console.log(sectionEl.offsetWidth, 'offset');
-  console.log(sectionEl.clientWidth, 'client');
-  console.log(sectionEl.scrollWidth, 'scroll');
-})
-const swipePosters = (dest:destination) => {
-  const currentRight = parseFloat(sectionEl.style.right) || 0;
-  if (dest === 'back') {
-    sectionEl.style.right = currentRight - 400 + 'px';   
-  } else {
-    sectionEl.style.right = currentRight + 400 + 'px';
-  }
+watch(page,async (val:number) => {
+    films.value = await getFilms(val)
+  });
+function changePage(mode:mode) {
+  mode === 'inc' ? page.value++ : page.value--;
 }
 </script>
 
@@ -48,7 +38,7 @@ const swipePosters = (dest:destination) => {
       <section
         class="home-carousel current-films__container"
       >
-        <button @click="swipePosters('back')" class="arrow arrow--back">go back</button>
+        <button v-if="page > 0" @click="changePage('dec')" class="arrow arrow--back">go back</button>
         <CarouselItem
           v-for="film in films.value"
           :key="JSON.stringify(film)"
@@ -57,7 +47,7 @@ const swipePosters = (dest:destination) => {
           :genres="film.genres"
         >
         </CarouselItem>
-        <button @click="swipePosters('forward')" class="arrow arrow--forward">go forward</button>
+        <button @click="changePage('inc')" class="arrow arrow--forward">go forward</button>
       </section>
       <section class="home-carousel discounts__container"></section>
       <section class="home-carousel future-films__container"></section>
@@ -79,8 +69,12 @@ const swipePosters = (dest:destination) => {
       justify-content: space-between;
       position: relative;
       .arrow {
+        text-decoration: none;
         position: absolute;
         top: -2rem;
+        &:hover {
+          color: green;
+        }
       }
       .arrow--forward {
         right: 35rem;

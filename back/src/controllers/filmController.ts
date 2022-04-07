@@ -1,8 +1,13 @@
 import { RequestHandler } from "express";
 import Film from '../../models/film';
-import Genre from '../../models/genre'
+import Genre from '../../models/genre';
+
+const ITEMS_PER_PAGE = 4;
+
 export const getFilms: RequestHandler = async (req, res, next) => {
-    const films = await Film.findAll({include: Genre});
+    const page:number = req.query.page ? +req.query.page : 0;
+    const offset: number = page ? page * ITEMS_PER_PAGE : 0;
+    const films = await Film.findAll({ limit: ITEMS_PER_PAGE, offset, include: Genre });
     res.status(200).json({ films })
 }
 

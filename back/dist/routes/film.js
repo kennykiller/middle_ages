@@ -6,5 +6,4 @@ const filmController_2 = require("../controllers/filmController");
 const films = express_1.Router();
 films.get('/', filmController_1.getFilms);
 films.get('/:id', filmController_2.getFilm);
-console.log(films);
 exports.default = films;
