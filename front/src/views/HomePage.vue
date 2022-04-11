@@ -9,8 +9,9 @@ type mode = 'inc' | 'dec';
 
 const films: { value: Film[] | [] } = reactive({ value: [] });
 let page = ref(0);
+let totalFilmsAmt = ref(0); // проверять наличие последующих фильмов (приходит общее количество фильмов, надо знать скок осталось, чтобы в зависимости от этого рендерить кнопку показа других фильмов)
 onBeforeMount(async () => {
-  films.value = await getFilms(page.value);
+  ({ count: totalFilmsAmt.value, rows: films.value } = await getFilms(page.value));
 });
 const getFilms = async (page: number) => {
   const headers = {
@@ -24,7 +25,7 @@ const getFilms = async (page: number) => {
   }
 };
 watch(page,async (val:number) => {
-    films.value = await getFilms(val)
+    ({ rows: films.value } = await getFilms(val))
   });
 function changePage(mode:mode) {
   mode === 'inc' ? page.value++ : page.value--;

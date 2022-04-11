@@ -7,7 +7,7 @@ const ITEMS_PER_PAGE = 4;
 export const getFilms: RequestHandler = async (req, res, next) => {
     const page:number = req.query.page ? +req.query.page : 0;
     const offset: number = page ? page * ITEMS_PER_PAGE : 0;
-    const films = await Film.findAll({ limit: ITEMS_PER_PAGE, offset, include: Genre });
+    const films = await Film.findAndCountAll({ limit: ITEMS_PER_PAGE, offset, distinct: true, include: Genre });
     res.status(200).json({ films })
 }
 
