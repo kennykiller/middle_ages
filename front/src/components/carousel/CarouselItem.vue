@@ -6,7 +6,6 @@ interface Props {
   name: string;
 }
 const props = defineProps<Props>();
-console.log(props);
 const url: string = props.url.match(/images(.)+/g)![0] || "";
 const filmTypes = props.genres.map((genre) => genre.name).join(", ");
 </script>

@@ -9,9 +9,14 @@ type mode = 'inc' | 'dec';
 
 const films: { value: Film[] | [] } = reactive({ value: [] });
 let page = ref(0);
-let totalFilmsAmt = ref(0); // проверять наличие последующих фильмов (приходит общее количество фильмов, надо знать скок осталось, чтобы в зависимости от этого рендерить кнопку показа других фильмов)
+let isLast = ref(false);
 onBeforeMount(async () => {
-  ({ count: totalFilmsAmt.value, rows: films.value } = await getFilms(page.value));
+  const response = await getFilms(page.value);
+  if (response?.isLast) {
+    ({ films: films.value, isLast: isLast.value } = response)
+  } else {
+    films.value = response;
+  }
 });
 const getFilms = async (page: number) => {
   const headers = {
@@ -19,13 +24,20 @@ const getFilms = async (page: number) => {
   };
   try {
     const response = await axios.get(`http://localhost:3000/?page=${page}`, { headers });
-    return response?.data ? response.data.films : [];
+    if (response?.data) {
+      return response.data?.isLast ? response.data : response.data?.films;
+    } return []
   } catch (e) {
     console.log(e);
   }
 };
 watch(page,async (val:number) => {
-    ({ rows: films.value } = await getFilms(val))
+    const response = await getFilms(val)
+    if (response?.isLast) {
+      ({ films: films.value, isLast: isLast.value } = response)
+    } else {
+      films.value = response;
+    }
   });
 function changePage(mode:mode) {
   mode === 'inc' ? page.value++ : page.value--;
@@ -48,7 +60,7 @@ function changePage(mode:mode) {
           :genres="film.genres"
         >
         </CarouselItem>
-        <button @click="changePage('inc')" class="arrow arrow--forward">go forward</button>
+        <button v-if="!isLast" @click="changePage('inc')" class="arrow arrow--forward">go forward</button>
       </section>
       <section class="home-carousel discounts__container"></section>
       <section class="home-carousel future-films__container"></section>
