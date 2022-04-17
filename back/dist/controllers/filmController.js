@@ -18,14 +18,14 @@ const ITEMS_PER_PAGE = 4;
 exports.getFilms = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const page = req.query.page ? +req.query.page : 0;
     const offset = page ? page * ITEMS_PER_PAGE : 0;
-    const films = yield film_1.default.findAll({ limit: ITEMS_PER_PAGE, offset, include: genre_1.default });
-    // if (!films.length) {
-    //     res.status(200).json('Фильмы не найдены.');
-    // }
-    const { film, dataValues, id: lastFilmId } = yield film_1.default.findOne({ order: [['id', 'DESC']] });
-    const isLast = films.find(film => film.id === lastFilmId);
-    const response = { films, isLast };
-    res.status(200).json(response);
+    const films = yield film_1.default.findAndCountAll({ limit: ITEMS_PER_PAGE, offset, include: genre_1.default, distinct: true });
+    if (!films.count) {
+        res.status(200).json('Фильмы не найдены.');
+    }
+    // const { film?.dataValues?.id: lastFilmId } = await Film.findOne({ order: [ [ 'id', 'DESC' ]] });
+    // const isLast = films.rows.find(film => film.id === lastFilmId);
+    // const response: FilmsForVue = { films, isLast };
+    res.status(200).json(films);
 });
 exports.getFilm = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const id = req.params.id;

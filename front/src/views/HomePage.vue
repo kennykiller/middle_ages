@@ -4,18 +4,32 @@ import { reactive, onBeforeMount, watch, ref, Ref } from "vue";
 import CarouselItem from "@/components/carousel/CarouselItem.vue";
 import { Film } from "../../../interfaces/models";
 import axios from "axios";
+import { computed } from "@vue/reactivity";
 
-type mode = 'inc' | 'dec';
+type mode = "inc" | "dec";
+interface FilmsFromDB {
+  rows: Film[];
+  count: number;
+}
 
-const films: { value: Film[] | [] } = reactive({ value: [] });
+const films: { value: Film[] } = reactive({ value: [] });
+const filmsToShow: { value: Film[] } = reactive({ value: [] });
+let totalFilmsAmt: Ref<number> = ref(0);
 let page = ref(0);
-let isLast = ref(false);
+let isLastPage = computed(() => {
+  return (page.value + 1) * 4 >= totalFilmsAmt.value;
+});
+let allFilmsReceived = computed(() => {
+  return totalFilmsAmt.value === films.value.length;
+});
 onBeforeMount(async () => {
-  const response = await getFilms(page.value);
-  if (response?.isLast) {
-    ({ films: films.value, isLast: isLast.value } = response)
-  } else {
-    films.value = response;
+  const res: FilmsFromDB = await getFilms(page.value);
+  if (res.count) {
+    ({
+      rows: films.value,
+      rows: filmsToShow.value,
+      count: totalFilmsAmt.value,
+    } = res);
   }
 });
 const getFilms = async (page: number) => {
@@ -23,24 +37,30 @@ const getFilms = async (page: number) => {
     "Access-Control-Allow-Origin": "*",
   };
   try {
-    const response = await axios.get(`http://localhost:3000/?page=${page}`, { headers });
-    if (response?.data) {
-      return response.data?.isLast ? response.data : response.data?.films;
-    } return []
+    const response = await axios.get(`http://localhost:3000/?page=${page}`, {
+      headers,
+    });
+    if (response?.data?.count) {
+      return response.data;
+    }
+    return [];
   } catch (e) {
     console.log(e);
   }
 };
-watch(page,async (val:number) => {
-    const response = await getFilms(val)
-    if (response?.isLast) {
-      ({ films: films.value, isLast: isLast.value } = response)
-    } else {
-      films.value = response;
-    }
-  });
-function changePage(mode:mode) {
-  mode === 'inc' ? page.value++ : page.value--;
+watch(page, async (val: number) => {
+  if (allFilmsReceived.value) {
+    filmsToShow.value = films.value.slice(val * 4, (val + 1) * 4);
+    return;
+  }
+  const res: FilmsFromDB = await getFilms(val);
+  if (res.count) {
+    res.rows.forEach((film) => films.value.push(film));
+    ({ rows: filmsToShow.value } = res);
+  }
+});
+function changePage(mode: mode) {
+  mode === "inc" ? page.value++ : page.value--;
 }
 </script>
 
@@ -48,19 +68,29 @@ function changePage(mode:mode) {
   <div class="homepage__container">
     <NavigationComponent></NavigationComponent>
     <main class="homepage-content__container">
-      <section
-        class="home-carousel current-films__container"
+      <button
+        v-if="page > 0"
+        @click="changePage('dec')"
+        class="arrow arrow--back"
       >
-        <button v-if="page > 0" @click="changePage('dec')" class="arrow arrow--back">go back</button>
+        go back
+      </button>
+      <button
+        v-if="!allFilmsReceived || !isLastPage"
+        @click="changePage('inc')"
+        class="arrow arrow--forward"
+      >
+        go forward
+      </button>
+      <section class="home-carousel current-films__container">
         <CarouselItem
-          v-for="film in films.value"
+          v-for="film in filmsToShow.value"
           :key="JSON.stringify(film)"
           :url="film.posterUrl"
           :name="film.name"
           :genres="film.genres"
         >
         </CarouselItem>
-        <button v-if="!isLast" @click="changePage('inc')" class="arrow arrow--forward">go forward</button>
       </section>
       <section class="home-carousel discounts__container"></section>
       <section class="home-carousel future-films__container"></section>
@@ -81,18 +111,24 @@ function changePage(mode:mode) {
       display: flex;
       justify-content: space-between;
       position: relative;
-      .arrow {
-        text-decoration: none;
-        position: absolute;
-        top: -2rem;
-        &:hover {
-          color: green;
-        }
+      &:hover div {
+        opacity: 0.5;
       }
-      .arrow--forward {
-        right: 35rem;
+      div:hover {
+        opacity: 1;
       }
     }
   }
+}
+.arrow {
+  text-decoration: none;
+  position: absolute;
+  top: -2rem;
+  &:hover {
+    color: green;
+  }
+}
+.arrow--forward {
+  right: 35rem;
 }
 </style>
