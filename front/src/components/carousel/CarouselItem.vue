@@ -43,6 +43,7 @@ const filmTypes = props.genres.map((genre) => genre.name).join(", ");
       border-radius: 4px;
       height: 100%;
       display: block;
+      transition: transform 1s ease;
     }
   }
   .film__details {
