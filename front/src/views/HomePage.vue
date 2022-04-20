@@ -68,20 +68,8 @@ function changePage(mode: mode) {
   <div class="homepage__container">
     <NavigationComponent></NavigationComponent>
     <main class="homepage-content__container">
-      <button
-        v-if="page > 0"
-        @click="changePage('dec')"
-        class="arrow arrow--back"
-      >
-        go back
-      </button>
-      <button
-        v-if="!allFilmsReceived || !isLastPage"
-        @click="changePage('inc')"
-        class="arrow arrow--forward"
-      >
-        go forward
-      </button>
+      <div v-if="page > 0" @click="changePage('dec')" class="arrow arrow--back"><img src="@/static/arrow.png" alt="" /></div>
+      <div v-if="!allFilmsReceived || !isLastPage" @click="changePage('inc')" class="arrow arrow--forward"><img src="@/static/arrow.png" alt="" /></div>
       <section class="home-carousel current-films__container">
         <CarouselItem
           v-for="film in filmsToShow.value"
@@ -111,6 +99,9 @@ function changePage(mode: mode) {
       display: flex;
       justify-content: space-between;
       position: relative;
+      & div {
+        transition: opacity .6s ease;
+      }
       &:hover div {
         opacity: 0.5;
       }
@@ -121,11 +112,19 @@ function changePage(mode: mode) {
   }
 }
 .arrow {
-  text-decoration: none;
   position: absolute;
-  top: -2rem;
+  top: 45%;
+  left: 40%;
+  width: 51px;
+  & img {
+    width: 51px;
+  }
   &:hover {
     color: green;
+  }
+  &--forward {
+    left: 60%;
+    transform: rotate(180deg)
   }
 }
 .arrow--forward {

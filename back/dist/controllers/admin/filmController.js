@@ -29,6 +29,7 @@ exports.createFilm = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
         name: filmData.name,
         ageRestriction: filmData.ageRestriction,
         posterUrl: imageUrl,
+        description: filmData.description,
         startDate: filmData.startDate,
         endDate: filmData.endDate,
     });

@@ -24,6 +24,7 @@ export const createFilm = async (
     name: filmData.name,
     ageRestriction: filmData.ageRestriction,
     posterUrl: imageUrl,
+    description: filmData.description,
     startDate: filmData.startDate,
     endDate: filmData.endDate,
   });

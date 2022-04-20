@@ -26,6 +26,7 @@ const session_1 = __importDefault(require("../models/session"));
 const order_1 = __importDefault(require("../models/order"));
 const user_1 = __importDefault(require("../models/user"));
 const genre_1 = __importDefault(require("../models/genre"));
+const discount_1 = __importDefault(require("../models/discount"));
 const app = express_1.default();
 const port = 3000;
 const fileStorage = multer_1.default.diskStorage({
@@ -40,7 +41,8 @@ const fileFilter = (req, file, cb) => {
     if (file.mimetype === "image/png" ||
         file.mimetype === "image/jpg" ||
         file.mimetype === "image/jpeg" ||
-        file.mimetype === "image/svg") {
+        file.mimetype === "image/svg" ||
+        file.mimetype === "image/webp") {
         cb(null, true);
     }
     else {
@@ -68,6 +70,8 @@ session_1.default.hasMany(order_1.default);
 order_1.default.belongsTo(session_1.default);
 order_1.default.hasMany(ticket_1.default);
 ticket_1.default.belongsTo(order_1.default);
+discount_1.default.hasMany(ticket_1.default);
+ticket_1.default.belongsTo(discount_1.default);
 film_3.default.belongsToMany(genre_1.default, { through: 'film_genres' });
 genre_1.default.belongsToMany(film_3.default, { through: 'film_genres' });
 film_3.default.hasMany(session_1.default, { constraints: true, onDelete: "CASCADE" });

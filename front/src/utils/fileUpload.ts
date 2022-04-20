@@ -4,8 +4,5 @@ interface basicObj extends Object {
 }
 export const setFile = (event: HTMLInputElement, obj: basicObj): void => {
   const file: File = event.target.files[0];
-  console.log(file);
   obj.posterUrl = file;
-  
-  console.log(obj);
 };

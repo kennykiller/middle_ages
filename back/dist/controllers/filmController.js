@@ -22,9 +22,6 @@ exports.getFilms = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
     if (!films.count) {
         res.status(200).json('Фильмы не найдены.');
     }
-    // const { film?.dataValues?.id: lastFilmId } = await Film.findOne({ order: [ [ 'id', 'DESC' ]] });
-    // const isLast = films.rows.find(film => film.id === lastFilmId);
-    // const response: FilmsForVue = { films, isLast };
     res.status(200).json(films);
 });
 exports.getFilm = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {

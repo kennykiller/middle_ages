@@ -14,6 +14,7 @@ import Session from "../models/session";
 import Order from "../models/order";
 import User from "../models/user";
 import Genre from "../models/genre";
+import Discount from "../models/discount";
 
 const app: Application = express();
 const port = 3000;
@@ -31,7 +32,8 @@ const fileFilter = (req, file, cb) => {
     file.mimetype === "image/png" ||
     file.mimetype === "image/jpg" ||
     file.mimetype === "image/jpeg" ||
-    file.mimetype === "image/svg"
+    file.mimetype === "image/svg" ||
+    file.mimetype === "image/webp"
   ) {
     cb(null, true);
   } else {
@@ -61,6 +63,8 @@ Session.hasMany(Order);
 Order.belongsTo(Session);
 Order.hasMany(Ticket);
 Ticket.belongsTo(Order);
+Discount.hasMany(Ticket);
+Ticket.belongsTo(Discount);
 Film.belongsToMany(Genre, { through: 'film_genres' });
 Genre.belongsToMany(Film, { through: 'film_genres' });
 Film.hasMany(Session, { constraints: true, onDelete: "CASCADE" });
