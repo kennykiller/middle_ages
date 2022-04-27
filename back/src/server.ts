@@ -4,7 +4,6 @@ import express, { Application } from "express";
 
 import bodyParser from "body-parser";
 import multer from "multer";
-import { filmCreation, getGenres } from "./routes/admin/film";
 import films from "./routes/film";
 import sequelize from "../util/database";
 import Film from "../models/film";
@@ -15,6 +14,7 @@ import Order from "../models/order";
 import User from "../models/user";
 import Genre from "../models/genre";
 import Discount from "../models/discount";
+import adminRouter from "./routes";
 
 const app: Application = express();
 const port = 3000;
@@ -50,8 +50,7 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Headers', '*');
   next();
 })
-app.use('/admin', filmCreation);
-app.use('/admin', getGenres);
+app.use(adminRouter)
 app.use('/films', films);
 app.use('/', films);
 

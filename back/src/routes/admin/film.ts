@@ -3,5 +3,7 @@ import { createFilm, getGenre } from '../../controllers/admin/filmController';
 
 const adminFilms = Router();
 
-export const filmCreation = adminFilms.post('/film', createFilm);
-export const getGenres = adminFilms.get('/genres', getGenre);
+adminFilms.post('/film', createFilm);
+adminFilms.get('/genres', getGenre);
+
+export default adminFilms;

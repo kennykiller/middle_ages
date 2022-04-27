@@ -1,6 +1,5 @@
 import { Router } from 'express';
-import { getFilms } from '../controllers/filmController';
-import { getFilm } from '../controllers/filmController';
+import { getFilms, getFilm } from '../controllers/filmController';
 
 const films = Router();
 

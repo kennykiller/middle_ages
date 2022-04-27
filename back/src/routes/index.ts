@@ -1,8 +1,10 @@
 import { Router } from 'express';
-import { filmCreation } from './admin/film';
+import adminFilms from './admin/film';
+import adminDiscounts from './admin/discount';
 
-const router = Router();
+const adminRouter = Router();
 
-router.use('/admin', filmCreation);
+adminRouter.use('/admin', adminFilms);
+adminRouter.use('/admin', adminDiscounts);
 
-export default router;
+export default adminRouter;
