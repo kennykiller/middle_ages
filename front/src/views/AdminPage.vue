@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import axios from "axios";
 import { reactive, onBeforeMount, onMounted } from "vue";
-// import { setFile, fileUploader } from "../utils/fileUpload";
 import { FileUploader } from "../utils/fileUpload";
 import { HTMLInputElement } from "../../../interfaces/events";
 import { Film, Genre } from "../../../interfaces/models";
@@ -17,8 +16,6 @@ let film: Film = reactive({
 });
 let genres: { value: Genre[] } = reactive({ value: [] })
 let fileUploader = new FileUploader();
-
-
 
 onBeforeMount(async () => {
   genres.value = await getGenres();
@@ -120,7 +117,7 @@ async function getGenres(): Promise<Genre[] | []> {
         </div>
       </div>
 
-      <select multiple v-model="film.genres">
+      <select class="select-genres" multiple v-model="film.genres">
         <option v-for="genre in genres.value" :key="genre.name" :value="genre">
           {{ genre.name }}
         </option>
@@ -165,9 +162,48 @@ async function getGenres(): Promise<Genre[] | []> {
 </template>
 
 <style lang="scss" scoped>
-.add-film__input {
-  width: 150px;
-  height: 60px;
-  border: 1px solid black;
+.select-genres {
+  border-radius: 1.25rem;
+  padding: 1rem;
+  border: 1px solid #ced4da;
+  box-shadow: 0 4px 7px #88b8fe;
+  &:focus {
+    box-shadow: 0 0 0 4px rgba(#88b8fe, 0.25);
+  }
+  &:focus-visible {
+    outline: none;
+  }
+  &::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    background-color: transparent;
+    border-radius: 10px;
+    z-index: 1000;
+  }
+
+  &::-webkit-scrollbar {
+    width: 20px;
+    background-color: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background-color: #88b8fe;
+  }
+  
+  option {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+    &:focus,
+    &:checked {
+      background-color: rgba(#88b8fe, 0.25);
+      color: #000;
+      border-radius: 1.25rem;
+    }
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 4px rgba(#88b8fe, 0.25);
+    }
+  }
 }
 </style>
