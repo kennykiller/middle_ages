@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import axios from "axios";
-import { reactive, onBeforeMount, onMounted } from "vue";
+import { reactive, onBeforeMount, onMounted, ref, Ref } from "vue";
 import { FileUploader } from "../utils/fileUpload";
 import { HTMLInputElement } from "../../../interfaces/events";
 import { Film, Genre } from "../../../interfaces/models";
@@ -16,6 +16,7 @@ let film: Film = reactive({
 });
 let genres: { value: Genre[] } = reactive({ value: [] })
 let fileUploader = new FileUploader();
+const descriptionRef = ref<HTMLElement | null>(null);
 
 onBeforeMount(async () => {
   genres.value = await getGenres();
@@ -54,6 +55,16 @@ async function getGenres(): Promise<Genre[] | []> {
   } catch (e) {
     console.log(e);
     return [];
+  }
+}
+onMounted(() => {
+  descriptionRef.value?.focus();
+})
+
+const resize = () => {
+  if (descriptionRef.value) {
+    descriptionRef.value.style.height = "1rem";
+    descriptionRef.value.style.height = descriptionRef.value.scrollHeight + "px";
   }
 }
 </script>
@@ -124,9 +135,8 @@ async function getGenres(): Promise<Genre[] | []> {
       </select>
     </div>
     <div class="base-form__row">
-      <div class="">
-        <label for="startDate" class="">Дата начала проката</label
-        ><input
+      <div class="base-form__input base-form__input--date">
+        <input
           type="date"
           class="add-film__input"
           min="2022-01-01"
@@ -134,10 +144,11 @@ async function getGenres(): Promise<Genre[] | []> {
           id="startDate"
           v-model="film.startDate"
         />
+        <label for="startDate" class="">Дата начала проката</label
+        >
       </div>
-      <div class="">
-        <label for="endDate" class="">Дата окончания проката</label
-        ><input
+      <div class="base-form__input base-form__input--date">
+        <input
           type="date"
           min="2022-01-01"
           class="add-film__input"
@@ -145,23 +156,33 @@ async function getGenres(): Promise<Genre[] | []> {
           id="endDate"
           v-model="film.endDate"
         />
+        <label for="endDate" class="">Дата окончания проката</label
+        >
       </div>
     </div>
     <div class="base-form__row">
-      <div class="">
-        <label for="description" class="">Описание фильма</label
-        ><textarea
+      <div class="base-form__input base-form__input--description">
+        <textarea
           id="description"
+          ref="descriptionRef"
+          @input="resize"
+          class="base-form__input--area"
           v-model="film.description"
           placeholder="Введите описание фильма"
         ></textarea>
+        <label for="description" class="">Описание фильма</label
+        >
       </div>
+      <button class="save-button" @click="createFilm">SAVE FILM</button>
     </div>
-    <button @click="createFilm">SAVE FILM</button>
   </form>
 </template>
 
 <style lang="scss" scoped>
+@import '@/assets/styles/date-input.scss';
+@import "@/assets/styles/file-uploader.scss";
+@import "@/assets/styles/base-form.scss";
+@import "@/assets/styles/base-button.scss";
 .select-genres {
   border-radius: 1.25rem;
   padding: 1rem;
@@ -174,10 +195,10 @@ async function getGenres(): Promise<Genre[] | []> {
     outline: none;
   }
   &::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
     -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
     background-color: transparent;
     border-radius: 10px;
-    z-index: 1000;
   }
 
   &::-webkit-scrollbar {
@@ -205,5 +226,45 @@ async function getGenres(): Promise<Genre[] | []> {
       box-shadow: 0 0 0 4px rgba(#88b8fe, 0.25);
     }
   }
+}
+.base-form__input {
+  &--description {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+  &--date {
+    & input {
+      height: 100% !important;
+    }
+  }
+  &--area {
+    box-shadow: 0 4px 15px #88b8fe;
+    min-height: 5rem;
+    &::-webkit-scrollbar-track {
+      box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+      -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+      background-color: transparent;
+      border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar {
+      width: 5px;
+      background-color: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      border-radius: 4px;
+      background-color: #88b8fe;
+    }
+  }
+}
+.save-button {
+  height: 2rem;
+  width: 10rem;
+  margin: 0 auto;
+}
+.base-form__row:last-child {
+  align-items: center;
 }
 </style>

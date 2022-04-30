@@ -1,0 +1,17 @@
+button,
+a {
+  max-width: 10rem;
+  display: block;
+  border: 1px solid #ced4da;
+  background-color: #fff;
+  border-radius: 0.25rem;
+  padding: 0.2rem;
+  cursor: pointer;
+  box-shadow: 0 4px 15px #88b8fe;
+  &:hover,
+  &:active {
+    color: #88b8fe;
+    border-color: #88b8fe;
+    box-shadow: 0 0 0 4px rgba(#88b8fe, 0.25);
+  }
+}
