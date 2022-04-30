@@ -12,13 +12,23 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const discount_1 = __importDefault(require("../../models/discount"));
-exports.getDiscounts = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const id = req.params.id;
-    const discounts = yield discount_1.default.findAll();
-    // if (!discounts.length) {
-    //     throw new Error('Фильм с таким ID не найден');
-    // }
-    console.log(discounts);
-    res.status(200).json({ discounts });
+const discount_1 = __importDefault(require("../../../models/discount"));
+exports.createDiscount = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log(req, 'request');
+    const discountData = req.body;
+    if (!req.file) {
+        const error = new Error("No image provided.");
+        error.statusCode = 422;
+        throw error;
+    }
+    console.log(req.file);
+    const imageUrl = req.file.path;
+    const discount = yield discount_1.default.create({
+        name: discountData.name,
+        ageRestriction: discountData.ageRestriction,
+        discountUrl: imageUrl,
+        description: discountData.description,
+        discountPercentage: discountData.startDate
+    });
+    res.status(201).json({ message: "Discount added.", createdDiscount: discount });
 });
