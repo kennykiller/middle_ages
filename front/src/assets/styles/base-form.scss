@@ -1,0 +1,48 @@
+.base-form {
+    width: 70%;
+    border-radius: 4px;
+    padding: 10px;
+    display: grid;
+    row-gap: 20px;
+    box-shadow: 0 4px 7px #88b8fe;
+    &__row {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      .base-form__input {
+        margin: 1rem 0;
+        position: relative;
+        label {
+          position: absolute;
+          pointer-events: none;
+          left: 12px;
+          top: 0;
+          line-height: 3rem;
+          transition: 0.3s;
+          color: #6b757c;
+        }
+        input {
+          font-size: 1rem;
+          height: 3rem;
+          width: 100%;
+          padding: 0 0.75rem;
+          padding-top: 1rem;
+          border: 1px solid #ced4da;
+          outline: none;
+          border-radius: 3px;
+          box-shadow: none;
+          transition: box-shadow 0.3s;
+  
+          &:focus {
+            border-color: #88b8fe;
+            box-shadow: 0 0 0 4px rgba(#88b8fe, 0.25);
+          }
+          &:focus ~ label,
+          &:not(:focus):valid ~ label {
+            top: -0.7rem;
+            font-size: 0.7rem;
+          }
+        }
+      }
+    }
+  }
