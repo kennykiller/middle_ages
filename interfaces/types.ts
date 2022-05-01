@@ -1,0 +1,1 @@
+export type SnackType = "error" | "success";

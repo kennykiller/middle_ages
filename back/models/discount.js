@@ -17,7 +17,7 @@ const Discount = sequelize.define('discount', {
       type: Sequelize.STRING,
       allowNull: false
     },
-    discountUrl: {
+    posterUrl: {
       type: Sequelize.TEXT
     },
     discountPercentage: {

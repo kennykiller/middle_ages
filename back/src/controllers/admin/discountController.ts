@@ -19,9 +19,9 @@ export const createDiscount:RequestHandler = async (
   const discount = await Discount.create({
     name: discountData.name,
     ageRestriction: discountData.ageRestriction,
-    discountUrl: imageUrl,
+    posterUrl: imageUrl,
     description: discountData.description,
-    discountPercentage: discountData.startDate
+    discountPercentage: discountData.discountPercentage
   });
   
   res.status(201).json({ message: "Discount added.", createdDiscount: discount });

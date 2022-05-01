@@ -123,6 +123,7 @@ function changePage(mode: mode) {
     color: green;
   }
   &--forward {
+    top: 70%;
     left: 60%;
     transform: rotate(180deg)
   }

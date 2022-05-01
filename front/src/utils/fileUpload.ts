@@ -51,6 +51,7 @@ export class FileUploader {
   setFile(event: HTMLInputElement, obj: basicObj):void {
     const file: File = event.target.files[0];
     this.uploadFile(file);
+    const key = Object.keys(obj).find(el => el.includes('Url'));
     obj.posterUrl = file;
   }
 
