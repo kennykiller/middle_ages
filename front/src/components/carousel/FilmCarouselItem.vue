@@ -11,18 +11,33 @@ const filmTypes = props.genres.map((genre) => genre.name).join(", ");
 </script>
 
 <template>
-  <div class="film__container">
-    <div class="special-box-shadow">
-      <img :src="require(`@/${url}`)" alt="" class="film__image" />
+  <Transition name="slide" appear>
+    <div class="film__container">
+      <div class="special-box-shadow">
+        <img :src="require(`@/${url}`)" alt="" class="film__image" />
+      </div>
+      <div class="film__details">
+        <h2>{{ props.name }}</h2>
+        <p class="film__genres">{{ filmTypes }}</p>
+      </div>
     </div>
-    <div class="film__details">
-      <h2>{{ props.name }}</h2>
-      <p class="film__genres">{{ filmTypes }}</p>
-    </div>
-  </div>
+  </Transition>
 </template>
 
-<style lang="scss" scoped>
+<style lang="scss">
+@keyframes slide-in {
+  from {
+    transform: translateX(150px);
+    opacity: 0;
+  }
+  to {
+    transform: translate(0);
+    opacity: 1;
+  }
+}
+.slide-enter-active {
+  animation: slide-in 1s;
+}
 .film__container {
   display: flex;
   flex-direction: column;

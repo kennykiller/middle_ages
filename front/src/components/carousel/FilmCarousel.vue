@@ -10,27 +10,28 @@ interface FilmsFromDB {
   count: number;
 }
 
-const films: { value: Film[] } = reactive({ value: [] }); //8
-const filmsToShow: { value: Film[] } = reactive({ value: [] }); //4
-let totalFilmsAmt: Ref<number> = ref(0); //22
-let page = ref(0);
+const films: { value: Film[] } = reactive({ value: [] });
+const filmsToShow: { value: Film[] } = reactive({ value: [] });
+let totalFilmsAmt: Ref<number> = ref(0);
+let page = ref(1);
+
 let isLastPage = computed(() => {
-  return (page.value + 1) * 4 >= totalFilmsAmt.value;
+  console.log(page.value * 4 >= totalFilmsAmt.value, "is last page");
+
+  return page.value * 4 >= totalFilmsAmt.value;
 });
 let allFilmsReceived = computed(() => {
   return totalFilmsAmt.value === films.value.length;
 });
+
 onBeforeMount(async () => {
   const res: FilmsFromDB = await getFilms(page.value);
   if (res.count) {
-    ({
-      rows: films.value,
-      rows: filmsToShow.value,
-      count: totalFilmsAmt.value,
-    } = res);
+    ({ rows: films.value, count: totalFilmsAmt.value } = res);
   }
-  if (filmsToShow.value.length > 4)
-    filmsToShow.value = filmsToShow.value.slice(0, 4);
+  if (films.value.length > 4) {
+    filmsToShow.value = films.value.slice(0, 4);
+  }
 });
 const getFilms = async (page: number) => {
   const headers = {
@@ -48,62 +49,41 @@ const getFilms = async (page: number) => {
     console.log(e);
   }
 };
-watch(page, async (val: number, oldVal: number) => {
-    console.log(page);
-    
-    if (val < oldVal && !allFilmsReceived.value) {
-        filmsToShow.value = films.value.slice(val * 4, oldVal * 4)
-    } else if (val > 0 && !allFilmsReceived.value) {
-        filmsToShow.value = films.value.slice(-4);
-        const res: FilmsFromDB = await getFilms(val);
-        if (res.count) {
-            res.rows.forEach((film) => films.value.push(film));
-        }
-    } else if (val > oldVal && allFilmsReceived.value) {
-        filmsToShow.value = films.value.slice(val * 4);
-    } else if (val < oldVal && allFilmsReceived.value) {
-        filmsToShow.value = films.value.slice(val * 4, oldVal * 4)
-    } 
-//   if (!oldVal && !allFilmsReceived.value) {
 
-//   }
-//   if (allFilmsReceived.value || val < oldVal) {
-//     filmsToShow.value = films.value.slice((val + 1) * 4, (val + 2) * 4);
-//     return;
-//   }
-//   if (val > 0 && !allFilmsReceived.value) {
-//     filmsToShow.value = films.value.slice(val * 4, (val + 1) * 4);
-//     console.log(filmsToShow.value);
-
-//     const res: FilmsFromDB = await getFilms(val);
-//     if (res.count) {
-//       res.rows.forEach((film) => films.value.push(film));
-//     }
-//   } else {
-//     const res: FilmsFromDB = await getFilms(val);
-//     if (res.count) {
-//       res.rows.forEach((film) => films.value.push(film));
-//       //   ({ rows: filmsToShow.value } = res);
-//       filmsToShow.value = films.value.slice((val + 1) * 4, (val + 2) * 4);
-//     }
-//   }
-});
 function changePage(mode: mode) {
   mode === "inc" ? page.value++ : page.value--;
-  console.log(page.value, "page value");
+  console.log(page.value);
+  carouselControl();
 }
+
+const carouselControl = async () => {
+  if (allFilmsReceived.value) {
+    filmsToShow.value = films.value.slice((page.value - 1) * 4, page.value * 4);
+  } else if (page.value === 1) {
+    filmsToShow.value = films.value.slice(0, 4);
+  } else {
+    const res: FilmsFromDB = await getFilms(page.value);
+    if (
+      res.count &&
+      !films.value.find((film) => res.rows.some((v) => v.id === film.id))
+    ) {
+      res.rows.forEach((film) => films.value.push(film));
+    }
+    filmsToShow.value = films.value.slice((page.value - 1) * 4, page.value * 4);
+  }
+};
 </script>
 
 <template>
   <section class="current-films__container">
     <div
       :class="{
-        'arrows__container--end': page === 0 && !isLastPage,
-        'arrows__container--start': page > 0 && isLastPage,
+        'arrows__container--end': page === 1 && !isLastPage,
+        'arrows__container--start': page > 1 && isLastPage,
       }"
       class="arrows__container"
     >
-      <div v-if="page > 0" @click="changePage('dec')" class="arrow arrow--back">
+      <div v-if="page > 1" @click="changePage('dec')" class="arrow arrow--back">
         <img src="@/static/arrow.png" alt="" />
       </div>
       <div
