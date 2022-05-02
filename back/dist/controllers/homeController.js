@@ -13,12 +13,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const discount_1 = __importDefault(require("../../models/discount"));
+const ITEMS_PER_PAGE = 4;
 exports.getDiscounts = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const id = req.params.id;
-    const discounts = yield discount_1.default.findAll();
-    // if (!discounts.length) {
-    //     throw new Error('Фильм с таким ID не найден');
-    // }
-    console.log(discounts);
-    res.status(200).json({ discounts });
+    const page = +req.query.page || 1;
+    const offset = page === 1 ? 0 : page * ITEMS_PER_PAGE;
+    const limitItems = offset ? ITEMS_PER_PAGE : ITEMS_PER_PAGE * 2;
+    const discounts = yield discount_1.default.findAndCountAll({ limit: limitItems, offset });
+    if (!discounts.count) {
+        res.status(200).json('Акции не найдены.');
+    }
+    res.status(200).json(discounts);
 });

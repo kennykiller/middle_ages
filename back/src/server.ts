@@ -14,7 +14,8 @@ import Order from "../models/order";
 import User from "../models/user";
 import Genre from "../models/genre";
 import Discount from "../models/discount";
-import adminRouter from "./routes";
+import adminRouter from "./routes/admin";
+import homeRouter from "./routes/home";
 
 const app: Application = express();
 const port = 3000;
@@ -49,7 +50,8 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Headers', '*');
   next();
 })
-app.use(adminRouter)
+app.use(adminRouter);
+app.use(homeRouter);
 app.use('/films', films);
 app.use('/', films);
 

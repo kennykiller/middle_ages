@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import NavigationComponent from "@/components/NavigationComponent.vue";
 import FilmCarousel from "@/components/carousel/FilmCarousel.vue";
+import DiscountCarousel from "@/components/carousel/DiscountCarousel.vue";
 </script>
 
 <template>
   <div class="homepage__container">
     <NavigationComponent></NavigationComponent>
     <main class="homepage-content__container">
-      <FilmCarousel />
-      <section class="home-carousel discounts__container"></section>
+      <FilmCarousel carousel-type="all"/>
+      <DiscountCarousel />
+      <FilmCarousel carousel-type="upcoming" />
       <section class="home-carousel future-films__container"></section>
     </main>
   </div>

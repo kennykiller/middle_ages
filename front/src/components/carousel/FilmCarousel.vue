@@ -10,6 +10,11 @@ interface FilmsFromDB {
   count: number;
 }
 
+interface Props {
+  carouselType: 'all' | 'upcoming';
+}
+const props = defineProps<Props>();
+
 const films: { value: Film[] } = reactive({ value: [] });
 const filmsToShow: { value: Film[] } = reactive({ value: [] });
 let totalFilmsAmt: Ref<number> = ref(0);
@@ -31,6 +36,8 @@ onBeforeMount(async () => {
   }
   if (films.value.length > 4) {
     filmsToShow.value = films.value.slice(0, 4);
+  } else {
+    filmsToShow.value = films.value.slice(0);
   }
 });
 const getFilms = async (page: number) => {
@@ -38,7 +45,10 @@ const getFilms = async (page: number) => {
     "Access-Control-Allow-Origin": "*",
   };
   try {
-    const response = await axios.get(`http://localhost:3000/?page=${page}`, {
+    const url = props.carouselType === 'all'
+      ? `http://localhost:3000/?page=${page}`
+      : `http://localhost:3000/upcoming?page=${page}`
+    const response = await axios.get(url, {
       headers,
     });
     if (response?.data?.count) {
@@ -144,9 +154,8 @@ const carouselControl = async () => {
     }
   }
   .film-carousel {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
     div {
       transition: opacity 0.6s ease;
     }

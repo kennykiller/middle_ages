@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { computed } from "vue";
+
 interface Props {
   url: string;
   description: string;
@@ -7,24 +9,43 @@ interface Props {
 }
 const props = defineProps<Props>();
 const url: string = props.url.match(/images(.)+/g)![0] || "";
+const fullName = computed(
+  () => `${props.name}, со скидкой ${props.discountPercentage}%!`
+);
 </script>
 
 <template>
-  <div class="discount__container">
-    <div class="special-box-shadow">
-      <img :src="require(`@/${url}`)" alt="" class="discount__image" />
+  <Transition name="slide" appear>
+    <div class="discount__container">
+      <div class="special-box-shadow">
+        <img :src="require(`@/${url}`)" alt="" class="discount__image" />
+      </div>
+      <div class="discount__details">
+        <h2>{{ fullName }}</h2>
+        <p class="discount__description">{{ props.description }}</p>
+      </div>
     </div>
-    <div class="discount__details">
-      <h2>{{ props.name }}</h2>
-      <p class="discount__description">{{ props.description }}</p>
-    </div>
-  </div>
+  </Transition>
 </template>
 
 <style lang="scss" scoped>
+@keyframes slide-in {
+  from {
+    transform: translateX(150px);
+    opacity: 0;
+  }
+  to {
+    transform: translate(0);
+    opacity: 1;
+  }
+}
+.slide-enter-active {
+  animation: slide-in 1s;
+}
 .discount__container {
   display: flex;
   flex-direction: column;
+  align-items: center;
   cursor: pointer;
   margin-right: 1rem;
   .special-box-shadow {
@@ -40,6 +61,7 @@ const url: string = props.url.match(/images(.)+/g)![0] || "";
     }
     .discount__image {
       border-radius: 4px;
+      width: 100%;
       height: 100%;
       display: block;
       transition: transform 1s ease;

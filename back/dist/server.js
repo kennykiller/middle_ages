@@ -26,7 +26,8 @@ const order_1 = __importDefault(require("../models/order"));
 const user_1 = __importDefault(require("../models/user"));
 const genre_1 = __importDefault(require("../models/genre"));
 const discount_1 = __importDefault(require("../models/discount"));
-const routes_1 = __importDefault(require("./routes"));
+const admin_1 = __importDefault(require("./routes/admin"));
+const home_1 = __importDefault(require("./routes/home"));
 const app = express_1.default();
 const port = 3000;
 const fileStorage = multer_1.default.diskStorage({
@@ -58,7 +59,8 @@ app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Headers', '*');
     next();
 });
-app.use(routes_1.default);
+app.use(admin_1.default);
+app.use(home_1.default);
 app.use('/films', film_1.default);
 app.use('/', film_1.default);
 user_1.default.hasMany(order_1.default);
