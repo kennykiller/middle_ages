@@ -1,29 +1,28 @@
 <script setup lang="ts">
-import { Genre } from "../../../../interfaces/models";
 interface Props {
   url: string;
-  genres: Genre[];
+  description: string;
   name: string;
+  discountPercentage: string;
 }
 const props = defineProps<Props>();
 const url: string = props.url.match(/images(.)+/g)![0] || "";
-const filmTypes = props.genres.map((genre) => genre.name).join(", ");
 </script>
 
 <template>
-  <div class="film__container">
+  <div class="discount__container">
     <div class="special-box-shadow">
-      <img :src="require(`@/${url}`)" alt="" class="film__image" />
+      <img :src="require(`@/${url}`)" alt="" class="discount__image" />
     </div>
-    <div class="film__details">
+    <div class="discount__details">
       <h2>{{ props.name }}</h2>
-      <p class="film__genres">{{ filmTypes }}</p>
+      <p class="discount__description">{{ props.description }}</p>
     </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
-.film__container {
+.discount__container {
   display: flex;
   flex-direction: column;
   cursor: pointer;
@@ -36,20 +35,20 @@ const filmTypes = props.genres.map((genre) => genre.name).join(", ");
     width: 13rem;
     min-height: 17rem;
     margin-bottom: 0.5rem;
-    &:hover .film__image {
+    &:hover .discount__image {
       transform: translate(-10px, -10px) scale(1.05);
     }
-    .film__image {
+    .discount__image {
       border-radius: 4px;
       height: 100%;
       display: block;
       transition: transform 1s ease;
     }
   }
-  .film__details {
+  .discount__details {
     text-align: center;
     width: 208px;
-    .film__genres {
+    .discount__description {
       font-size: 12px;
     }
   }

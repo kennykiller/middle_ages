@@ -9,8 +9,9 @@ interface FilmsFromDB {
 }
 export const getFilms: RequestHandler = async (req, res, next) => {
     const page:number = req.query.page ? +req.query.page : 0;
-    const offset: number = page ? page * ITEMS_PER_PAGE : 0;
-    const films:FilmsFromDB = await Film.findAndCountAll({ limit: ITEMS_PER_PAGE, offset, include: Genre, distinct: true });
+    const offset: number = page ? (page + 1) * ITEMS_PER_PAGE : 0;
+    const limitItems = page ? ITEMS_PER_PAGE : ITEMS_PER_PAGE * 2;
+    const films:FilmsFromDB = await Film.findAndCountAll({ limit: limitItems, offset, include: Genre, distinct: true });
     if (!films.count) {
         res.status(200).json('Фильмы не найдены.');
     }
