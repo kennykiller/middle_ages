@@ -62,7 +62,6 @@ const getFilms = async (page: number) => {
 
 function changePage(mode: mode) {
   mode === "inc" ? page.value++ : page.value--;
-  console.log(page.value);
   carouselControl();
 }
 
@@ -111,6 +110,7 @@ const carouselControl = async () => {
         :url="film.posterUrl"
         :name="film.name"
         :genres="film.genres"
+        :id="(film.id as number)"
       >
       </FilmCarouselItem>
     </div>

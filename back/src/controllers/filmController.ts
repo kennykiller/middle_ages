@@ -15,7 +15,7 @@ export const getFilms: RequestHandler = async (req, res, next) => {
   const films: FilmsFromDB = await Film.findAndCountAll({
     limit: limitItems,
     offset,
-    include: Genre,
+    include: { model: Genre, through: { attributes: [] } },
     distinct: true,
   });
   if (!films.count) {
@@ -49,7 +49,12 @@ export const getUpcomingFilms: RequestHandler = async (req, res, next) => {
 
 export const getFilm: RequestHandler = async (req, res, next) => {
   const id = req.params.id;
-  const film = await Film.findByPk(id);
+  const film = await Film.findByPk(id, {
+    include: { model : Genre, through: { attributes: [] } },
+    attributes: { exclude: ["createdAt", "updatedAt"] },
+  });
+  console.log(film);
+
   if (!film) {
     throw new Error("Фильм с таким ID не найден");
   }

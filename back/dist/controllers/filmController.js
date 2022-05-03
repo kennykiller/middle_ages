@@ -23,7 +23,7 @@ exports.getFilms = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
     const films = yield film_1.default.findAndCountAll({
         limit: limitItems,
         offset,
-        include: genre_1.default,
+        include: { model: genre_1.default, through: { attributes: [] } },
         distinct: true,
     });
     if (!films.count) {
@@ -54,7 +54,11 @@ exports.getUpcomingFilms = (req, res, next) => __awaiter(void 0, void 0, void 0,
 });
 exports.getFilm = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const id = req.params.id;
-    const film = yield film_1.default.findByPk(id);
+    const film = yield film_1.default.findByPk(id, {
+        include: { model: genre_1.default, through: { attributes: [] } },
+        attributes: { exclude: ["createdAt", "updatedAt"] },
+    });
+    console.log(film);
     if (!film) {
         throw new Error("Фильм с таким ID не найден");
     }

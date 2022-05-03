@@ -4,22 +4,26 @@ interface Props {
   url: string;
   genres: Genre[];
   name: string;
+  id: number;
 }
 const props = defineProps<Props>();
 const url: string = props.url.match(/images(.)+/g)![0] || "";
 const filmTypes = props.genres.map((genre) => genre.name).join(", ");
+const filmRoute = `/films/${props.id}`
 </script>
 
 <template>
   <Transition name="slide" appear>
     <div class="film__container">
-      <div class="special-box-shadow">
-        <img :src="require(`@/${url}`)" alt="" class="film__image" />
-      </div>
-      <div class="film__details">
-        <h2>{{ props.name }}</h2>
-        <p class="film__genres">{{ filmTypes }}</p>
-      </div>
+      <router-link :to="filmRoute">
+        <div class="special-box-shadow">
+          <img :src="require(`@/${url}`)" alt="" class="film__image" />
+        </div>
+        <div class="film__details">
+          <h2>{{ props.name }}</h2>
+          <p class="film__genres">{{ filmTypes }}</p>
+        </div>
+      </router-link>
     </div>
   </Transition>
 </template>

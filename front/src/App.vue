@@ -21,7 +21,6 @@ import FooterComponent from "./components/FooterComponent.vue";
   justify-content: space-between;
   align-items: center;
   max-width: 1280px;
-  overflow: hidden;
 }
 ul {
   list-style: none;
