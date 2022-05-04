@@ -35,7 +35,6 @@ const getFilm = async () => {
       `http://localhost:3000/films/${route.params.id}`,
       { headers }
     );
-    console.log(response);
     if (response?.data) return response.data.film as Film;
     throw Error("no such film received");
   } catch (e) {

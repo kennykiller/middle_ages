@@ -17,7 +17,7 @@
     "sourceMap": false,
     "noEmit": false,
     "baseUrl": ".",
-    "types": [],
+    "types": ["node"],
     "paths": {
       "@/*": [
         "src/*"
