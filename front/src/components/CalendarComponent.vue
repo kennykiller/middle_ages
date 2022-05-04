@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed, reactive, onBeforeMount } from "vue";
+import { reactive, onBeforeMount } from "vue";
 import BaseBadge from "@/components/UI/BaseBadge.vue";
 
+type monthNumber = '0' | '1' | '2' | '3' | '4'| '5' | '6' | '7' | '8' | '9' | '10' | '11'
 interface Props {
   text?: string;
   startDate: string;
@@ -9,41 +10,59 @@ interface Props {
 }
 
 const { text = "Выберите дату", startDate, endDate } = defineProps<Props>();
+const months = {
+  '0': 'января',
+  '1': 'февраля',
+  '2': 'марта',
+  '3': 'апреля',
+  '4': 'мая',
+  '5': 'июня',
+  '6': 'июля',
+  '7': 'августа',
+  '8': 'сентября',
+  '9': 'октября',
+  '10': 'ноября',
+  '11': 'декабря'
+  }
 const startDateUTC = new Date(startDate).toUTCString();
 const endDateUTC = new Date(endDate).toUTCString();
 const currentDate = new Date().toUTCString();
-const isFilmInTheatres = computed(
-  () => endDateUTC > currentDate && currentDate > startDateUTC
-);
-// const howManyDaysLeft = computed(() => {
-//   const difInTime =
-//     new Date(endDateUTC).getTime() - new Date(currentDate).getTime();
-//   return difInTime / (1000 * 3600 * 24);
-// });
+const isFilmInTheatres = checkTheaters();
+
+const emit = defineEmits<{
+    (e: 'checkTheaters', val: boolean):void
+}>();
+emit('checkTheaters', isFilmInTheatres);
 
 onBeforeMount(() => getDatesInRange(currentDate, endDateUTC));
+function checkTheaters() {
+    return endDateUTC > currentDate && currentDate > startDateUTC
+}
 
 function getDatesInRange(currentDate: string, endDateUTC: string) {
   const date = new Date(new Date(currentDate).getTime());
   const endDate = new Date(endDateUTC);
   while (date <= endDate) {
-    datesToShow.push(String(new Date(date).getDate()));
+    datesToShow.push({
+      day: String(new Date(date).getDate()),
+      month: months[String(new Date(date).getMonth()) as monthNumber]
+    });
     date.setDate(date.getDate() + 1);
     if (datesToShow.length >= 7) {
       break;
     }
   }
 }
-let datesToShow: string[] = reactive([]);
+let datesToShow: { day:string, month:string }[] = reactive([]);
 </script>
 
 <template>
   <div class="calendar__wrapper">
     <h2>{{ isFilmInTheatres ? text : 'Прокат фильма завершен' }}</h2>
-    <div class="calendar__slider slider">
+    <div v-if="isFilmInTheatres" class="calendar__slider slider">
       <ul class="slider__items-list">
-        <li v-for="date in datesToShow" :key="date">
-          <BaseBadge :text="date" />
+        <li v-for="date in datesToShow" :key="date.day + date.month">
+          <BaseBadge :text="date.day + '\n' + date.month" />
         </li>
       </ul>
     </div>

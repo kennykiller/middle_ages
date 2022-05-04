@@ -20,12 +20,13 @@ const film: { value: Film | undefined } = reactive({
   },
 });
 let url: Ref<string> = ref("");
+let checkTheaters: Ref<boolean> = ref(false);
 onBeforeMount(async () => {
-  film.value = await getFilms();
+  film.value = await getFilm();
   url.value = film.value?.posterUrl.match(/images(.)+/g)![0] || "";
 });
 
-const getFilms = async () => {
+const getFilm = async () => {
   const headers = {
     "Access-Control-Allow-Origin": "*",
   };
@@ -41,6 +42,7 @@ const getFilms = async () => {
     console.log(e);
   }
 };
+
 </script>
 
 <template>
@@ -53,13 +55,14 @@ const getFilms = async () => {
         <h1>{{ film.value.name }}</h1>
         <h2>{{ film.value.description }}</h2>
         <h2>Возрастное ограничение: {{ film.value.ageRestriction }}</h2>
+        <h3 v-if="checkTheaters">Фильм в прокате с {{ film.value.startDate }} до {{film.value.endDate}}</h3>
         <div class="film__genres-wrapper">
           <BaseBadge v-for="genre in film.value.genres" :key="genre.id" :text="genre.name" popover popover-text="Найти похожие" />
         </div>
       </div>
     </div>
     <div class="film__schedule-wrapper">
-      <CalendarComponent text="Выберите дату" :start-date="film.value.startDate" :end-date="film.value.endDate"></CalendarComponent>
+      <CalendarComponent @check-theaters="checkTheaters = $event" text="Выберите дату" :start-date="film.value.startDate" :end-date="film.value.endDate"></CalendarComponent>
     </div>
   </div>
 </template>
