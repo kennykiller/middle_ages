@@ -5,6 +5,7 @@ import { Film, Genre } from "../../../interfaces/models";
 import axios from "axios";
 import BaseBadge from "@/components/UI/BaseBadge.vue";
 import CalendarComponent from "@/components/CalendarComponent.vue";
+import SessionsComponent from "@/components/sessions/SessionsComponent.vue";
 
 type filmStart = 'past' | 'now' | 'future';
 const route = useRoute();
@@ -64,6 +65,9 @@ const getFilm = async () => {
     <div class="film__schedule-wrapper">
       <CalendarComponent @check-theaters="checkTheaters = $event" text="Выберите дату" :start-date="film.value.startDate" :end-date="film.value.endDate"></CalendarComponent>
     </div>
+    <div class="film__sessions-wrapper">
+      <SessionsComponent></SessionsComponent>
+    </div>
   </div>
 </template>
 
@@ -88,6 +92,10 @@ const getFilm = async () => {
       transform: scale(1.1);
       box-shadow: 0 0 0 4px rgba(#88b8fe, 0.5);
     }
+  }
+  &__schedule-wrapper {
+    display: flex;
+    justify-content: center;
   }
   &__text-wrapper {
   }

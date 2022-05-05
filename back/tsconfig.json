@@ -5,7 +5,10 @@
         "target": "es6",
         "moduleResolution": "node",
         "outDir": "./dist",
-        "rootDir": "./src"
+        "rootDir": "./src",
     },
-    "lib": ["es2015"]
+    "lib": ["es2015"],
+    "exclude": [
+        "node_modules"
+      ]
 }

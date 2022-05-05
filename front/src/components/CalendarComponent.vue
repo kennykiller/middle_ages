@@ -121,13 +121,9 @@ let datesToShow: { day: string; month: string }[] = reactive([]);
 .calendar {
   &__wrapper {
     display: flex;
+    width: 80%;
+    flex-direction: column;
     align-items: center;
-    & > h2 {
-      margin-right: 1rem;
-    }
-  }
-  &__slider {
-    max-width: 20rem;
   }
 }
 .slider {
