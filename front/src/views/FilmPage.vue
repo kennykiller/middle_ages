@@ -6,6 +6,7 @@ import axios from "axios";
 import BaseBadge from "@/components/UI/BaseBadge.vue";
 import CalendarComponent from "@/components/CalendarComponent.vue";
 
+type filmStart = 'past' | 'now' | 'future';
 const route = useRoute();
 const film: { value: Film | undefined } = reactive({
   value: {
@@ -20,7 +21,7 @@ const film: { value: Film | undefined } = reactive({
   },
 });
 let url: Ref<string> = ref("");
-let checkTheaters: Ref<boolean> = ref(false);
+let checkTheaters: Ref<filmStart> = ref('past');
 onBeforeMount(async () => {
   film.value = await getFilm();
   url.value = film.value?.posterUrl.match(/images(.)+/g)![0] || "";
@@ -54,7 +55,7 @@ const getFilm = async () => {
         <h1>{{ film.value.name }}</h1>
         <h2>{{ film.value.description }}</h2>
         <h2>Возрастное ограничение: {{ film.value.ageRestriction }}</h2>
-        <h3 v-if="checkTheaters">Фильм в прокате с {{ film.value.startDate }} до {{film.value.endDate}}</h3>
+        <h3 v-if="checkTheaters !== 'past'">Фильм в прокате с {{ film.value.startDate }} до {{film.value.endDate}}</h3>
         <div class="film__genres-wrapper">
           <BaseBadge v-for="genre in film.value.genres" :key="genre.id" :text="genre.name" popover popover-text="Найти похожие" />
         </div>

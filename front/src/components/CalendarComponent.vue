@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, onBeforeMount, ref, watch } from "vue";
+import { reactive, onBeforeMount, ref, computed } from "vue";
 import DatePicker from "@vuepic/vue-datepicker";
 import BaseBadge from "@/components/UI/BaseBadge.vue";
 
@@ -16,6 +16,7 @@ type monthNumber =
   | "9"
   | "10"
   | "11";
+type filmStart = "past" | "now" | "future";
 interface Props {
   text?: string;
   startDate: string;
@@ -38,19 +39,33 @@ const months = {
   "11": "декабря",
 };
 const startDateUTC = new Date(startDate).toUTCString();
+const startDateTime = new Date(startDate).getTime();
 const endDateUTC = new Date(endDate).toUTCString();
+const endDateTime = new Date(endDate).getTime();
 const currentDate = new Date().toUTCString();
+const currentDateTime = new Date().getTime();
 const isFilmInTheatres = checkTheaters();
+const calendarStartDate = calcStartDate();
 const chosenDate = ref("");
 
 const emit = defineEmits<{
-  (e: "checkTheaters", val: boolean): void;
+  (e: "checkTheaters", val: filmStart): void;
 }>();
 emit("checkTheaters", isFilmInTheatres);
 
-onBeforeMount(() => getDatesInRange(currentDate, endDateUTC));
+onBeforeMount(() => getDatesInRange(calendarStartDate, endDateUTC));
 function checkTheaters() {
-  return endDateUTC > currentDate && currentDate > startDateUTC;
+  if (endDateTime > currentDateTime && currentDateTime > startDateTime) {
+    return "now";
+  }
+  if (endDateTime > currentDateTime && currentDateTime < startDateTime) {
+    return "future";
+  }
+  return "past";
+}
+
+function calcStartDate () {
+  return isFilmInTheatres === 'now' ? currentDate : startDateUTC;
 }
 
 function getDatesInRange(currentDate: string, endDateUTC: string) {
@@ -68,34 +83,28 @@ function getDatesInRange(currentDate: string, endDateUTC: string) {
   }
 }
 
-function format(date:Date) {
+function format(date: Date) {
   const day = date.getDate();
   const month = String(date.getMonth()) as monthNumber;
-  return `Выбранная дата ${day} ${months[month]}`
+  return `Выбранная дата ${day} ${months[month]}`;
 }
 let datesToShow: { day: string; month: string }[] = reactive([]);
-watch(chosenDate, (val) => {
-  console.log(val);
-});
-
-
-
 </script>
 
 <template>
   <div class="calendar__wrapper">
-    <h2>{{ isFilmInTheatres ? text : "Прокат фильма завершен" }}</h2>
-    <div v-if="isFilmInTheatres" class="calendar__slider slider">
+    <h2>{{ isFilmInTheatres === 'now' ? text : isFilmInTheatres === 'future' ? "Скоро в прокате" : "Прокат фильма завершен" }}</h2>
+    <div v-if="isFilmInTheatres != 'past'" class="calendar__slider slider">
       <ul class="slider__items-list">
         <li v-for="date in datesToShow" :key="date.day + date.month">
           <BaseBadge :text="date.day + '\n' + date.month" />
         </li>
-        <DatePicker 
+        <DatePicker
           v-model="chosenDate"
           locale="ru"
           placeholder="Другая дата"
-          :start-date="startDateUTC"
-          :min-date="startDateUTC"
+          :start-date="calendarStartDate"
+          :min-date="calendarStartDate"
           :max-date="endDateUTC"
           :enable-time-picker="false"
           :auto-apply="true"
