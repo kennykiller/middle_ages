@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import FilmCarouselItem from "./FilmCarouselItem.vue";
-import { reactive, onBeforeMount, watch, ref, Ref, computed } from "vue";
+import { reactive, onBeforeMount, ref, Ref, computed } from "vue";
 import { Film } from "../../../../interfaces/models";
 import axios from "axios";
 
@@ -38,6 +38,8 @@ onBeforeMount(async () => {
     filmsToShow.value = films.value.slice(0, 4);
   } else {
     filmsToShow.value = films.value.slice(0);
+    console.log(filmsToShow.value);
+    
   }
 });
 const getFilms = async (page: number) => {

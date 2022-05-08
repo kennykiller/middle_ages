@@ -24,7 +24,7 @@ const fileStorage = multer.diskStorage({
     cb(null, "../front/src/images");
   },
   filename: (req, file, cb) => {
-    cb(null, new Date().toISOString() + "-" + file.originalname);
+    cb(null, Number(new Date()) + "-" + file.originalname);
   },
 });
 
@@ -44,7 +44,7 @@ const fileFilter = (req, file, cb) => {
 app.use(bodyParser.json());
 app.use(multer({ storage: fileStorage, fileFilter }).single('posterUrl'));
 app.use("/images", express.static(path.join(__dirname, "../front/src/images")));
-app.use((req, res, next) => {  
+app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE');
   res.setHeader('Access-Control-Allow-Headers', '*');

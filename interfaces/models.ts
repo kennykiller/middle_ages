@@ -1,10 +1,11 @@
 export interface Film {
-  id: number | undefined;
+  id?: number | undefined;
   name: string;
   ageRestriction: string;
   posterUrl: string;
   description: string;
   startDate: string;
+  duration: string;
   genres: Genre[];
   endDate: string;
 }

@@ -12,9 +12,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getDiscounts = void 0;
 const discount_1 = __importDefault(require("../../models/discount"));
 const ITEMS_PER_PAGE = 4;
-exports.getDiscounts = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const getDiscounts = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const page = +req.query.page || 1;
     const offset = page === 1 ? 0 : page * ITEMS_PER_PAGE;
     const limitItems = offset ? ITEMS_PER_PAGE : ITEMS_PER_PAGE * 2;
@@ -24,3 +25,4 @@ exports.getDiscounts = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
     }
     res.status(200).json(discounts);
 });
+exports.getDiscounts = getDiscounts;

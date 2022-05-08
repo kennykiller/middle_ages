@@ -23,6 +23,7 @@ let film: Film = reactive({
   posterUrl: "",
   startDate: "",
   description: "",
+  filmDuration: "",
   genres: [],
   endDate: "",
 });
@@ -43,6 +44,7 @@ async function createFilm() {
   formData.append("ageRestriction", film.ageRestriction);
   formData.append("posterUrl", film.posterUrl);
   formData.append("description", film.description);
+  formData.append("filmDuration", film.filmDuration);
   formData.append("startDate", film.startDate);
   formData.append("endDate", film.endDate);
   formData.append("genres", JSON.stringify(film.genres));
@@ -208,6 +210,15 @@ const resize = () => {
           placeholder="Введите описание фильма"
         ></textarea>
         <label for="description" class="">Описание фильма</label>
+      </div>
+      <div class="base-form__input">
+        <input
+          type="text"
+          id="duration"
+          required
+          v-model="film.filmDuration"
+        />
+        <label for="duration" class="">Продолжительность фильма, формат: чч:мм:сс</label>
       </div>
       <button class="save-button" @click="createFilm">SAVE FILM</button>
     </div>

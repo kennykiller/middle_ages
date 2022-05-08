@@ -13,10 +13,16 @@ const Session = sequelize.define("session", {
     type: Sequelize.DATE,
     allowNull: false
   },
-  filmDuration: {
-      type: Sequelize.TIME,
-      allowNull: false,
+  seatsAvailable: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+    default: 200,
   },
+  price: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+    default: 500,
+  }
 });
 
 module.exports = Session;
