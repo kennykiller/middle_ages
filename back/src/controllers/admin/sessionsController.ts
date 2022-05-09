@@ -12,8 +12,6 @@ const ITEMS_PER_PAGE = 4;
 // }
 
 const receiveFilms = async (start: Date, end: Date): Promise<Film[]> => {
-  console.log([start, end], "startUTC", "endUTC");
-
   const films: Film[] = await Film.findAll({
     where: {
       [Op.or]: [
@@ -58,15 +56,17 @@ const receiveFilms = async (start: Date, end: Date): Promise<Film[]> => {
 
 const calculateTime = (start: Date) => {
   const hourOfStart =
-    start.getHours() < 10 ? "0" + start.getHours() : String(start.getHours());
+    start.getUTCHours() < 10
+      ? "0" + start.getUTCHours()
+      : String(start.getUTCHours());
   const minOfStart =
-    start.getMinutes() < 10
-      ? "0" + start.getMinutes()
-      : String(start.getMinutes());
+    start.getUTCMinutes() < 10
+      ? "0" + start.getUTCMinutes()
+      : String(start.getUTCMinutes());
   const secOfStart =
-    start.getSeconds() < 10
-      ? "0" + start.getSeconds()
-      : String(start.getSeconds());
+    start.getUTCSeconds() < 10
+      ? "0" + start.getUTCSeconds()
+      : String(start.getUTCSeconds());
   return `${hourOfStart}:${minOfStart}:${secOfStart}`;
 };
 
@@ -109,18 +109,59 @@ const twoFilmsSchedule = (
   end: Date,
   scheduleArr: string[]
 ) => {
-  const adjustedFilms = films.map((film) => {
-    const [hDur, mDur, sDur] = film.dataValues.filmDuration.split(":");
-    const d = new Date();
-    d.setUTCHours(+hDur, +mDur + 15, +sDur);
-    const totalDuration = calculateTime(d);
-    return { ...film.dataValues, totalDuration };
-  });
   const arr = scheduleArr.map((el) => {
     const daySchedule = {
       [el]: [],
     };
+    const scheduleDate = el.split("-")[2];
+    const start = new Date(el);
+    start.setUTCDate(+scheduleDate);
+    start.setUTCHours(5, 0, 0, 0); //настроеная дата для каждого нового рабочего дня
+    const adjustedFilms = films.map((film) => {
+      //фильмы, с добавленными полями для проверки возраста и новый фильм или нет
+      const [hDur, mDur, sDur] = film.dataValues.filmDuration.split(":");
+      const d = new Date();
+      d.setUTCHours(+hDur, +mDur + 15, +sDur);
+      const totalDuration = calculateTime(d);
+      const dateForOldCheck = new Date(film.dataValues.startDate);
+      dateForOldCheck.setUTCDate(dateForOldCheck.getUTCDate() + 6);
+
+      const fullDay = parseInt(film.dataValues.ageRestriction, 10) > 11;
+      return {
+        ...film.dataValues,
+        totalDuration,
+        isOld: dateForOldCheck <= start,
+        fullDay,
+      };
+    });
+    const end = new Date(el);
+    end.setUTCDate(+scheduleDate);
+    end.setUTCHours(23, 59, 59, 999); //настроенная дата для окончания рабочего дня
+    if (adjustedFilms.every((film) => !film.isOld)) {
+      let currentIdx = 0;
+      const { length } = adjustedFilms;
+
+      while (start < end) {
+        const timeOfSessionStart = calculateTime(start);
+        daySchedule[el].push({
+          [timeOfSessionStart]: adjustedFilms[currentIdx],
+        });
+        const [hDur, mDur, sDur] =
+          adjustedFilms[currentIdx].totalDuration.split(":");
+        console.log(hDur, "hours");
+        console.log(mDur, "minutes");
+        console.log(start.getUTCHours(), 'hours');
+        
+        start.setUTCHours(start.getUTCHours() + +hDur, +mDur, +sDur); //добавляет некорректно для второго индекса время, вместо двух часов, так как это totalDuration, он добавляет 1.45
+        console.log(start, "start");
+
+        currentIdx = currentIdx + 1 === length ? 0 : currentIdx + 1;
+      }
+      daySchedule[el].pop();
+    }
+    return daySchedule;
   });
+  return arr;
 };
 //1) проверить возрастное ограничение, если 0+ или 6+, то занимать первую половину дня, если оба 0+ или 6+, то чередовать весь день
 //2) если оба фильма более чем 16+, то чередовать весь день
@@ -144,7 +185,7 @@ const prepareSchedule = (films: Film[], start: Date, end: Date) => {
       : oneFilmSchedule(films[0].dataValues, start, end, weekSchedule, true);
   }
   if (films.length === 2) {
-    console.log(twoFilmsSchedule(films, start, end, weekSchedule));
+    return twoFilmsSchedule(films, start, end, weekSchedule);
   }
 };
 
