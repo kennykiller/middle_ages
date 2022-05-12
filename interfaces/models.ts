@@ -5,6 +5,7 @@ export interface Film {
   posterUrl: string;
   description: string;
   startDate: string;
+  filmDuration: string;
   genres: Genre[];
   endDate: string;
 }
