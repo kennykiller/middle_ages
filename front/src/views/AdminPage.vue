@@ -3,6 +3,7 @@
     <ul>
       <li><router-link to="/admin/film">Добавить фильм</router-link></li>
       <li><router-link to="/admin/discount">Добавить акцию</router-link></li>
+      <li><router-link to="/admin/sessions">Настроить расписание</router-link></li>
     </ul>
   </div>
 </template>

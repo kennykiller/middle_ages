@@ -1,5 +1,5 @@
 export interface Film {
-  id: number | undefined;
+  id?: number | undefined;
   name: string;
   ageRestriction: string;
   posterUrl: string;

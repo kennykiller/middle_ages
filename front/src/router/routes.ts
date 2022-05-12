@@ -6,6 +6,7 @@ import LoginPage from '@/views/LoginPage.vue';
 import AdminPage from '@/views/AdminPage.vue';
 import AdminDiscount from '@/components/admin/AdminDiscount.vue';
 import AdminFilm from '@/components/admin/AdminFilm.vue';
+import AdminSessions from '@/components/admin/AdminSessions.vue';
 import NotFound from '@/views/NotFound.vue';
 
 export const routes = [
@@ -14,8 +15,9 @@ export const routes = [
     { path: '/films/:id', component: FilmPage, meta: { title: 'Film' } },
     { path: '/tickets', component: TicketsPage, meta: { title: 'Tickets' } },
     { path: '/auth', component: LoginPage, meta: { title: 'Login' } },
-    { path: '/admin', component: AdminPage, meta: { title: 'Add film' } },
+    { path: '/admin', component: AdminPage, meta: { title: 'Admin Page' } },
     { path: '/admin/film', component: AdminFilm, meta: { title: 'Add film' } },
-    { path: '/admin/discount', component: AdminDiscount, meta: { title: 'Add film' } },
+    { path: '/admin/discount', component: AdminDiscount, meta: { title: 'Add discount' } },
+    { path: '/admin/sessions', component: AdminSessions, meta: { title: 'Set timetable' } },
     { path: '/:pathMatch(.*)*', component: NotFound, meta: { title: 'Page not found' }}
 ]

@@ -16,6 +16,7 @@ const film: { value: Film | undefined } = reactive({
     description: "",
     startDate: "",
     endDate: "",
+    filmDuration: "",
     posterUrl: "",
     ageRestriction: "",
     genres: [] as Genre[],
@@ -25,7 +26,7 @@ let url: Ref<string> = ref("");
 let checkTheaters: Ref<filmStart> = ref('past');
 onBeforeMount(async () => {
   film.value = await getFilm();
-  url.value = film.value?.posterUrl.match(/images(.)+/g)![0] || "";
+  url.value = film.value?.posterUrl.match(/\d+(.)+(\.)\w+/g)![0] || "";
 });
 
 const getFilm = async () => {
@@ -50,12 +51,13 @@ const getFilm = async () => {
   <div class="item__wrapper film" v-if="film">
     <div class="film__base-info-wrapper">
       <div class="film__poster-wrapper">
-        <img class="film-poster" :src="require(`@/${url}`)" alt="">
+        <img class="film-poster" :src="require(`@/images/${url}`)" alt="">
       </div>
       <div class="film__text-wrapper">
         <h1>{{ film.value.name }}</h1>
         <h2>{{ film.value.description }}</h2>
         <h2>Возрастное ограничение: {{ film.value.ageRestriction }}</h2>
+        <h2>Продолжительность фильма: {{ film.value.filmDuration }}</h2>
         <h3 v-if="checkTheaters !== 'past'">Фильм в прокате с {{ film.value.startDate }} до {{film.value.endDate}}</h3>
         <div class="film__genres-wrapper">
           <BaseBadge v-for="genre in film.value.genres" :key="genre.id" :text="genre.name" popover popover-text="Найти похожие" />

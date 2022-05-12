@@ -23,12 +23,16 @@ const Film = sequelize.define('film', {
   description: {
     type: Sequelize.TEXT
   },
+  filmDuration: {
+    type: Sequelize.TIME,
+    allowNull: false,
+  },
   startDate: {
-    type: Sequelize.STRING,
+    type: Sequelize.DATE,
     allowNull: false
   },
   endDate: {
-    type: Sequelize.STRING,
+    type: Sequelize.DATE,
     allowNull: false
   }
 });

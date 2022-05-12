@@ -9,15 +9,16 @@ export const createFilm = async (
   res: Response,
   next: NextFunction
 ) => {
-  console.log(req, 'request');
-  
   const filmData = req.body;
   if (!req.file) {
     const error: ErrorException = new Error("No image provided.");
     error.statusCode = 422;
     throw error;
   }
-  console.log(req.file);
+
+  const startDate = new Date(filmData.startDate);
+  const endDate = new Date(filmData.endDate);
+  endDate.setUTCHours(23, 59, 59, 999);
 
   const imageUrl: string = req.file.path;
   const film = await Film.create({
@@ -25,14 +26,16 @@ export const createFilm = async (
     ageRestriction: filmData.ageRestriction,
     posterUrl: imageUrl,
     description: filmData.description,
-    startDate: filmData.startDate,
-    endDate: filmData.endDate,
+    filmDuration: filmData.filmDuration,
+    startDate: startDate,
+    endDate: endDate,
   });
   
   const filmGenresIds: { genreId: number, filmId: number }[] = JSON.parse(filmData.genres).map(genre => {
     return { genreId: genre.id, filmId: film.dataValues.id }
   });
   await FilmGenres.bulkCreate(filmGenresIds);
+  // await createSession(film.dataValues.id, film.dataValues.startDate, film.dataValues.endDate, film.dataValues.filmDuration);
   res.status(201).json({ message: "Film added.", createdFilm: film });
 };
 

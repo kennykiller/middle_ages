@@ -12,34 +12,40 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getGenre = exports.createFilm = void 0;
 const film_1 = __importDefault(require("../../../models/film"));
 const genre_1 = __importDefault(require("../../../models/genre"));
 const film_genres_1 = __importDefault(require("../../../models/film_genres"));
-exports.createFilm = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(req, 'request');
+const createFilm = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const filmData = req.body;
     if (!req.file) {
         const error = new Error("No image provided.");
         error.statusCode = 422;
         throw error;
     }
-    console.log(req.file);
+    const startDate = new Date(filmData.startDate);
+    const endDate = new Date(filmData.endDate);
+    endDate.setUTCHours(23, 59, 59, 999);
     const imageUrl = req.file.path;
     const film = yield film_1.default.create({
         name: filmData.name,
         ageRestriction: filmData.ageRestriction,
         posterUrl: imageUrl,
         description: filmData.description,
-        startDate: filmData.startDate,
-        endDate: filmData.endDate,
+        filmDuration: filmData.filmDuration,
+        startDate: startDate,
+        endDate: endDate,
     });
     const filmGenresIds = JSON.parse(filmData.genres).map(genre => {
         return { genreId: genre.id, filmId: film.dataValues.id };
     });
     yield film_genres_1.default.bulkCreate(filmGenresIds);
+    // await createSession(film.dataValues.id, film.dataValues.startDate, film.dataValues.endDate, film.dataValues.filmDuration);
     res.status(201).json({ message: "Film added.", createdFilm: film });
 });
-exports.getGenre = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+exports.createFilm = createFilm;
+const getGenre = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const genres = yield genre_1.default.findAll();
     res.status(200).json({ genres });
 });
+exports.getGenre = getGenre;
