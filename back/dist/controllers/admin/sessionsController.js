@@ -121,7 +121,7 @@ const oneFilmSchedule = (film, start, end, scheduleArr, filmEndsBeforeSchedule =
     });
     return arr;
 };
-const twoFilmsSchedule = (films, start, end, scheduleArr) => {
+const multipleFilmsSchedule = (films, start, end, scheduleArr) => {
     const arr = scheduleArr.map((el) => {
         const daySchedule = {
             [el]: [],
@@ -143,14 +143,14 @@ const twoFilmsSchedule = (films, start, end, scheduleArr) => {
         });
         const end = new Date(el);
         end.setUTCDate(+scheduleDate);
-        end.setUTCHours(23, 59, 59, 999); //настроенная дата для окончания рабочего дня угу
+        end.setUTCHours(23, 59, 59, 999); //настроенная дата для окончания рабочего дня
         if (
         //фильмы либо новые, либо старые с одинаковой возрастной категорией
         adjustedFilms.every((film) => !film.isOld && film.fullDay) ||
             adjustedFilms.every((film) => !film.isOld && !film.fullDay) ||
             adjustedFilms.every((film) => film.isOld && film.fullDay) ||
             adjustedFilms.every((film) => film.isOld && !film.fullDay)) {
-            console.log("both new or old with same ageRestriction");
+            console.log("all are new or old with same ageRestriction");
             let currentIdx = 0;
             const { length } = adjustedFilms;
             while (start < end) {
@@ -168,52 +168,46 @@ const twoFilmsSchedule = (films, start, end, scheduleArr) => {
         }
         if (
         //один фильм новый, а другой старый, но возрастные категории совпадают, чередование 2-1-2
-        (adjustedFilms[0].isOld &&
-            adjustedFilms[0].fullDay &&
-            !adjustedFilms[1].isOld &&
-            adjustedFilms[1].fullDay) ||
-            (adjustedFilms[0].isOld &&
-                !adjustedFilms[0].fullDay &&
-                !adjustedFilms[1].isOld &&
-                !adjustedFilms[1].fullDay) ||
-            (adjustedFilms[1].isOld &&
-                !adjustedFilms[1].fullDay &&
-                !adjustedFilms[0].isOld &&
-                !adjustedFilms[0].fullDay) ||
-            (adjustedFilms[1].isOld &&
-                adjustedFilms[1].fullDay &&
-                !adjustedFilms[0].isOld &&
-                adjustedFilms[0].fullDay)) {
+        adjustedFilms.some((film) => film.isOld) &&
+            adjustedFilms.some((film) => !film.isOld) &&
+            (adjustedFilms.every((film) => film.fullDay) ||
+                adjustedFilms.every((film) => !film.fullDay))) {
             console.log("one new another old with same ageRestriction");
-            const oldIdx = adjustedFilms.findIndex((film) => film.isOld);
-            const newIdx = oldIdx === 0 ? 1 : 0;
-            const newMaxInRow = 2;
-            const oldMaxInRow = 1;
+            const oldIdxs = adjustedFilms.filter((film) => film.isOld);
+            const newIdxs = adjustedFilms.filter((film) => !film.isOld);
+            const newMaxInRow = 2 * newIdxs.length;
+            const oldMaxInRow = oldIdxs.length;
             let currentOldInRow = 0;
             let currentNewInRow = 0;
+            let newIdxToShow = 0;
             while (start < end) {
                 const timeOfSessionStart = calculateTime(start, "local");
                 if (currentNewInRow < newMaxInRow) {
                     daySchedule[el].push({
-                        [timeOfSessionStart]: adjustedFilms[newIdx],
+                        [timeOfSessionStart]: newIdxs[newIdxToShow],
                     });
-                    const [hDur, mDur, sDur] = adjustedFilms[newIdx].totalDuration.split(":");
+                    const [hDur, mDur, sDur] = adjustedFilms[newIdxToShow].totalDuration.split(":");
                     start.setUTCHours(start.getUTCHours() + +hDur);
                     start.setUTCMinutes(start.getUTCMinutes() + +mDur);
                     start.setUTCSeconds(start.getUTCSeconds() + +sDur);
                     currentNewInRow++;
+                    newIdxToShow =
+                        newIdxToShow + 1 === newIdxs.length ? 0 : newIdxToShow + 1;
                     currentOldInRow = 0;
                 }
                 else if (currentOldInRow < oldMaxInRow) {
                     daySchedule[el].push({
-                        [timeOfSessionStart]: adjustedFilms[oldIdx],
+                        [timeOfSessionStart]: oldIdxs[currentOldInRow],
                     });
-                    const [hDur, mDur, sDur] = adjustedFilms[oldIdx].totalDuration.split(":");
+                    const [hDur, mDur, sDur] = oldIdxs[currentOldInRow].totalDuration.split(":");
                     start.setUTCHours(start.getUTCHours() + +hDur);
                     start.setUTCMinutes(start.getUTCMinutes() + +mDur);
                     start.setUTCSeconds(start.getUTCSeconds() + +sDur);
-                    currentNewInRow = 0;
                     currentOldInRow++;
+                    if (currentOldInRow === oldMaxInRow) {
+                        currentNewInRow = 0;
+                        newIdxToShow = 0;
+                    }
                 }
             }
             daySchedule[el].pop();
@@ -225,21 +219,29 @@ const twoFilmsSchedule = (films, start, end, scheduleArr) => {
             //разная возрастная категория, оба новых или оба старых
             console.log("both new or old with different ageRestriction");
             let currentIdx = 0;
+            const adultFilms = adjustedFilms.filter((film) => film.fullDay);
+            let currentAdultIdx = 0;
             const { length } = adjustedFilms;
             while (start < end) {
                 const timeOfSessionStart = calculateTime(start, "local");
-                daySchedule[el].push({
-                    [timeOfSessionStart]: adjustedFilms[currentIdx],
-                });
-                const [hDur, mDur, sDur] = adjustedFilms[currentIdx].totalDuration.split(":");
-                console.log(start);
-                start.setUTCHours(start.getUTCHours() + +hDur);
-                start.setUTCMinutes(start.getUTCMinutes() + +mDur);
-                start.setUTCSeconds(start.getUTCSeconds() + +sDur);
                 if (start.getUTCHours() > 18) {
-                    currentIdx = adjustedFilms.findIndex((film) => film.fullDay);
+                    daySchedule[el].push({
+                        [timeOfSessionStart]: adultFilms[currentAdultIdx],
+                    });
+                    const [hDur, mDur, sDur] = adultFilms[currentAdultIdx].totalDuration.split(":");
+                    start.setUTCHours(start.getUTCHours() + +hDur);
+                    start.setUTCMinutes(start.getUTCMinutes() + +mDur);
+                    start.setUTCSeconds(start.getUTCSeconds() + +sDur);
+                    currentAdultIdx = adultFilms.findIndex((film) => film.fullDay);
                 }
                 else {
+                    daySchedule[el].push({
+                        [timeOfSessionStart]: adjustedFilms[currentIdx],
+                    });
+                    const [hDur, mDur, sDur] = adjustedFilms[currentIdx].totalDuration.split(":");
+                    start.setUTCHours(start.getUTCHours() + +hDur);
+                    start.setUTCMinutes(start.getUTCMinutes() + +mDur);
+                    start.setUTCSeconds(start.getUTCSeconds() + +sDur);
                     currentIdx = currentIdx + 1 === length ? 0 : currentIdx + 1;
                 }
             }
@@ -247,48 +249,54 @@ const twoFilmsSchedule = (films, start, end, scheduleArr) => {
         }
         else {
             //один новый, другой старый и разные возрастные категории
-            console.log("last else block");
-            const oldIdx = adjustedFilms.findIndex((film) => film.isOld);
-            const newIdx = oldIdx === 0 ? 1 : 0;
-            const newMaxInRow = 2;
-            const oldMaxInRow = 1;
+            const oldIdxs = adjustedFilms.filter((film) => film.isOld);
+            const newIdxs = adjustedFilms.filter((film) => !film.isOld);
+            const newMaxInRow = 2 * newIdxs.length;
+            const oldMaxInRow = oldIdxs.length;
             let currentOldInRow = 0;
             let currentNewInRow = 0;
-            const fullTimeIdx = adjustedFilms.findIndex((film) => film.fullDay);
+            let newIdxToShow = 0;
+            let currentAdultIdx = 0;
+            const adultFilms = adjustedFilms.filter((film) => film.fullDay);
             while (start < end) {
                 const timeOfSessionStart = calculateTime(start, "local");
                 if (start.getHours() > 18) {
                     daySchedule[el].push({
-                        [timeOfSessionStart]: adjustedFilms[fullTimeIdx],
+                        [timeOfSessionStart]: adultFilms[currentAdultIdx],
                     });
-                    console.log(start, "in first if");
-                    console.log(daySchedule[el]);
-                    const [hDur, mDur, sDur] = adjustedFilms[fullTimeIdx].totalDuration.split(":");
+                    const [hDur, mDur, sDur] = adultFilms[currentAdultIdx].totalDuration.split(":");
                     start.setUTCHours(start.getUTCHours() + +hDur);
                     start.setUTCMinutes(start.getUTCMinutes() + +mDur);
                     start.setUTCSeconds(start.getUTCSeconds() + +sDur);
+                    currentAdultIdx =
+                        ++currentAdultIdx === adultFilms.length ? 0 : currentAdultIdx++;
                 }
                 else if (currentNewInRow < newMaxInRow) {
                     daySchedule[el].push({
-                        [timeOfSessionStart]: adjustedFilms[newIdx],
+                        [timeOfSessionStart]: newIdxs[newIdxToShow],
                     });
-                    const [hDur, mDur, sDur] = adjustedFilms[newIdx].totalDuration.split(":");
+                    const [hDur, mDur, sDur] = newIdxs[newIdxToShow].totalDuration.split(":");
                     start.setUTCHours(start.getUTCHours() + +hDur);
                     start.setUTCMinutes(start.getUTCMinutes() + +mDur);
                     start.setUTCSeconds(start.getUTCSeconds() + +sDur);
                     currentNewInRow++;
+                    newIdxToShow =
+                        newIdxToShow + 1 === newIdxs.length ? 0 : newIdxToShow + 1;
                     currentOldInRow = 0;
                 }
                 else if (currentOldInRow < oldMaxInRow) {
                     daySchedule[el].push({
-                        [timeOfSessionStart]: adjustedFilms[oldIdx],
+                        [timeOfSessionStart]: oldIdxs[currentOldInRow],
                     });
-                    const [hDur, mDur, sDur] = adjustedFilms[oldIdx].totalDuration.split(":");
+                    const [hDur, mDur, sDur] = oldIdxs[currentOldInRow].totalDuration.split(":");
                     start.setUTCHours(start.getUTCHours() + +hDur);
                     start.setUTCMinutes(start.getUTCMinutes() + +mDur);
                     start.setUTCSeconds(start.getUTCSeconds() + +sDur);
-                    currentNewInRow = 0;
                     currentOldInRow++;
+                    if (currentOldInRow === oldMaxInRow) {
+                        currentNewInRow = 0;
+                        newIdxToShow = 0;
+                    }
                 }
             }
             daySchedule[el].pop();
@@ -297,16 +305,11 @@ const twoFilmsSchedule = (films, start, end, scheduleArr) => {
     });
     return arr;
 };
-//1) проверить возрастное ограничение, если 0+ или 6+, то занимать первую половину дня, если оба 0+ или 6+, то чередовать весь день
-//2) если оба фильма более чем 16+, то чередовать весь день
-//3) если один из фильмов в прокате более недели и оба одних возрастных категорий, тогда чередование по сетке: два новых - один старый - два новых
-//4) если старый фильм 0 или 6+, тогда показывать его только в период до 18.00 и с чередованием: два новых - один старый - два новых
-//5) добавить три поля: isOldFilm, фильм, который в прокате на момент дня расписания уже более недели, isNewFilm, фильм в прокате на день расписания менее недели,
-// и третье поле fullDay, если оба фильма 0 или 6+, то fullDay автоматически у обоих переставляется в true, если оба новые или оба старые, иначе новому проставляется fullDay: true, старому false
 const prepareSchedule = (films, start, end) => {
     if (!films.length) {
         return "Нет фильмов в прокате на эти даты";
     }
+    console.log(films.length, "длина фильмов");
     const weekSchedule = [];
     while (start < end) {
         const keyDate = start.toISOString().split("T")[0];
@@ -318,14 +321,8 @@ const prepareSchedule = (films, start, end) => {
             ? oneFilmSchedule(films[0].dataValues, start, end, weekSchedule)
             : oneFilmSchedule(films[0].dataValues, start, end, weekSchedule, true);
     }
-    if (films.length === 2) {
-        return twoFilmsSchedule(films, start, end, weekSchedule);
-    }
-    if (films.length === 3) {
-        console.log("3 films are fit");
-    }
-    if (films.length === 4) {
-        console.log("4 films are fit");
+    else {
+        return multipleFilmsSchedule(films, start, end, weekSchedule);
     }
 };
 exports.calculateSchedule = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
