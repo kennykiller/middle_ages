@@ -12,9 +12,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createDiscount = void 0;
 const discount_1 = __importDefault(require("../../../models/discount"));
-const createDiscount = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+exports.createDiscount = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     console.log(req, 'request');
     const discountData = req.body;
     if (!req.file) {
@@ -33,4 +32,3 @@ const createDiscount = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
     });
     res.status(201).json({ message: "Discount added.", createdDiscount: discount });
 });
-exports.createDiscount = createDiscount;

@@ -12,12 +12,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getFilm = exports.getUpcomingFilms = exports.getFilms = void 0;
 const sequelize_1 = require("sequelize");
 const film_1 = __importDefault(require("../../models/film"));
 const genre_1 = __importDefault(require("../../models/genre"));
 const ITEMS_PER_PAGE = 4;
-const getFilms = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+exports.getFilms = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const page = +req.query.page || 1;
     const offset = page === 1 ? 0 : page * ITEMS_PER_PAGE;
     const limitItems = offset ? ITEMS_PER_PAGE : ITEMS_PER_PAGE * 2;
@@ -32,8 +31,7 @@ const getFilms = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
     }
     res.status(200).json(films);
 });
-exports.getFilms = getFilms;
-const getUpcomingFilms = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+exports.getUpcomingFilms = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const page = +req.query.page || 1;
     const offset = page === 1 ? 0 : page * ITEMS_PER_PAGE;
     const limitItems = offset ? ITEMS_PER_PAGE : ITEMS_PER_PAGE * 2;
@@ -54,8 +52,7 @@ const getUpcomingFilms = (req, res, next) => __awaiter(void 0, void 0, void 0, f
     }
     res.status(200).json(films);
 });
-exports.getUpcomingFilms = getUpcomingFilms;
-const getFilm = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+exports.getFilm = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const id = req.params.id;
     const film = yield film_1.default.findByPk(id, {
         include: { model: genre_1.default, through: { attributes: [] } },
@@ -67,4 +64,3 @@ const getFilm = (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
     }
     res.status(200).json({ film });
 });
-exports.getFilm = getFilm;

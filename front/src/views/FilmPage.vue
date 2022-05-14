@@ -26,7 +26,7 @@ let url: Ref<string> = ref("");
 let checkTheaters: Ref<filmStart> = ref('past');
 onBeforeMount(async () => {
   film.value = await getFilm();
-  url.value = film.value?.posterUrl.match(/\d+(.)+(\.)\w+/g)![0] || "";
+  url.value = film.value?.posterUrl.match(/images(.)+/g)![0] || "";
 });
 
 const getFilm = async () => {
@@ -51,7 +51,7 @@ const getFilm = async () => {
   <div class="item__wrapper film" v-if="film">
     <div class="film__base-info-wrapper">
       <div class="film__poster-wrapper">
-        <img class="film-poster" :src="require(`@/images/${url}`)" alt="">
+        <img class="film-poster" :src="require(`@/${url}`)" alt="">
       </div>
       <div class="film__text-wrapper">
         <h1>{{ film.value.name }}</h1>

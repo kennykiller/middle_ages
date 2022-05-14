@@ -28,7 +28,7 @@ const genre_1 = __importDefault(require("../models/genre"));
 const discount_1 = __importDefault(require("../models/discount"));
 const admin_1 = __importDefault(require("./routes/admin"));
 const home_1 = __importDefault(require("./routes/home"));
-const app = (0, express_1.default)();
+const app = express_1.default();
 const port = 3000;
 const fileStorage = multer_1.default.diskStorage({
     destination: (req, file, cb) => {
@@ -51,7 +51,7 @@ const fileFilter = (req, file, cb) => {
     }
 };
 app.use(body_parser_1.default.json());
-app.use((0, multer_1.default)({ storage: fileStorage, fileFilter }).single('posterUrl'));
+app.use(multer_1.default({ storage: fileStorage, fileFilter }).single('posterUrl'));
 app.use("/images", express_1.default.static(path_1.default.join(__dirname, "../front/src/images")));
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');

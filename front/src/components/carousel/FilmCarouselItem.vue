@@ -9,7 +9,7 @@ interface Props {
 const props = defineProps<Props>();
 console.log(props.url);
 
-const url: string = props.url.match(/\d+(.)+(\.)\w+/g)![0] || "";
+const url: string = props.url.match(/images(.)+/g)![0] || "";
 
 const filmTypes = props.genres.map((genre) => genre.name).join(", ");
 const filmRoute = `/films/${props.id}`
@@ -20,7 +20,7 @@ const filmRoute = `/films/${props.id}`
     <div class="film__container">
       <router-link :to="filmRoute">
         <div class="special-box-shadow">
-          <img :src="require(`@/images/${url}`)" alt="" class="film__image" />
+          <img :src="require(`@/${url}`)" alt="" class="film__image" />
         </div>
         <div class="film__details">
           <h2>{{ props.name }}</h2>

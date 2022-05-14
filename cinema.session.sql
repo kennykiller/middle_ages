@@ -1,4 +1,4 @@
-INSERT INTO genres (name)
+INSERT INTO `dota-cinema`.genres (name)
 VALUES (
     'боевик'
 ),
@@ -25,4 +25,13 @@ VALUES (
 ),
 (
     'исторический'
+),
+(
+   'документальный' 
+),
+(
+   'детектив' 
+),
+(
+    'приключения'
 )

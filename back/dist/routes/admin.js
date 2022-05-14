@@ -7,7 +7,7 @@ const express_1 = require("express");
 const film_1 = __importDefault(require("./admin/film"));
 const discount_1 = __importDefault(require("./admin/discount"));
 const schedule_1 = __importDefault(require("./admin/schedule"));
-const adminRouter = (0, express_1.Router)();
+const adminRouter = express_1.Router();
 adminRouter.use('/admin', film_1.default);
 adminRouter.use('/admin', schedule_1.default);
 adminRouter.use('/admin', discount_1.default);

@@ -12,11 +12,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getGenre = exports.createFilm = void 0;
 const film_1 = __importDefault(require("../../../models/film"));
 const genre_1 = __importDefault(require("../../../models/genre"));
 const film_genres_1 = __importDefault(require("../../../models/film_genres"));
-const createFilm = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+exports.createFilm = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const filmData = req.body;
     if (!req.file) {
         const error = new Error("No image provided.");
@@ -43,9 +42,7 @@ const createFilm = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
     // await createSession(film.dataValues.id, film.dataValues.startDate, film.dataValues.endDate, film.dataValues.filmDuration);
     res.status(201).json({ message: "Film added.", createdFilm: film });
 });
-exports.createFilm = createFilm;
-const getGenre = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+exports.getGenre = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const genres = yield genre_1.default.findAll();
     res.status(200).json({ genres });
 });
-exports.getGenre = getGenre;
