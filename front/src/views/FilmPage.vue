@@ -7,7 +7,7 @@ import BaseBadge from "@/components/UI/BaseBadge.vue";
 import CalendarComponent from "@/components/CalendarComponent.vue";
 import SessionsComponent from "@/components/sessions/SessionsComponent.vue";
 
-type filmStart = 'past' | 'now' | 'future';
+type filmStart = "past" | "now" | "future";
 const route = useRoute();
 const film: { value: Film | undefined } = reactive({
   value: {
@@ -23,7 +23,7 @@ const film: { value: Film | undefined } = reactive({
   },
 });
 let url: Ref<string> = ref("");
-let checkTheaters: Ref<filmStart> = ref('past');
+let checkTheaters: Ref<filmStart> = ref("past");
 onBeforeMount(async () => {
   film.value = await getFilm();
   url.value = film.value?.posterUrl.match(/images(.)+/g)![0] || "";
@@ -38,34 +38,49 @@ const getFilm = async () => {
       `http://localhost:3000/films/${route.params.id}`,
       { headers }
     );
-    if (response?.data) return response.data.film as Film;
+    console.log(response.data);
+
+    if (response?.data) return response.data as Film;
     throw Error("no such film received");
   } catch (e) {
     console.log(e);
   }
 };
-
 </script>
 
 <template>
-  <div class="item__wrapper film" v-if="film">
+  <div class="item__wrapper film" v-if="film.value">
     <div class="film__base-info-wrapper">
       <div class="film__poster-wrapper">
-        <img class="film-poster" :src="require(`@/${url}`)" alt="">
+        <img class="film-poster" :src="require(`@/${url}`)" alt="" />
       </div>
       <div class="film__text-wrapper">
         <h1>{{ film.value.name }}</h1>
         <h2>{{ film.value.description }}</h2>
         <h2>Возрастное ограничение: {{ film.value.ageRestriction }}</h2>
         <h2>Продолжительность фильма: {{ film.value.filmDuration }}</h2>
-        <h3 v-if="checkTheaters !== 'past'">Фильм в прокате с {{ film.value.startDate }} до {{film.value.endDate}}</h3>
+        <h3 v-if="checkTheaters !== 'past'">
+          Фильм в прокате с {{ film.value.startDate }} до
+          {{ film.value.endDate }}
+        </h3>
         <div class="film__genres-wrapper">
-          <BaseBadge v-for="genre in film.value.genres" :key="genre.id" :text="genre.name" popover popover-text="Найти похожие" />
+          <BaseBadge
+            v-for="genre in film.value.genres"
+            :key="genre.id"
+            :text="genre.name"
+            popover
+            popover-text="Найти похожие"
+          />
         </div>
       </div>
     </div>
     <div class="film__schedule-wrapper">
-      <CalendarComponent @check-theaters="checkTheaters = $event" text="Выберите дату" :start-date="film.value.startDate" :end-date="film.value.endDate"></CalendarComponent>
+      <CalendarComponent
+        @check-theaters="checkTheaters = $event"
+        text="Выберите дату"
+        :start-date="film.value.startDate"
+        :end-date="film.value.endDate"
+      ></CalendarComponent>
     </div>
     <div class="film__sessions-wrapper">
       <SessionsComponent></SessionsComponent>
@@ -88,7 +103,7 @@ const getFilm = async () => {
     padding-right: 5rem;
     img {
       border-radius: 4px;
-      transition: transform .6s ease;
+      transition: transform 0.6s ease;
     }
     &:hover img {
       transform: scale(1.1);

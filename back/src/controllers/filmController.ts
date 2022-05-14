@@ -50,7 +50,7 @@ export const getUpcomingFilms: RequestHandler = async (req, res, next) => {
 export const getFilm: RequestHandler = async (req, res, next) => {
   const id = req.params.id;
   const film = await Film.findByPk(id, {
-    include: { model : Genre, through: { attributes: [] } },
+    include: { model: Genre, through: { attributes: [] } },
     attributes: { exclude: ["createdAt", "updatedAt"] },
   });
   console.log(film);
@@ -58,5 +58,27 @@ export const getFilm: RequestHandler = async (req, res, next) => {
   if (!film) {
     throw new Error("Фильм с таким ID не найден");
   }
-  res.status(200).json({ film });
+  console.log(typeof film.endDate);
+
+  const end = new Date(film.endDate);
+  console.log(end);
+
+  const endYear = end.getUTCFullYear();
+  const endDate =
+    end.getUTCDate() > 9 ? end.getUTCDate() : `0${end.getUTCDate()}`;
+  const endMonth =
+    end.getUTCMonth() + 1 > 9
+      ? end.getUTCMonth() + 1
+      : `0${end.getUTCMonth() + 1}`;
+  const e = `${endYear}-${endMonth}-${endDate}`;
+  const start = new Date(film.startDate);
+  const startYear = start.getUTCFullYear();
+  const startDate =
+    start.getUTCDate() > 9 ? start.getUTCDate() : `0${start.getUTCDate()}`;
+  const startMonth =
+    start.getUTCMonth() + 1 > 9
+      ? start.getUTCMonth() + 1
+      : `0${start.getUTCMonth() + 1}`;
+  const s = `${startYear}-${startMonth}-${startDate}`;
+  res.status(200).json({ ...film.dataValues, endDate: e, startDate: s });
 };

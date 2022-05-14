@@ -166,8 +166,6 @@ const multipleFilmsSchedule = (
       adjustedFilms.every((film) => film.isOld && film.fullDay) ||
       adjustedFilms.every((film) => film.isOld && !film.fullDay)
     ) {
-      console.log("all are new or old with same ageRestriction");
-
       let currentIdx = 0;
       const { length } = adjustedFilms;
 
@@ -194,7 +192,6 @@ const multipleFilmsSchedule = (
       (adjustedFilms.every((film) => film.fullDay) ||
         adjustedFilms.every((film) => !film.fullDay))
     ) {
-      console.log("one new another old with same ageRestriction");
       const oldIdxs = adjustedFilms.filter((film) => film.isOld);
       const newIdxs = adjustedFilms.filter((film) => !film.isOld);
       const newMaxInRow = 2 * newIdxs.length;
@@ -242,7 +239,6 @@ const multipleFilmsSchedule = (
       adjustedFilms.some((film) => !film.fullDay)
     ) {
       //разная возрастная категория, оба новых или оба старых
-      console.log("both new or old with different ageRestriction");
       let currentIdx = 0;
       const adultFilms = adjustedFilms.filter((film) => film.fullDay);
       let currentAdultIdx = 0;
@@ -250,7 +246,7 @@ const multipleFilmsSchedule = (
 
       while (start < end) {
         const timeOfSessionStart = calculateTime(start, "local");
-        if (start.getUTCHours() > 18) {
+        if (start.getUTCHours() > 18 || start.getHours() < 3) {
           daySchedule[el].push({
             [timeOfSessionStart]: adultFilms[currentAdultIdx],
           });
@@ -259,7 +255,8 @@ const multipleFilmsSchedule = (
           start.setUTCHours(start.getUTCHours() + +hDur);
           start.setUTCMinutes(start.getUTCMinutes() + +mDur);
           start.setUTCSeconds(start.getUTCSeconds() + +sDur);
-          currentAdultIdx = adultFilms.findIndex((film) => film.fullDay);
+          currentAdultIdx =
+            ++currentAdultIdx === adultFilms.length ? 0 : currentAdultIdx++;
         } else {
           daySchedule[el].push({
             [timeOfSessionStart]: adjustedFilms[currentIdx],
@@ -286,7 +283,7 @@ const multipleFilmsSchedule = (
       const adultFilms = adjustedFilms.filter((film) => film.fullDay);
       while (start < end) {
         const timeOfSessionStart = calculateTime(start, "local");
-        if (start.getHours() > 18) {
+        if (start.getHours() > 18 || start.getHours() < 3) {
           daySchedule[el].push({
             [timeOfSessionStart]: adultFilms[currentAdultIdx],
           });
@@ -338,8 +335,6 @@ const prepareSchedule = (films: Film[], start: Date, end: Date) => {
   if (!films.length) {
     return "Нет фильмов в прокате на эти даты";
   }
-  console.log(films.length, "длина фильмов");
-
   const weekSchedule: string[] = [];
   while (start < end) {
     const keyDate = start.toISOString().split("T")[0];

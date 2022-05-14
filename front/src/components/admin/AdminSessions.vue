@@ -8,7 +8,7 @@ import CalendarComponent from "@/components/CalendarComponent.vue";
 import SessionsComponent from "@/components/sessions/SessionsComponent.vue";
 
 onBeforeMount(async () => {
-    const res = await getSchedule();
+  const res = await getSchedule();
 });
 
 const getSchedule = async () => {
@@ -16,28 +16,29 @@ const getSchedule = async () => {
     "Access-Control-Allow-Origin": "*",
   };
   try {
-    const response = await axios.get(
-      `http://localhost:3000/admin/sessions`,
-      { headers }
-    );
-    console.log(response);
+    const response = await axios.get(`http://localhost:3000/admin/sessions`, {
+      headers,
+    });
+    console.log(response.data);
     return response;
   } catch (e) {
     console.log(e);
   }
 };
-
 </script>
 
 <template>
   <div class="calendar__wrapper">
     <h2>Настройте расписание</h2>
-    <div class="calendar__slider slider">
-      <ul class="slider__items-list">
-        <!-- <li v-for="date in datesToShow" :key="date.day + date.month">
-          <BaseBadge :text="date.day + '\n' + date.month" />
-        </li> -->
-      </ul>
+    <div class="films__schedule-wrapper">
+      <CalendarComponent
+        text="Выберите дату"
+        :start-date="film.value.startDate"
+        :end-date="film.value.endDate"
+      ></CalendarComponent>
+    </div>
+    <div class="films__sessions-wrapper">
+      <SessionsComponent></SessionsComponent>
     </div>
   </div>
 </template>
@@ -60,6 +61,12 @@ const getSchedule = async () => {
     li:not(:last-child) {
       margin-right: 0.5rem;
     }
+  }
+}
+.films {
+  &__schedule-wrapper {
+    display: flex;
+    justify-content: center;
   }
 }
 </style>
