@@ -1,21 +1,9 @@
 <script setup lang="ts">
-import { reactive, onBeforeMount, ref, computed } from "vue";
+import { reactive, onBeforeMount, ref } from "vue";
 import DatePicker from "@vuepic/vue-datepicker";
 import BaseBadge from "@/components/UI/BaseBadge.vue";
+import { monthNumber } from "../../../interfaces/types";
 
-type monthNumber =
-  | "0"
-  | "1"
-  | "2"
-  | "3"
-  | "4"
-  | "5"
-  | "6"
-  | "7"
-  | "8"
-  | "9"
-  | "10"
-  | "11";
 type filmStart = "past" | "now" | "future";
 interface Props {
   text?: string;
@@ -64,8 +52,8 @@ function checkTheaters() {
   return "past";
 }
 
-function calcStartDate () {
-  return isFilmInTheatres === 'now' ? currentDate : startDateUTC;
+function calcStartDate() {
+  return isFilmInTheatres === "now" ? currentDate : startDateUTC;
 }
 
 function getDatesInRange(currentDate: string, endDateUTC: string) {
@@ -93,7 +81,15 @@ let datesToShow: { day: string; month: string }[] = reactive([]);
 
 <template>
   <div class="calendar__wrapper">
-    <h2>{{ isFilmInTheatres === 'now' ? text : isFilmInTheatres === 'future' ? "Скоро в прокате" : "Прокат фильма завершен" }}</h2>
+    <h2>
+      {{
+        isFilmInTheatres === "now"
+          ? text
+          : isFilmInTheatres === "future"
+          ? "Скоро в прокате"
+          : "Прокат фильма завершен"
+      }}
+    </h2>
     <div v-if="isFilmInTheatres != 'past'" class="calendar__slider slider">
       <ul class="slider__items-list">
         <li v-for="date in datesToShow" :key="date.day + date.month">

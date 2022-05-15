@@ -2,7 +2,8 @@
 interface Props {
   time: string;
   price: string;
-  placesLeft: string;
+  placesLeft?: string;
+  name?: string;
 }
 
 const { time, price, placesLeft } = defineProps<Props>();
@@ -11,11 +12,12 @@ const { time, price, placesLeft } = defineProps<Props>();
 <template>
   <div class="session__wrapper">
     <div class="session__info-wrapper">
+      <span v-if="name">Название фильма: {{ name }}</span>
       <span>Начало сеанса: {{ time }}</span>
       <span>Стоимость: {{ price }} руб</span>
-      <span>Осталось {{ placesLeft }} мест</span>
+      <span v-if="placesLeft">Осталось {{ placesLeft }} мест</span>
     </div>
-    <div class="session__confirm">
+    <div v-if="placesLeft" class="session__confirm">
       <button>Выбрать место</button>
     </div>
   </div>
@@ -50,8 +52,8 @@ const { time, price, placesLeft } = defineProps<Props>();
     margin: 0 auto;
     padding: 1rem 0;
     button {
-        font-size: 1.3rem;
-        padding: .3rem;
+      font-size: 1.3rem;
+      padding: 0.3rem;
     }
   }
 }

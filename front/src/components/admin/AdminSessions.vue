@@ -1,14 +1,22 @@
 <script setup lang="ts">
-import { onBeforeMount, reactive, Ref, ref } from "vue";
-import { useRoute } from "vue-router";
-import { Film, Genre } from "../../../interfaces/models";
+import { onBeforeMount, reactive, ref } from "vue";
+import { Schedules } from "../../../../interfaces/base";
 import axios from "axios";
-import BaseBadge from "@/components/UI/BaseBadge.vue";
-import CalendarComponent from "@/components/CalendarComponent.vue";
 import SessionsComponent from "@/components/sessions/SessionsComponent.vue";
+import AdminCalendar from "./AdminCalendar.vue";
+
+let schedules: { value: Schedules[] } | { value: undefined } = reactive({
+  value: [],
+});
+let datesToPass: { value: string[] } | { value: undefined } = reactive({
+  value: [],
+});
+
+let openedScheduleIdx = ref(0);
 
 onBeforeMount(async () => {
-  const res = await getSchedule();
+  schedules.value = await getSchedule();
+  datesToPass.value = schedules.value?.map((el) => Object.keys(el)).flat();
 });
 
 const getSchedule = async () => {
@@ -19,8 +27,7 @@ const getSchedule = async () => {
     const response = await axios.get(`http://localhost:3000/admin/sessions`, {
       headers,
     });
-    console.log(response.data);
-    return response;
+    if (response.data?.length) return response.data as Schedules[];
   } catch (e) {
     console.log(e);
   }
@@ -30,15 +37,16 @@ const getSchedule = async () => {
 <template>
   <div class="calendar__wrapper">
     <h2>Настройте расписание</h2>
-    <div class="films__schedule-wrapper">
-      <CalendarComponent
-        text="Выберите дату"
-        :start-date="film.value.startDate"
-        :end-date="film.value.endDate"
-      ></CalendarComponent>
+    <div class="films__schedule-wrapper" v-if="datesToPass.value?.length">
+      <AdminCalendar
+        @open-schedule="openedScheduleIdx = $event"
+        :dates="datesToPass.value"
+      ></AdminCalendar>
     </div>
-    <div class="films__sessions-wrapper">
-      <SessionsComponent></SessionsComponent>
+    <div class="films__sessions-wrapper" v-if="schedules.value?.length">
+      <SessionsComponent
+        :data="schedules.value[openedScheduleIdx]"
+      ></SessionsComponent>
     </div>
   </div>
 </template>

@@ -32,6 +32,12 @@ export interface Genre {
   createdAt: string;
   updatedAt: string;
 }
+export interface GenreCut {
+  id: number;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+}
 export interface DiscountResponse {
   data: {
     createdDiscount: {
