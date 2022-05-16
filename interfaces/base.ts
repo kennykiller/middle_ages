@@ -1,5 +1,6 @@
 import { Film, GenreCut } from "./models";
 export interface FilmForSession extends Film {
+  price: number;
   filmDuration: string;
   fullDay: boolean;
   genres: GenreCut[];

@@ -21,7 +21,7 @@ const sessions = computed(() => {
       :key="i"
       :time="Object.keys(session)[0]"
       :name="Object.values(session)[0].name"
-      price="500"
+      :price="String(Object.values(session)[0]?.price)"
     ></SessionItem>
   </div>
 </template>

@@ -93,6 +93,25 @@ const calculateTime = (start, mode) => {
     }
     return `${hourOfStart}:${minOfStart}:${secOfStart}`;
 };
+const setPrice = (start, arr, arrToPush, key, timeOfSessionStart, idx) => {
+    if (start.getHours() < 12) {
+        const reducedPrice = arr[idx].basePrice * 0.85;
+        arrToPush[key].push({
+            [timeOfSessionStart]: Object.assign(Object.assign({}, arr[idx]), { price: reducedPrice }),
+        });
+    }
+    else if (start.getHours() > 18) {
+        const increasedPrice = arr[idx].basePrice * 1.15;
+        arrToPush[key].push({
+            [timeOfSessionStart]: Object.assign(Object.assign({}, arr[idx]), { price: increasedPrice }),
+        });
+    }
+    else {
+        arrToPush[key].push({
+            [timeOfSessionStart]: Object.assign(Object.assign({}, arr[idx]), { price: arr[idx].basePrice }),
+        });
+    }
+};
 const oneFilmSchedule = (film, scheduleArr, filmEndsBeforeSchedule = false) => {
     const [hDur, mDur, sDur] = film.filmDuration.split(":");
     const arr = scheduleArr.map((el) => {
@@ -154,23 +173,31 @@ const multipleFilmsSchedule = (films, scheduleArr) => {
             const { length } = adjustedFilms;
             while (start < end) {
                 const timeOfSessionStart = calculateTime(start, "local");
-                if (start.getHours() < 12) {
-                    const reducedPrice = adjustedFilms[currentIdx].basePrice * 0.85;
-                    daySchedule[el].push({
-                        [timeOfSessionStart]: Object.assign(Object.assign({}, adjustedFilms[currentIdx]), { price: reducedPrice }),
-                    });
-                }
-                else if (start.getHours() > 18) {
-                    const increasedPrice = adjustedFilms[currentIdx].basePrice * 1.15;
-                    daySchedule[el].push({
-                        [timeOfSessionStart]: Object.assign(Object.assign({}, adjustedFilms[currentIdx]), { price: increasedPrice }),
-                    });
-                }
-                else {
-                    daySchedule[el].push({
-                        [timeOfSessionStart]: Object.assign(Object.assign({}, adjustedFilms[currentIdx]), { price: adjustedFilms[currentIdx].basePrice }),
-                    });
-                }
+                setPrice(start, adjustedFilms, daySchedule, el, timeOfSessionStart, currentIdx);
+                // if (start.getHours() < 12) {
+                //   const reducedPrice = adjustedFilms[currentIdx].basePrice * 0.85;
+                //   daySchedule[el].push({
+                //     [timeOfSessionStart]: {
+                //       ...adjustedFilms[currentIdx],
+                //       price: reducedPrice,
+                //     },
+                //   });
+                // } else if (start.getHours() > 18) {
+                //   const increasedPrice = adjustedFilms[currentIdx].basePrice * 1.15;
+                //   daySchedule[el].push({
+                //     [timeOfSessionStart]: {
+                //       ...adjustedFilms[currentIdx],
+                //       price: increasedPrice,
+                //     },
+                //   });
+                // } else {
+                //   daySchedule[el].push({
+                //     [timeOfSessionStart]: {
+                //       ...adjustedFilms[currentIdx],
+                //       price: adjustedFilms[currentIdx].basePrice,
+                //     },
+                //   });
+                // }
                 const [hDur, mDur, sDur] = adjustedFilms[currentIdx].totalDuration.split(":");
                 start.setUTCHours(start.getUTCHours() + +hDur);
                 start.setUTCMinutes(start.getUTCMinutes() + +mDur);
@@ -195,9 +222,10 @@ const multipleFilmsSchedule = (films, scheduleArr) => {
             while (start < end) {
                 const timeOfSessionStart = calculateTime(start, "local");
                 if (currentNewInRow < newMaxInRow) {
-                    daySchedule[el].push({
-                        [timeOfSessionStart]: newIdxs[newIdxToShow],
-                    });
+                    setPrice(start, newIdxs, daySchedule, el, timeOfSessionStart, newIdxToShow);
+                    // daySchedule[el].push({
+                    //   [timeOfSessionStart]: newIdxs[newIdxToShow],
+                    // });
                     const [hDur, mDur, sDur] = adjustedFilms[newIdxToShow].totalDuration.split(":");
                     start.setUTCHours(start.getUTCHours() + +hDur);
                     start.setUTCMinutes(start.getUTCMinutes() + +mDur);
@@ -208,9 +236,10 @@ const multipleFilmsSchedule = (films, scheduleArr) => {
                     currentOldInRow = 0;
                 }
                 else if (currentOldInRow < oldMaxInRow) {
-                    daySchedule[el].push({
-                        [timeOfSessionStart]: oldIdxs[currentOldInRow],
-                    });
+                    setPrice(start, oldIdxs, daySchedule, el, timeOfSessionStart, currentOldInRow);
+                    // daySchedule[el].push({
+                    //   [timeOfSessionStart]: oldIdxs[currentOldInRow],
+                    // });
                     const [hDur, mDur, sDur] = oldIdxs[currentOldInRow].totalDuration.split(":");
                     start.setUTCHours(start.getUTCHours() + +hDur);
                     start.setUTCMinutes(start.getUTCMinutes() + +mDur);
@@ -236,9 +265,10 @@ const multipleFilmsSchedule = (films, scheduleArr) => {
             while (start < end) {
                 const timeOfSessionStart = calculateTime(start, "local");
                 if (start.getUTCHours() > 18 || start.getHours() < 3) {
-                    daySchedule[el].push({
-                        [timeOfSessionStart]: adultFilms[currentAdultIdx],
-                    });
+                    setPrice(start, adultFilms, daySchedule, el, timeOfSessionStart, currentAdultIdx);
+                    // daySchedule[el].push({
+                    //   [timeOfSessionStart]: adultFilms[currentAdultIdx],
+                    // });
                     const [hDur, mDur, sDur] = adultFilms[currentAdultIdx].totalDuration.split(":");
                     start.setUTCHours(start.getUTCHours() + +hDur);
                     start.setUTCMinutes(start.getUTCMinutes() + +mDur);
@@ -247,9 +277,10 @@ const multipleFilmsSchedule = (films, scheduleArr) => {
                         ++currentAdultIdx === adultFilms.length ? 0 : currentAdultIdx++;
                 }
                 else {
-                    daySchedule[el].push({
-                        [timeOfSessionStart]: adjustedFilms[currentIdx],
-                    });
+                    setPrice(start, adjustedFilms, daySchedule, el, timeOfSessionStart, currentIdx);
+                    // daySchedule[el].push({
+                    //   [timeOfSessionStart]: adjustedFilms[currentIdx],
+                    // });
                     const [hDur, mDur, sDur] = adjustedFilms[currentIdx].totalDuration.split(":");
                     start.setUTCHours(start.getUTCHours() + +hDur);
                     start.setUTCMinutes(start.getUTCMinutes() + +mDur);
@@ -273,9 +304,10 @@ const multipleFilmsSchedule = (films, scheduleArr) => {
             while (start < end) {
                 const timeOfSessionStart = calculateTime(start, "local");
                 if (start.getHours() > 18 || start.getHours() < 3) {
-                    daySchedule[el].push({
-                        [timeOfSessionStart]: adultFilms[currentAdultIdx],
-                    });
+                    setPrice(start, adultFilms, daySchedule, el, timeOfSessionStart, currentAdultIdx);
+                    // daySchedule[el].push({
+                    //   [timeOfSessionStart]: adultFilms[currentAdultIdx],
+                    // });
                     const [hDur, mDur, sDur] = adultFilms[currentAdultIdx].totalDuration.split(":");
                     start.setUTCHours(start.getUTCHours() + +hDur);
                     start.setUTCMinutes(start.getUTCMinutes() + +mDur);
@@ -284,9 +316,10 @@ const multipleFilmsSchedule = (films, scheduleArr) => {
                         ++currentAdultIdx === adultFilms.length ? 0 : currentAdultIdx++;
                 }
                 else if (currentNewInRow < newMaxInRow) {
-                    daySchedule[el].push({
-                        [timeOfSessionStart]: newIdxs[newIdxToShow],
-                    });
+                    setPrice(start, newIdxs, daySchedule, el, timeOfSessionStart, newIdxToShow);
+                    // daySchedule[el].push({
+                    //   [timeOfSessionStart]: newIdxs[newIdxToShow],
+                    // });
                     const [hDur, mDur, sDur] = newIdxs[newIdxToShow].totalDuration.split(":");
                     start.setUTCHours(start.getUTCHours() + +hDur);
                     start.setUTCMinutes(start.getUTCMinutes() + +mDur);
@@ -297,9 +330,10 @@ const multipleFilmsSchedule = (films, scheduleArr) => {
                     currentOldInRow = 0;
                 }
                 else if (currentOldInRow < oldMaxInRow) {
-                    daySchedule[el].push({
-                        [timeOfSessionStart]: oldIdxs[currentOldInRow],
-                    });
+                    setPrice(start, oldIdxs, daySchedule, el, timeOfSessionStart, currentOldInRow);
+                    // daySchedule[el].push({
+                    //   [timeOfSessionStart]: oldIdxs[currentOldInRow],
+                    // });
                     const [hDur, mDur, sDur] = oldIdxs[currentOldInRow].totalDuration.split(":");
                     start.setUTCHours(start.getUTCHours() + +hDur);
                     start.setUTCMinutes(start.getUTCMinutes() + +mDur);
