@@ -91,8 +91,6 @@ const calculateTime = (start: Date, mode: mode) => {
 
 const oneFilmSchedule = (
   film: Film,
-  start: Date,
-  end: Date,
   scheduleArr: string[],
   filmEndsBeforeSchedule: Boolean = false
 ) => {
@@ -124,12 +122,7 @@ const oneFilmSchedule = (
   return arr;
 };
 
-const multipleFilmsSchedule = (
-  films: Film[],
-  start: Date,
-  end: Date,
-  scheduleArr: string[]
-) => {
+const multipleFilmsSchedule = (films: Film[], scheduleArr: string[]) => {
   const arr = scheduleArr.map((el) => {
     const daySchedule = {
       [el]: [],
@@ -171,10 +164,30 @@ const multipleFilmsSchedule = (
 
       while (start < end) {
         const timeOfSessionStart = calculateTime(start, "local");
-        daySchedule[el].push({
-          [timeOfSessionStart]: adjustedFilms[currentIdx],
-        });
-
+        if (start.getHours() < 12) {
+          const reducedPrice = adjustedFilms[currentIdx].basePrice * 0.85;
+          daySchedule[el].push({
+            [timeOfSessionStart]: {
+              ...adjustedFilms[currentIdx],
+              price: reducedPrice,
+            },
+          });
+        } else if (start.getHours() > 18) {
+          const increasedPrice = adjustedFilms[currentIdx].basePrice * 1.15;
+          daySchedule[el].push({
+            [timeOfSessionStart]: {
+              ...adjustedFilms[currentIdx],
+              price: increasedPrice,
+            },
+          });
+        } else {
+          daySchedule[el].push({
+            [timeOfSessionStart]: {
+              ...adjustedFilms[currentIdx],
+              price: adjustedFilms[currentIdx].basePrice,
+            },
+          });
+        }
         const [hDur, mDur, sDur] =
           adjustedFilms[currentIdx].totalDuration.split(":");
         start.setUTCHours(start.getUTCHours() + +hDur);
@@ -343,10 +356,10 @@ const prepareSchedule = (films: Film[], start: Date, end: Date) => {
   }
   if (films.length === 1) {
     return films[0].dataValues.endDate > end
-      ? oneFilmSchedule(films[0].dataValues, start, end, weekSchedule)
-      : oneFilmSchedule(films[0].dataValues, start, end, weekSchedule, true);
+      ? oneFilmSchedule(films[0].dataValues, weekSchedule)
+      : oneFilmSchedule(films[0].dataValues, weekSchedule, true);
   } else {
-    return multipleFilmsSchedule(films, start, end, weekSchedule);
+    return multipleFilmsSchedule(films, weekSchedule);
   }
 };
 

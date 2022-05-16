@@ -6,6 +6,7 @@ export interface Film {
   description: string;
   startDate: string;
   filmDuration: string;
+  basePrice: number;
   genres: Genre[];
   endDate: string;
 }

@@ -24,6 +24,7 @@ let film: Film = reactive({
   startDate: "",
   description: "",
   filmDuration: "",
+  basePrice: 500,
   genres: [],
   endDate: "",
 });
@@ -43,6 +44,7 @@ async function createFilm() {
   formData.append("name", film.name);
   formData.append("ageRestriction", film.ageRestriction);
   formData.append("posterUrl", film.posterUrl);
+  formData.append("basePrice", String(film.basePrice));
   formData.append("description", film.description);
   formData.append("filmDuration", film.filmDuration);
   formData.append("startDate", film.startDate);
@@ -56,11 +58,11 @@ async function createFilm() {
         headers,
       }
     );
-    mode.value = res.data?.createdFilm?.id ? 'success' : 'error';
+    mode.value = res.data?.createdFilm?.id ? "success" : "error";
     snackIsVisible.value = true;
     setTimeout(() => (snackIsVisible.value = false), 4000);
   } catch (e) {
-    mode.value = 'error';
+    mode.value = "error";
     snackIsVisible.value = true;
     setTimeout(() => (snackIsVisible.value = false), 4000);
     console.log(e);
@@ -200,6 +202,18 @@ const resize = () => {
       </div>
     </div>
     <div class="base-form__row">
+      <div class="base-form__input">
+        <input type="text" id="basePrice" required v-model="film.basePrice" />
+        <label for="basePrice" class="">Базовая стоимость</label>
+      </div>
+      <div class="base-form__input">
+        <input type="text" id="duration" required v-model="film.filmDuration" />
+        <label for="duration" class=""
+          >Продолжительность фильма, формат: чч:мм:сс</label
+        >
+      </div>
+    </div>
+    <div class="base-form__row">
       <div class="base-form__input base-form__input--description">
         <textarea
           id="description"
@@ -210,15 +224,6 @@ const resize = () => {
           placeholder="Введите описание фильма"
         ></textarea>
         <label for="description" class="">Описание фильма</label>
-      </div>
-      <div class="base-form__input">
-        <input
-          type="text"
-          id="duration"
-          required
-          v-model="film.filmDuration"
-        />
-        <label for="duration" class="">Продолжительность фильма, формат: чч:мм:сс</label>
       </div>
       <button class="save-button" @click="createFilm">SAVE FILM</button>
     </div>

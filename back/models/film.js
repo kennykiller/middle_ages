@@ -2,39 +2,43 @@ const Sequelize = require("sequelize");
 
 const sequelize = require("../util/database");
 
-const Film = sequelize.define('film', {
+const Film = sequelize.define("film", {
   id: {
     type: Sequelize.INTEGER,
     autoIncrement: true,
     allowNull: false,
-    primaryKey: true
+    primaryKey: true,
   },
   name: {
     type: Sequelize.STRING,
-    allowNull: false
+    allowNull: false,
   },
   ageRestriction: {
     type: Sequelize.STRING,
-    allowNull: false
+    allowNull: false,
   },
   posterUrl: {
-    type: Sequelize.TEXT
+    type: Sequelize.TEXT,
   },
   description: {
-    type: Sequelize.TEXT
+    type: Sequelize.TEXT,
   },
   filmDuration: {
     type: Sequelize.TIME,
     allowNull: false,
   },
+  basePrice: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+  },
   startDate: {
     type: Sequelize.DATE,
-    allowNull: false
+    allowNull: false,
   },
   endDate: {
     type: Sequelize.DATE,
-    allowNull: false
-  }
+    allowNull: false,
+  },
 });
 
 module.exports = Film;

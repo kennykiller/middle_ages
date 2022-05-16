@@ -32,10 +32,11 @@ exports.createFilm = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
         posterUrl: imageUrl,
         description: filmData.description,
         filmDuration: filmData.filmDuration,
+        basePrice: +filmData.basePrice,
         startDate: startDate,
         endDate: endDate,
     });
-    const filmGenresIds = JSON.parse(filmData.genres).map(genre => {
+    const filmGenresIds = JSON.parse(filmData.genres).map((genre) => {
         return { genreId: genre.id, filmId: film.dataValues.id };
     });
     yield film_genres_1.default.bulkCreate(filmGenresIds);

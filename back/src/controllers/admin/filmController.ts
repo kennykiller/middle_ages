@@ -27,12 +27,15 @@ export const createFilm = async (
     posterUrl: imageUrl,
     description: filmData.description,
     filmDuration: filmData.filmDuration,
+    basePrice: +filmData.basePrice,
     startDate: startDate,
     endDate: endDate,
   });
-  
-  const filmGenresIds: { genreId: number, filmId: number }[] = JSON.parse(filmData.genres).map(genre => {
-    return { genreId: genre.id, filmId: film.dataValues.id }
+
+  const filmGenresIds: { genreId: number; filmId: number }[] = JSON.parse(
+    filmData.genres
+  ).map((genre) => {
+    return { genreId: genre.id, filmId: film.dataValues.id };
   });
   await FilmGenres.bulkCreate(filmGenresIds);
   // await createSession(film.dataValues.id, film.dataValues.startDate, film.dataValues.endDate, film.dataValues.filmDuration);
