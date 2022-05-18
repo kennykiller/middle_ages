@@ -4,33 +4,41 @@ interface Props {
   price: string;
   placesLeft?: string;
   name?: string;
+  draggedOver: boolean;
+  dragging: boolean;
 }
 
-const { time, price, placesLeft, name } = defineProps<Props>();
+const props = defineProps<Props>();
 </script>
 
 <template>
-  <div class="session__wrapper">
+  <div
+    :class="{
+      'is-dragging': props.dragging,
+      'is-dragged-over': props.draggedOver,
+    }"
+    class="session__wrapper"
+  >
     <div class="session__info-wrapper">
-      <span v-if="name"
+      <span v-if="props.name"
         >Название фильма:<br />
-        <span class="session__info-name">{{ name }}</span></span
+        <span class="session__info-name">{{ props.name }}</span></span
       >
       <span
         >Начало сеанса:<br />
-        <span class="session__info-title">{{ time }}</span></span
+        <span class="session__info-title">{{ props.time }}</span></span
       >
       <span
         >Стоимость:<br />
-        <span class="session__info-price">{{ price }} руб</span></span
+        <span class="session__info-price">{{ props.price }} руб</span></span
       >
-      <span v-if="placesLeft"
+      <span v-if="props.placesLeft"
         >Осталось мест:<br /><span class="session__info-places">{{
-          placesLeft
+          props.placesLeft
         }}</span></span
       >
     </div>
-    <div v-if="placesLeft" class="session__confirm">
+    <div v-if="props.placesLeft" class="session__confirm">
       <button>Выбрать место</button>
     </div>
   </div>
@@ -84,5 +92,11 @@ const { time, price, placesLeft, name } = defineProps<Props>();
       padding: 0.3rem;
     }
   }
+}
+.is-dragging {
+  background: rgb(114, 204, 114);
+}
+.is-dragged-over {
+  background: rgb(243, 192, 192);
 }
 </style>
