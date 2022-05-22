@@ -13,6 +13,7 @@ const film: { value: Film | undefined } = reactive({
   value: {
     id: 1000,
     name: "",
+    basePrice: 500,
     description: "",
     startDate: "",
     endDate: "",
@@ -82,9 +83,9 @@ const getFilm = async () => {
         :end-date="film.value.endDate"
       ></CalendarComponent>
     </div>
-    <div class="film__sessions-wrapper">
+    <!-- <div class="film__sessions-wrapper">
       <SessionsComponent></SessionsComponent>
-    </div>
+    </div> -->
   </div>
 </template>
 

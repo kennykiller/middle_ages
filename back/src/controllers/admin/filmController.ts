@@ -38,7 +38,6 @@ export const createFilm = async (
     return { genreId: genre.id, filmId: film.dataValues.id };
   });
   await FilmGenres.bulkCreate(filmGenresIds);
-  // await createSession(film.dataValues.id, film.dataValues.startDate, film.dataValues.endDate, film.dataValues.filmDuration);
   res.status(201).json({ message: "Film added.", createdFilm: film });
 };
 

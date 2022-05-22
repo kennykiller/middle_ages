@@ -40,7 +40,6 @@ exports.createFilm = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
         return { genreId: genre.id, filmId: film.dataValues.id };
     });
     yield film_genres_1.default.bulkCreate(filmGenresIds);
-    // await createSession(film.dataValues.id, film.dataValues.startDate, film.dataValues.endDate, film.dataValues.filmDuration);
     res.status(201).json({ message: "Film added.", createdFilm: film });
 });
 exports.getGenre = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {

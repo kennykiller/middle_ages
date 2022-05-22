@@ -11,6 +11,7 @@
     "@vuepic/vue-datepicker": "^3.2.0",
     "axios": "^0.26.0",
     "core-js": "^3.8.3",
+    "socket.io-client": "^4.5.1",
     "ts-loader": "^9.3.0",
     "vue": "^3.2.13",
     "vue-class-component": "^8.0.0-0",

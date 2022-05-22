@@ -7,8 +7,17 @@
 </template>
 
 <script setup lang="ts">
+// import SocketioService from "./utils/socketio";
 import HeaderComponent from "./components/HeaderComponent.vue";
 import FooterComponent from "./components/FooterComponent.vue";
+// import { onBeforeMount, onBeforeUnmount } from "vue";
+
+// onBeforeMount(() => {
+//   SocketioService.setupSocketConnection();
+// });
+// onBeforeUnmount(() => {
+//   SocketioService.disconnect();
+// });
 </script>
 
 <style lang="scss">

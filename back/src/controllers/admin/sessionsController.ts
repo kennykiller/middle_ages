@@ -3,6 +3,10 @@ import { Op } from "sequelize";
 import Film from "../../../models/film";
 import Session from "../../../models/session";
 import Genre from "../../../models/genre";
+import { DailySchedule, FilmForSession } from "../../interfaces/base";
+
+interface ScheduleForRecalculation extends Partial<DailySchedule> {}
+interface FilmForRecalculation extends Partial<FilmForSession> {}
 
 type mode = "local" | "utc";
 
@@ -10,10 +14,17 @@ const ITEMS_PER_PAGE = 4;
 
 interface adjustedFilm {}
 
-// export const createSession = async (filmId: number, startDate:string, endDate:string, duration: string) => {
-
-//     await Session.bulkCreate();
-// }
+export const createSession: RequestHandler = async (req, res, next) => {
+  const filmStart = req.body.filmStart;
+  const { price } = req.body;
+  const filmId = req.body.id;
+  const session = await Session.create({
+    filmStart,
+    price,
+    filmId,
+  });
+  res.status(201).json({ message: "Сеанс добавлен.", createdFilm: session });
+};
 
 const receiveFilms = async (start: Date, end: Date): Promise<Film[]> => {
   const films: Film[] = await Film.findAll({
@@ -208,30 +219,6 @@ const multipleFilmsSchedule = (films: Film[], scheduleArr: string[]) => {
           timeOfSessionStart,
           currentIdx
         );
-        // if (start.getHours() < 12) {
-        //   const reducedPrice = adjustedFilms[currentIdx].basePrice * 0.85;
-        //   daySchedule[el].push({
-        //     [timeOfSessionStart]: {
-        //       ...adjustedFilms[currentIdx],
-        //       price: reducedPrice,
-        //     },
-        //   });
-        // } else if (start.getHours() > 18) {
-        //   const increasedPrice = adjustedFilms[currentIdx].basePrice * 1.15;
-        //   daySchedule[el].push({
-        //     [timeOfSessionStart]: {
-        //       ...adjustedFilms[currentIdx],
-        //       price: increasedPrice,
-        //     },
-        //   });
-        // } else {
-        //   daySchedule[el].push({
-        //     [timeOfSessionStart]: {
-        //       ...adjustedFilms[currentIdx],
-        //       price: adjustedFilms[currentIdx].basePrice,
-        //     },
-        //   });
-        // }
         const [hDur, mDur, sDur] =
           adjustedFilms[currentIdx].totalDuration.split(":");
         start.setUTCHours(start.getUTCHours() + +hDur);
@@ -267,10 +254,6 @@ const multipleFilmsSchedule = (films: Film[], scheduleArr: string[]) => {
             timeOfSessionStart,
             newIdxToShow
           );
-          // daySchedule[el].push({
-          //   [timeOfSessionStart]: newIdxs[newIdxToShow],
-          // });
-
           const [hDur, mDur, sDur] =
             adjustedFilms[newIdxToShow].totalDuration.split(":");
           start.setUTCHours(start.getUTCHours() + +hDur);
@@ -289,9 +272,6 @@ const multipleFilmsSchedule = (films: Film[], scheduleArr: string[]) => {
             timeOfSessionStart,
             currentOldInRow
           );
-          // daySchedule[el].push({
-          //   [timeOfSessionStart]: oldIdxs[currentOldInRow],
-          // });
           const [hDur, mDur, sDur] =
             oldIdxs[currentOldInRow].totalDuration.split(":");
           start.setUTCHours(start.getUTCHours() + +hDur);
@@ -328,9 +308,7 @@ const multipleFilmsSchedule = (films: Film[], scheduleArr: string[]) => {
             timeOfSessionStart,
             currentAdultIdx
           );
-          // daySchedule[el].push({
-          //   [timeOfSessionStart]: adultFilms[currentAdultIdx],
-          // });
+
           const [hDur, mDur, sDur] =
             adultFilms[currentAdultIdx].totalDuration.split(":");
           start.setUTCHours(start.getUTCHours() + +hDur);
@@ -347,9 +325,6 @@ const multipleFilmsSchedule = (films: Film[], scheduleArr: string[]) => {
             timeOfSessionStart,
             currentIdx
           );
-          // daySchedule[el].push({
-          //   [timeOfSessionStart]: adjustedFilms[currentIdx],
-          // });
           const [hDur, mDur, sDur] =
             adjustedFilms[currentIdx].totalDuration.split(":");
           start.setUTCHours(start.getUTCHours() + +hDur);
@@ -381,9 +356,6 @@ const multipleFilmsSchedule = (films: Film[], scheduleArr: string[]) => {
             timeOfSessionStart,
             currentAdultIdx
           );
-          // daySchedule[el].push({
-          //   [timeOfSessionStart]: adultFilms[currentAdultIdx],
-          // });
           const [hDur, mDur, sDur] =
             adultFilms[currentAdultIdx].totalDuration.split(":");
           start.setUTCHours(start.getUTCHours() + +hDur);
@@ -400,9 +372,6 @@ const multipleFilmsSchedule = (films: Film[], scheduleArr: string[]) => {
             timeOfSessionStart,
             newIdxToShow
           );
-          // daySchedule[el].push({
-          //   [timeOfSessionStart]: newIdxs[newIdxToShow],
-          // });
 
           const [hDur, mDur, sDur] =
             newIdxs[newIdxToShow].totalDuration.split(":");
@@ -422,9 +391,7 @@ const multipleFilmsSchedule = (films: Film[], scheduleArr: string[]) => {
             timeOfSessionStart,
             currentOldInRow
           );
-          // daySchedule[el].push({
-          //   [timeOfSessionStart]: oldIdxs[currentOldInRow],
-          // });
+
           const [hDur, mDur, sDur] =
             oldIdxs[currentOldInRow].totalDuration.split(":");
           start.setUTCHours(start.getUTCHours() + +hDur);
@@ -480,4 +447,47 @@ export const calculateSchedule: RequestHandler = async (req, res, next) => {
     endSchedulePeriod
   );
   res.status(200).json(schedule);
+};
+
+export const adjustSchedule: RequestHandler = async (req, res, next) => {
+  const arr: ScheduleForRecalculation[] = req.body; //массив фильмов, надо пересчитать время начала фильмов в зависимости от общей продолжительности и установить прайс
+  const startOfSession = new Date();
+  startOfSession.setHours(8, 0, 0, 0);
+  const recalculatedSchedule = arr.map((session) => {
+    const hourOfStart =
+      startOfSession.getHours() < 10
+        ? "0" + startOfSession.getHours()
+        : String(startOfSession.getHours());
+    const minOfStart =
+      startOfSession.getMinutes() < 10
+        ? "0" + startOfSession.getMinutes()
+        : String(startOfSession.getMinutes());
+    const secOfStart =
+      startOfSession.getSeconds() < 10
+        ? "0" + startOfSession.getSeconds()
+        : String(startOfSession.getSeconds());
+    const timeOfSessionStart = `${hourOfStart}:${minOfStart}:${secOfStart}`; //пересчитанное время начала сеанса
+    const hourOfSessionStart = startOfSession.getHours();
+    const basePrice = (Object.values(session)[0] as FilmForRecalculation)
+      .basePrice;
+    const price =
+      hourOfSessionStart < 12
+        ? basePrice * 0.85
+        : hourOfSessionStart >= 18
+        ? basePrice * 1.15
+        : basePrice;
+    const [hDur, mDur, sDur] = (
+      Object.values(session)[0] as FilmForRecalculation
+    ).totalDuration.split(":");
+    startOfSession.setHours(startOfSession.getHours() + +hDur);
+    startOfSession.setMinutes(startOfSession.getMinutes() + +mDur);
+    startOfSession.setSeconds(startOfSession.getSeconds() + +sDur);
+    return {
+      [timeOfSessionStart]: {
+        ...(Object.values(session)[0] as FilmForRecalculation),
+        price,
+      },
+    };
+  });
+  res.status(200).json(recalculatedSchedule);
 };

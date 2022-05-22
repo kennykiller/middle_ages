@@ -51,18 +51,18 @@ const fileFilter = (req, file, cb) => {
     }
 };
 app.use(body_parser_1.default.json());
-app.use(multer_1.default({ storage: fileStorage, fileFilter }).single('posterUrl'));
+app.use(multer_1.default({ storage: fileStorage, fileFilter }).single("posterUrl"));
 app.use("/images", express_1.default.static(path_1.default.join(__dirname, "../front/src/images")));
 app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE');
-    res.setHeader('Access-Control-Allow-Headers', '*');
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE");
+    res.setHeader("Access-Control-Allow-Headers", "*");
     next();
 });
 app.use(admin_1.default);
 app.use(home_1.default);
-app.use('/films', film_1.default);
-app.use('/', film_1.default);
+app.use("/films", film_1.default);
+app.use("/", film_1.default);
 user_1.default.hasMany(order_1.default);
 order_1.default.belongsTo(user_1.default, { constraints: true, onDelete: "CASCADE" });
 order_1.default.hasOne(payment_status_1.default);
@@ -73,8 +73,8 @@ order_1.default.hasMany(ticket_1.default);
 ticket_1.default.belongsTo(order_1.default);
 discount_1.default.hasMany(ticket_1.default);
 ticket_1.default.belongsTo(discount_1.default);
-film_2.default.belongsToMany(genre_1.default, { through: 'film_genres' });
-genre_1.default.belongsToMany(film_2.default, { through: 'film_genres' });
+film_2.default.belongsToMany(genre_1.default, { through: "film_genres" });
+genre_1.default.belongsToMany(film_2.default, { through: "film_genres" });
 film_2.default.hasMany(session_1.default, { constraints: true, onDelete: "CASCADE" });
 session_1.default.belongsTo(film_2.default);
 ticket_1.default.belongsTo(session_1.default);
@@ -83,7 +83,18 @@ function startServer() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             yield database_1.default.sync();
-            app.listen(port);
+            const server = app.listen(port);
+            // const io = ioInstance.init(server);
+            // io.on("connection", (socket) => {
+            //   console.log("a user connected");
+            //   socket.on("disconnect", () => {
+            //     console.log("user disconnected");
+            //   });
+            //   socket.on("my message", (msg: string) => {
+            //     console.log("message: " + msg);
+            //     io.emit("my broadcast", `server: ${msg}`);
+            //   });
+            // });
         }
         catch (e) {
             console.log(e);

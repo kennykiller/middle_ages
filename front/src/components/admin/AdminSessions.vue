@@ -4,6 +4,7 @@ import { Schedules } from "../../../../interfaces/base";
 import axios from "axios";
 import SessionsComponent from "@/components/sessions/SessionsComponent.vue";
 import AdminCalendar from "./AdminCalendar.vue";
+import BaseBadge from "../UI/BaseBadge.vue";
 
 let schedules: { value: Schedules[] } | { value: undefined } = reactive({
   value: [],
@@ -32,10 +33,46 @@ const getSchedule = async () => {
     console.log(e);
   }
 };
+
+const saveSchedule = async () => {
+  try {
+    const requests: any = schedules.value
+      ?.map((el, idx) => {
+        const dateOfStart = new Date(Object.keys(el)[0]);
+
+        const dataForSave = Object.values(el)[0].map((session) => {
+          const [hForSave, mForSave, sForSave] =
+            Object.keys(session)[0].split(":");
+
+          dateOfStart.setHours(+hForSave);
+          dateOfStart.setMinutes(+mForSave);
+          dateOfStart.setSeconds(+sForSave);
+          if (+hForSave < 8) {
+            dateOfStart.setDate(dateOfStart.getDate() + 1);
+          }
+          const data = Object.values(session)[0];
+          return axios.post("http://localhost:3000/admin/sessions", {
+            filmStart: dateOfStart,
+            price: data.price,
+            id: data.id,
+          });
+        });
+        return dataForSave;
+      })
+      .flat();
+
+    await Promise.all(requests);
+  } catch (e) {
+    console.log(e);
+  }
+};
 </script>
 
 <template>
   <div class="calendar__wrapper">
+    <div>
+      <BaseBadge @click="saveSchedule" text="Сохранить расписание"></BaseBadge>
+    </div>
     <h2>Настройте расписание</h2>
     <div class="films__schedule-wrapper" v-if="datesToPass.value?.length">
       <AdminCalendar

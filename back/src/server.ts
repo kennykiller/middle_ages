@@ -4,6 +4,8 @@ import express, { Application } from "express";
 
 import bodyParser from "body-parser";
 import multer from "multer";
+import { ioInstance } from "./socket";
+
 import films from "./routes/film";
 import sequelize from "../util/database";
 import Film from "../models/film";
@@ -42,18 +44,21 @@ const fileFilter = (req, file, cb) => {
   }
 };
 app.use(bodyParser.json());
-app.use(multer({ storage: fileStorage, fileFilter }).single('posterUrl'));
+app.use(multer({ storage: fileStorage, fileFilter }).single("posterUrl"));
 app.use("/images", express.static(path.join(__dirname, "../front/src/images")));
 app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE');
-  res.setHeader('Access-Control-Allow-Headers', '*');
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, PATCH, DELETE"
+  );
+  res.setHeader("Access-Control-Allow-Headers", "*");
   next();
-})
+});
 app.use(adminRouter);
 app.use(homeRouter);
-app.use('/films', films);
-app.use('/', films);
+app.use("/films", films);
+app.use("/", films);
 
 User.hasMany(Order);
 Order.belongsTo(User, { constraints: true, onDelete: "CASCADE" });
@@ -65,8 +70,8 @@ Order.hasMany(Ticket);
 Ticket.belongsTo(Order);
 Discount.hasMany(Ticket);
 Ticket.belongsTo(Discount);
-Film.belongsToMany(Genre, { through: 'film_genres' });
-Genre.belongsToMany(Film, { through: 'film_genres' });
+Film.belongsToMany(Genre, { through: "film_genres" });
+Genre.belongsToMany(Film, { through: "film_genres" });
 Film.hasMany(Session, { constraints: true, onDelete: "CASCADE" });
 Session.belongsTo(Film);
 Ticket.belongsTo(Session);
@@ -75,7 +80,18 @@ Session.hasMany(Ticket, { constraints: true, onDelete: "CASCADE" }); //кажд�
 async function startServer() {
   try {
     await sequelize.sync();
-    app.listen(port);
+    const server = app.listen(port);
+    // const io = ioInstance.init(server);
+    // io.on("connection", (socket) => {
+    //   console.log("a user connected");
+    //   socket.on("disconnect", () => {
+    //     console.log("user disconnected");
+    //   });
+    //   socket.on("my message", (msg: string) => {
+    //     console.log("message: " + msg);
+    //     io.emit("my broadcast", `server: ${msg}`);
+    //   });
+    // });
   } catch (e) {
     console.log(e);
   }

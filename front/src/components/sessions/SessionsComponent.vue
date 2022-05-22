@@ -1,7 +1,17 @@
 <script setup lang="ts">
 import SessionItem from "./SessionItem.vue";
-import { DailySchedule, Schedules } from "../../../../interfaces/base";
+import {
+  DailySchedule,
+  Schedules,
+  FilmForSession,
+} from "../../../../interfaces/base";
 import { computed, ref, Ref } from "@vue/reactivity";
+import axios from "axios";
+
+interface ScheduleForRecalculation extends Partial<DailySchedule> {
+  [key: string]: any;
+}
+interface FilmForRecalculation extends Partial<FilmForSession> {}
 
 interface Props {
   data: Schedules;
@@ -29,7 +39,7 @@ const handleDragStart = (e: DragEvent, idx: number) => {
   isDragging.value = true;
   idxOfDraggableSession.value = idx;
 };
-const arrayMove = (
+const arrayMove = async (
   arr: DailySchedule[],
   fromIndex: Ref<number>,
   toIndex: Ref<number>
@@ -37,6 +47,28 @@ const arrayMove = (
   const element = arr[fromIndex.value];
   arr.splice(fromIndex.value, 1);
   arr.splice(toIndex.value, 0, element);
+  const arrToReschedule = arr.map((film) => {
+    const adjustedFilm: ScheduleForRecalculation = film;
+    delete (Object.values(adjustedFilm)[0] as FilmForRecalculation)?.genres;
+    return adjustedFilm;
+  });
+  try {
+    const res = await axios.post(
+      "http://localhost:3000/admin/sessions-adjust",
+      arrToReschedule
+    );
+    if ((res.data as ScheduleForRecalculation[]).length) {
+      arr.length = 0;
+      (res.data as ScheduleForRecalculation[]).forEach((film) =>
+        arr.push(film)
+      );
+      console.log(arr);
+    } else {
+      throw new Error("Не удалось пересчитать расписание");
+    }
+  } catch (e) {
+    console.log(e);
+  }
 };
 </script>
 
