@@ -47,6 +47,21 @@ const getFilm = async () => {
     console.log(e);
   }
 };
+
+const getSessions = async (date: Date) => {
+  try {
+    const response = await axios.post(
+      `http://localhost:3000/films/sessions/${route.params.id}`,
+      { date }
+    );
+    console.log(response.data);
+
+    if (response?.data) return response.data as Film;
+    throw Error("На эту дату нет фильмов");
+  } catch (e) {
+    console.log(e);
+  }
+};
 </script>
 
 <template>
@@ -78,6 +93,7 @@ const getFilm = async () => {
     <div class="film__schedule-wrapper">
       <CalendarComponent
         @check-theaters="checkTheaters = $event"
+        @choose-date="getSessions($event)"
         text="Выберите дату"
         :start-date="film.value.startDate"
         :end-date="film.value.endDate"

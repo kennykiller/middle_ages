@@ -37,7 +37,7 @@ const getSchedule = async () => {
 const saveSchedule = async () => {
   try {
     const requests: any = schedules.value
-      ?.map((el, idx) => {
+      ?.map((el) => {
         const dateOfStart = new Date(Object.keys(el)[0]);
 
         const dataForSave = Object.values(el)[0].map((session) => {

@@ -62,9 +62,7 @@ exports.getFilm = (req, res, next) => __awaiter(void 0, void 0, void 0, function
     if (!film) {
         throw new Error("Фильм с таким ID не найден");
     }
-    console.log(typeof film.endDate);
     const end = new Date(film.endDate);
-    console.log(end);
     const endYear = end.getUTCFullYear();
     const endDate = end.getUTCDate() > 9 ? end.getUTCDate() : `0${end.getUTCDate()}`;
     const endMonth = end.getUTCMonth() + 1 > 9

@@ -38,6 +38,7 @@ const chosenDate = ref("");
 
 const emit = defineEmits<{
   (e: "checkTheaters", val: filmStart): void;
+  (e: "chooseDate", val: Date): void;
 }>();
 emit("checkTheaters", isFilmInTheatres);
 
@@ -76,6 +77,20 @@ function format(date: Date) {
   const month = String(date.getMonth()) as monthNumber;
   return `Выбранная дата ${day} ${months[month]}`;
 }
+
+function createDate(val: { day: string; month: string }) {
+  const chosenDay = +val.day;
+  const month = Object.values(months).findIndex((month) => month === val.month);
+  const date = new Date();
+  date.setDate(chosenDay);
+  date.setMonth(month);
+  const currentDate = new Date();
+  if (date < currentDate) {
+    date.setFullYear(date.getFullYear() + 1);
+  }
+  emit("chooseDate", date);
+}
+
 let datesToShow: { day: string; month: string }[] = reactive([]);
 </script>
 
@@ -92,7 +107,11 @@ let datesToShow: { day: string; month: string }[] = reactive([]);
     </h2>
     <div v-if="isFilmInTheatres != 'past'" class="calendar__slider slider">
       <ul class="slider__items-list">
-        <li v-for="date in datesToShow" :key="date.day + date.month">
+        <li
+          @click="createDate(date)"
+          v-for="date in datesToShow"
+          :key="date.day + date.month"
+        >
           <BaseBadge :text="date.day + '\n' + date.month" />
         </li>
         <DatePicker
