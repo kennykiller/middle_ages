@@ -4,8 +4,8 @@ interface Props {
   price: string;
   placesLeft?: string;
   name?: string;
-  draggedOver: boolean;
-  dragging: boolean;
+  draggedOver?: boolean;
+  dragging?: boolean;
 }
 
 const props = defineProps<Props>();

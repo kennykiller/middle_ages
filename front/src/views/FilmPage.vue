@@ -2,11 +2,18 @@
 import { onBeforeMount, reactive, Ref, ref } from "vue";
 import { useRoute } from "vue-router";
 import { Film, Genre } from "../../../interfaces/models";
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import BaseBadge from "@/components/UI/BaseBadge.vue";
 import CalendarComponent from "@/components/CalendarComponent.vue";
-import SessionsComponent from "@/components/sessions/SessionsComponent.vue";
+import SessionItem from "@/components/sessions/SessionItem.vue";
 
+interface SessionResponse {
+  filmId: number;
+  filmStart: string;
+  id: number;
+  price: number;
+  seatsAvailable: number;
+}
 type filmStart = "past" | "now" | "future";
 const route = useRoute();
 const film: { value: Film | undefined } = reactive({
@@ -25,6 +32,7 @@ const film: { value: Film | undefined } = reactive({
 });
 let url: Ref<string> = ref("");
 let checkTheaters: Ref<filmStart> = ref("past");
+let sessionsSchedule: SessionResponse[] = reactive([]);
 onBeforeMount(async () => {
   film.value = await getFilm();
   url.value = film.value?.posterUrl.match(/images(.)+/g)![0] || "";
@@ -50,13 +58,34 @@ const getFilm = async () => {
 
 const getSessions = async (date: Date) => {
   try {
-    const response = await axios.post(
-      `http://localhost:3000/films/sessions/${route.params.id}`,
-      { date }
-    );
-    console.log(response.data);
+    const response: AxiosResponse<{ sessions: SessionResponse[] }> =
+      await axios.post(
+        `http://localhost:3000/films/sessions/${route.params.id}`,
+        { date }
+      );
 
-    if (response?.data) return response.data as Film;
+    if (response?.data?.sessions) {
+      sessionsSchedule.length = 0;
+      response.data.sessions = response.data.sessions.map((session) => {
+        const start = new Date(String(session.filmStart));
+        const h =
+          start.getHours() < 10 ? `0${start.getHours()}` : start.getHours();
+        const m =
+          start.getMinutes() < 10
+            ? `0${start.getMinutes()}`
+            : start.getMinutes();
+        const s =
+          start.getSeconds() < 10
+            ? `0${start.getSeconds()}`
+            : start.getSeconds();
+        const filmStart = `${h}:${m}:${s}`;
+        return { ...session, filmStart };
+      });
+      response.data.sessions.forEach((s) => sessionsSchedule.push(s));
+      console.log(sessionsSchedule);
+
+      return;
+    }
     throw Error("На эту дату нет фильмов");
   } catch (e) {
     console.log(e);
@@ -99,9 +128,15 @@ const getSessions = async (date: Date) => {
         :end-date="film.value.endDate"
       ></CalendarComponent>
     </div>
-    <!-- <div class="film__sessions-wrapper">
-      <SessionsComponent></SessionsComponent>
-    </div> -->
+    <div v-if="sessionsSchedule.length" class="film__sessions-wrapper">
+      <SessionItem
+        v-for="session of sessionsSchedule"
+        :key="session.filmId"
+        :time="session.filmStart"
+        :price="String(session.price)"
+        :places-left="String(session.seatsAvailable)"
+      ></SessionItem>
+    </div>
   </div>
 </template>
 
@@ -139,6 +174,14 @@ const getSessions = async (date: Date) => {
     flex-wrap: wrap;
     div:not(:last-child) {
       margin-right: 1rem;
+    }
+  }
+  &__sessions-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    &::v-deep .session__confirm {
+      padding: 0.2rem 0;
     }
   }
 }
