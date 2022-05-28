@@ -26,6 +26,7 @@ exports.getSessions = (req, res, next) => __awaiter(void 0, void 0, void 0, func
                 [sequelize_1.Op.lte]: dateEnd,
             },
         },
+        order: [["filmStart", "ASC"]],
         attributes: { exclude: ["createdAt", "updatedAt"] },
     });
     if (!sessions) {

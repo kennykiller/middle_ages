@@ -16,6 +16,7 @@ export const getSessions: RequestHandler = async (req, res, next) => {
         [Op.lte]: dateEnd,
       },
     },
+    order: [["filmStart", "ASC"]],
     attributes: { exclude: ["createdAt", "updatedAt"] },
   });
 

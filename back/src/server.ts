@@ -60,6 +60,13 @@ app.use(homeRouter);
 app.use("/films", films);
 app.use("/", films);
 
+app.use((error, req, res, next) => {
+  const status = error.statusCode || 500;
+  const { message } = error;
+  const { data } = error;
+  res.status(status).json({ message: message, data: data });
+});
+
 User.hasMany(Order);
 Order.belongsTo(User, { constraints: true, onDelete: "CASCADE" });
 Order.hasOne(PaymentStatus);
