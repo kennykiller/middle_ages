@@ -14,6 +14,7 @@ import Ticket from "../models/ticket";
 import Session from "../models/session";
 import Order from "../models/order";
 import User from "../models/user";
+import RefreshToken from "../models/refresh-token";
 import Genre from "../models/genre";
 import Discount from "../models/discount";
 import adminRouter from "./routes/admin";
@@ -68,6 +69,8 @@ app.use((error, req, res, next) => {
 });
 
 User.hasMany(Order);
+User.hasOne(RefreshToken);
+RefreshToken.belongsTo(User, { foreignKey: "userId" });
 Order.belongsTo(User, { constraints: true, onDelete: "CASCADE" });
 Order.hasOne(PaymentStatus);
 PaymentStatus.belongsTo(Order);
