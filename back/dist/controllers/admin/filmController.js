@@ -8,13 +8,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const film_1 = __importDefault(require("../../../models/film"));
-const genre_1 = __importDefault(require("../../../models/genre"));
-const film_genres_1 = __importDefault(require("../../../models/film_genres"));
+const film_1 = require("../../models/film");
+const genre_1 = require("../../models/genre");
+const film_genres_1 = require("../../models/film_genres");
 exports.createFilm = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const filmData = req.body;
     if (!req.file) {
@@ -26,7 +23,7 @@ exports.createFilm = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
     const endDate = new Date(filmData.endDate);
     endDate.setUTCHours(23, 59, 59, 999);
     const imageUrl = req.file.path;
-    const film = yield film_1.default.create({
+    const film = yield film_1.Film.create({
         name: filmData.name,
         ageRestriction: filmData.ageRestriction,
         posterUrl: imageUrl,
@@ -39,10 +36,10 @@ exports.createFilm = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
     const filmGenresIds = JSON.parse(filmData.genres).map((genre) => {
         return { genreId: genre.id, filmId: film.dataValues.id };
     });
-    yield film_genres_1.default.bulkCreate(filmGenresIds);
+    yield film_genres_1.FilmGenres.bulkCreate(filmGenresIds);
     res.status(201).json({ message: "Film added.", createdFilm: film });
 });
 exports.getGenre = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const genres = yield genre_1.default.findAll();
+    const genres = yield genre_1.Genre.findAll();
     res.status(200).json({ genres });
 });

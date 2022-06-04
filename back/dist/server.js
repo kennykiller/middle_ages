@@ -17,17 +17,19 @@ const express_1 = __importDefault(require("express"));
 const body_parser_1 = __importDefault(require("body-parser"));
 const multer_1 = __importDefault(require("multer"));
 const film_1 = __importDefault(require("./routes/film"));
-const database_1 = __importDefault(require("../util/database"));
-const film_2 = __importDefault(require("../models/film"));
-const payment_status_1 = __importDefault(require("../models/payment-status"));
-const ticket_1 = __importDefault(require("../models/ticket"));
-const session_1 = __importDefault(require("../models/session"));
-const order_1 = __importDefault(require("../models/order"));
-const user_1 = __importDefault(require("../models/user"));
-const genre_1 = __importDefault(require("../models/genre"));
-const discount_1 = __importDefault(require("../models/discount"));
+const database_1 = require("./util/database");
+const film_2 = require("./models/film");
+const payment_status_1 = require("./models/payment-status");
+const ticket_1 = require("./models/ticket");
+const session_1 = require("./models/session");
+const order_1 = require("./models/order");
+const user_1 = require("./models/user");
+const refresh_token_1 = __importDefault(require("./models/refresh-token"));
+const genre_1 = require("./models/genre");
+const discount_1 = require("./models/discount");
 const admin_1 = __importDefault(require("./routes/admin"));
 const home_1 = __importDefault(require("./routes/home"));
+const auth_1 = __importDefault(require("./routes/auth"));
 const app = express_1.default();
 const port = 3000;
 const fileStorage = multer_1.default.diskStorage({
@@ -62,27 +64,36 @@ app.use((req, res, next) => {
 app.use(admin_1.default);
 app.use(home_1.default);
 app.use("/films", film_1.default);
+app.use("/auth", auth_1.default);
 app.use("/", film_1.default);
-user_1.default.hasMany(order_1.default);
-order_1.default.belongsTo(user_1.default, { constraints: true, onDelete: "CASCADE" });
-order_1.default.hasOne(payment_status_1.default);
-payment_status_1.default.belongsTo(order_1.default);
-session_1.default.hasMany(order_1.default);
-order_1.default.belongsTo(session_1.default);
-order_1.default.hasMany(ticket_1.default);
-ticket_1.default.belongsTo(order_1.default);
-discount_1.default.hasMany(ticket_1.default);
-ticket_1.default.belongsTo(discount_1.default);
-film_2.default.belongsToMany(genre_1.default, { through: "film_genres" });
-genre_1.default.belongsToMany(film_2.default, { through: "film_genres" });
-film_2.default.hasMany(session_1.default, { constraints: true, onDelete: "CASCADE" });
-session_1.default.belongsTo(film_2.default);
-ticket_1.default.belongsTo(session_1.default);
-session_1.default.hasMany(ticket_1.default, { constraints: true, onDelete: "CASCADE" }); //каждая сессия должна иметь места сколько в зале, чтобы их при покупке билета занимали
+app.use((error, req, res, next) => {
+    const status = error.statusCode || 500;
+    const { message } = error;
+    const { data } = error;
+    res.status(status).json({ message: message, data: data });
+});
+user_1.User.hasMany(order_1.Order);
+user_1.User.hasOne(refresh_token_1.default);
+refresh_token_1.default.belongsTo(user_1.User, { foreignKey: "userId" });
+order_1.Order.belongsTo(user_1.User, { constraints: true, onDelete: "CASCADE" });
+order_1.Order.hasOne(payment_status_1.PaymentStatus);
+payment_status_1.PaymentStatus.belongsTo(order_1.Order);
+session_1.Session.hasMany(order_1.Order);
+order_1.Order.belongsTo(session_1.Session);
+order_1.Order.hasMany(ticket_1.Ticket);
+ticket_1.Ticket.belongsTo(order_1.Order);
+discount_1.Discount.hasMany(ticket_1.Ticket);
+ticket_1.Ticket.belongsTo(discount_1.Discount);
+film_2.Film.belongsToMany(genre_1.Genre, { through: "film_genres" });
+genre_1.Genre.belongsToMany(film_2.Film, { through: "film_genres" });
+film_2.Film.hasMany(session_1.Session, { constraints: true, onDelete: "CASCADE" });
+session_1.Session.belongsTo(film_2.Film);
+ticket_1.Ticket.belongsTo(session_1.Session);
+session_1.Session.hasMany(ticket_1.Ticket, { constraints: true, onDelete: "CASCADE" }); //каждая сессия должна иметь места сколько в зале, чтобы их при покупке билета занимали
 function startServer() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            yield database_1.default.sync();
+            yield database_1.sequelize.sync();
             const server = app.listen(port);
             // const io = ioInstance.init(server);
             // io.on("connection", (socket) => {

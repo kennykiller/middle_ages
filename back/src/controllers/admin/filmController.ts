@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction, RequestHandler } from "express";
-import Film from "../../../models/film";
-import Genre from "../../../models/genre";
-import FilmGenres from "../../../models/film_genres";
+import { Film } from "../../models/film";
+import { Genre } from "../../models/genre";
+import { FilmGenres } from "../../models/film_genres";
 import { ErrorException } from "../../interfaces/events";
 
 export const createFilm = async (

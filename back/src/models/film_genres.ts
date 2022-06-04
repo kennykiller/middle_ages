@@ -1,7 +1,7 @@
 const Sequelize = require("sequelize");
 
-const sequelize = require("../util/database");
-const FilmGenres = sequelize.define("film_genres", {
+import { sequelize } from "../util/database";
+export const FilmGenres = sequelize.define("film_genres", {
   id: {
     type: Sequelize.INTEGER,
     autoIncrement: true,
@@ -17,5 +17,3 @@ const FilmGenres = sequelize.define("film_genres", {
     allowNull: false,
   },
 });
-
-module.exports = FilmGenres;

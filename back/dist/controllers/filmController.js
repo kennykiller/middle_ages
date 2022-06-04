@@ -8,22 +8,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
-const film_1 = __importDefault(require("../../models/film"));
-const genre_1 = __importDefault(require("../../models/genre"));
+const film_1 = require("../models/film");
+const genre_1 = require("../models/genre");
 const ITEMS_PER_PAGE = 4;
 exports.getFilms = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const page = +req.query.page || 1;
     const offset = page === 1 ? 0 : page * ITEMS_PER_PAGE;
     const limitItems = offset ? ITEMS_PER_PAGE : ITEMS_PER_PAGE * 2;
-    const films = yield film_1.default.findAndCountAll({
+    const films = yield film_1.Film.findAndCountAll({
         limit: limitItems,
         offset,
-        include: { model: genre_1.default, through: { attributes: [] } },
+        include: { model: genre_1.Genre, through: { attributes: [] } },
         distinct: true,
     });
     if (!films.count) {
@@ -40,11 +37,11 @@ exports.getUpcomingFilms = (req, res, next) => __awaiter(void 0, void 0, void 0,
     const month = d.getMonth() + 1 > 9 ? d.getMonth() + 1 : `0${d.getMonth() + 1}`;
     const year = d.getFullYear();
     const fullDate = `${year}-${month}-${date}`;
-    const films = yield film_1.default.findAndCountAll({
+    const films = yield film_1.Film.findAndCountAll({
         where: { startDate: { [sequelize_1.Op.gte]: fullDate } },
         limit: limitItems,
         offset,
-        include: genre_1.default,
+        include: genre_1.Genre,
         distinct: true,
     });
     if (!films.count) {
@@ -54,8 +51,8 @@ exports.getUpcomingFilms = (req, res, next) => __awaiter(void 0, void 0, void 0,
 });
 exports.getFilm = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const id = req.params.id;
-    const film = yield film_1.default.findByPk(id, {
-        include: { model: genre_1.default, through: { attributes: [] } },
+    const film = yield film_1.Film.findByPk(id, {
+        include: { model: genre_1.Genre, through: { attributes: [] } },
         attributes: { exclude: ["createdAt", "updatedAt"] },
     });
     console.log(film);

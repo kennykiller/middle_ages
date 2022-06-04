@@ -8,11 +8,11 @@ import {
 } from "../controllers/auth/signupController";
 import { signin, refreshToken } from "../controllers/auth/loginController";
 import { verifyToken } from "../authJwt";
-import User from "../../models/user";
+import { User } from "../models/user";
 
-const router = Router();
+const authRouter = Router();
 
-router.post(
+authRouter.post(
   "/signup",
   [
     check("email")
@@ -20,7 +20,7 @@ router.post(
       .withMessage("Пожалуйста, введите валидный email")
       .custom(async (value, { req }) => {
         try {
-          const user = await User.findByOne({ where: { email: value } });
+          const user = await User.findOne({ where: { email: value } });
           if (user) {
             return Promise.reject("E-Mail уже существует!");
           }
@@ -39,15 +39,15 @@ router.post(
       return true;
     }),
   ],
-  verifyToken,
+  // verifyToken,
   createUser
 );
 
-router.post("/refreshtoken", refreshToken);
+authRouter.post("/refreshtoken", refreshToken);
 
-router.post("/logout", logout);
+authRouter.post("/logout", logout);
 
-router.post(
+authRouter.post(
   "/login",
   [
     check("email").isEmail().withMessage("Пожалуйста, введите валидный email"),
@@ -58,9 +58,9 @@ router.post(
   signin
 );
 
-router.post("/reset", reset);
+authRouter.post("/reset", reset);
 
-router.post(
+authRouter.post(
   "/new-password",
   [
     body("password", "Пароль должен быть не менее 6 символов").isLength({
@@ -76,4 +76,4 @@ router.post(
   createNewPassword
 );
 
-module.exports = router;
+export default authRouter;

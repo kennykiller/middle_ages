@@ -8,19 +8,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const discount_1 = __importDefault(require("../../models/discount"));
+const discount_1 = require("../models/discount");
 const ITEMS_PER_PAGE = 4;
 exports.getDiscounts = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const page = +req.query.page || 1;
     const offset = page === 1 ? 0 : page * ITEMS_PER_PAGE;
     const limitItems = offset ? ITEMS_PER_PAGE : ITEMS_PER_PAGE * 2;
-    const discounts = yield discount_1.default.findAndCountAll({ limit: limitItems, offset });
+    const discounts = yield discount_1.Discount.findAndCountAll({
+        limit: limitItems,
+        offset,
+    });
     if (!discounts.count) {
-        res.status(200).json('Акции не найдены.');
+        res.status(200).json("Акции не найдены.");
     }
     res.status(200).json(discounts);
 });

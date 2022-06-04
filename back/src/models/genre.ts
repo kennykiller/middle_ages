@@ -1,8 +1,8 @@
 const Sequelize = require("sequelize");
 
-const sequelize = require("../util/database");
+import { sequelize } from "../util/database";
 
-const Status = sequelize.define("status", {
+export const Genre = sequelize.define("genre", {
   id: {
     type: Sequelize.INTEGER,
     autoIncrement: true,
@@ -11,8 +11,6 @@ const Status = sequelize.define("status", {
   },
   name: {
     type: Sequelize.STRING,
-    allowNull: false
+    allowNull: false,
   },
 });
-
-module.exports = Status;

@@ -1,8 +1,8 @@
 const { STRING, INTEGER } = require("sequelize");
 
-const sequelize = require("../util/database");
+import { sequelize } from "../util/database";
 
-const Ticket = sequelize.define("ticket", {
+export const Ticket = sequelize.define("ticket", {
   id: {
     type: INTEGER,
     autoIncrement: true,
@@ -18,5 +18,3 @@ const Ticket = sequelize.define("ticket", {
     allowNull: false,
   },
 });
-
-module.exports = Ticket;

@@ -1,8 +1,8 @@
 const Sequelize = require("sequelize");
 
-const sequelize = require("../util/database");
+import { sequelize } from "../util/database";
 
-const Film = sequelize.define("film", {
+export const Discount = sequelize.define("discount", {
   id: {
     type: Sequelize.INTEGER,
     autoIncrement: true,
@@ -20,25 +20,12 @@ const Film = sequelize.define("film", {
   posterUrl: {
     type: Sequelize.TEXT,
   },
-  description: {
-    type: Sequelize.TEXT,
-  },
-  filmDuration: {
-    type: Sequelize.TIME,
-    allowNull: false,
-  },
-  basePrice: {
+  discountPercentage: {
     type: Sequelize.INTEGER,
     allowNull: false,
   },
-  startDate: {
-    type: Sequelize.DATE,
-    allowNull: false,
-  },
-  endDate: {
-    type: Sequelize.DATE,
+  description: {
+    type: Sequelize.TEXT,
     allowNull: false,
   },
 });
-
-module.exports = Film;

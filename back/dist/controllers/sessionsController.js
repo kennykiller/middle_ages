@@ -8,17 +8,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
-const session_1 = __importDefault(require("../../models/session"));
+const session_1 = require("../models/session");
 exports.getSessions = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const id = +req.params.id;
     const dateStart = new Date(req.body.date).setUTCHours(0, 0, 0, 0);
     const dateEnd = new Date(req.body.date).setUTCHours(23, 59, 59, 999);
-    const sessions = yield session_1.default.findAll({
+    const sessions = yield session_1.Session.findAll({
         where: {
             filmId: id,
             filmStart: {

@@ -1,8 +1,8 @@
 import { RequestHandler } from "express";
 import { Op } from "sequelize";
-import Film from "../../../models/film";
-import Session from "../../../models/session";
-import Genre from "../../../models/genre";
+import { Film } from "../../models/film";
+import { Session } from "../../models/session";
+import { Genre } from "../../models/genre";
 import { DailySchedule, FilmForSession } from "../../interfaces/base";
 
 interface ScheduleForRecalculation extends Partial<DailySchedule> {}

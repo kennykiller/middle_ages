@@ -8,11 +8,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const discount_1 = __importDefault(require("../../../models/discount"));
+const discount_1 = require("../../models/discount");
 exports.createDiscount = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const discountData = req.body;
     if (!req.file) {
@@ -21,7 +18,7 @@ exports.createDiscount = (req, res, next) => __awaiter(void 0, void 0, void 0, f
         throw error;
     }
     const imageUrl = req.file.path;
-    const discount = yield discount_1.default.create({
+    const discount = yield discount_1.Discount.create({
         name: discountData.name,
         ageRestriction: discountData.ageRestriction,
         posterUrl: imageUrl,

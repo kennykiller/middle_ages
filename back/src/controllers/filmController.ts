@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
 import { Op } from "sequelize";
-import Film from "../../models/film";
-import Genre from "../../models/genre";
+import { Film } from "../models/film";
+import { Genre } from "../models/genre";
 
 const ITEMS_PER_PAGE = 4;
 interface FilmsFromDB {

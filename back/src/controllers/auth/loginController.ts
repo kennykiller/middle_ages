@@ -1,6 +1,6 @@
 import { authConfig } from "../../auth.config";
-import User from "../../../models/user";
-import RefreshToken from "../../../models/refresh-token";
+import { User } from "../../models/user";
+import RefreshToken from "../../models/refresh-token";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { RequestHandler } from "express";

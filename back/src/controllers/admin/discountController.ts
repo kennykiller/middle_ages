@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import Discount from "../../../models/discount";
+import { Discount } from "../../models/discount";
 import { ErrorException } from "../../interfaces/events";
 
 export const createDiscount: RequestHandler = async (req, res, next) => {

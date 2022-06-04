@@ -8,20 +8,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
-const film_1 = __importDefault(require("../../../models/film"));
-const session_1 = __importDefault(require("../../../models/session"));
-const genre_1 = __importDefault(require("../../../models/genre"));
+const film_1 = require("../../models/film");
+const session_1 = require("../../models/session");
+const genre_1 = require("../../models/genre");
 const ITEMS_PER_PAGE = 4;
 exports.createSession = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const filmStart = req.body.filmStart;
     const { price } = req.body;
     const filmId = req.body.id;
-    const session = yield session_1.default.create({
+    const session = yield session_1.Session.create({
         filmStart,
         price,
         filmId,
@@ -29,7 +26,7 @@ exports.createSession = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
     res.status(201).json({ message: "Сеанс добавлен.", createdFilm: session });
 });
 const receiveFilms = (start, end) => __awaiter(void 0, void 0, void 0, function* () {
-    const films = yield film_1.default.findAll({
+    const films = yield film_1.Film.findAll({
         where: {
             [sequelize_1.Op.or]: [
                 {
@@ -59,7 +56,7 @@ const receiveFilms = (start, end) => __awaiter(void 0, void 0, void 0, function*
             ],
         },
         include: {
-            model: genre_1.default,
+            model: genre_1.Genre,
             attributes: { exclude: ["createdAt", "updatedAt"] },
             through: { attributes: [] },
         },

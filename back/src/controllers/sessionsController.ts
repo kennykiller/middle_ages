@@ -1,6 +1,6 @@
 import { RequestHandler } from "express";
 import { Op } from "sequelize";
-import Session from "../../models/session";
+import { Session } from "../models/session";
 
 export const getSessions: RequestHandler = async (req, res, next) => {
   const id = +req.params.id;

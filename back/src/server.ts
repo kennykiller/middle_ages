@@ -7,18 +7,19 @@ import multer from "multer";
 import { ioInstance } from "./socket";
 
 import films from "./routes/film";
-import sequelize from "../util/database";
-import Film from "../models/film";
-import PaymentStatus from "../models/payment-status";
-import Ticket from "../models/ticket";
-import Session from "../models/session";
-import Order from "../models/order";
-import User from "../models/user";
-import RefreshToken from "../models/refresh-token";
-import Genre from "../models/genre";
-import Discount from "../models/discount";
+import { sequelize } from "./util/database";
+import { Film } from "./models/film";
+import { PaymentStatus } from "./models/payment-status";
+import { Ticket } from "./models/ticket";
+import { Session } from "./models/session";
+import { Order } from "./models/order";
+import { User } from "./models/user";
+import RefreshToken from "./models/refresh-token";
+import { Genre } from "./models/genre";
+import { Discount } from "./models/discount";
 import adminRouter from "./routes/admin";
 import homeRouter from "./routes/home";
+import authRouter from "./routes/auth";
 
 const app: Application = express();
 const port = 3000;
@@ -59,6 +60,7 @@ app.use((req, res, next) => {
 app.use(adminRouter);
 app.use(homeRouter);
 app.use("/films", films);
+app.use("/auth", authRouter);
 app.use("/", films);
 
 app.use((error, req, res, next) => {

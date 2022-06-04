@@ -1,0 +1,158 @@
+a {
+  color: #428eff;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+h1 {
+  font-size: 1.8rem;
+  color: #000;
+  font-weight: 400;
+  margin: 0;
+  margin-bottom: 2rem;
+}
+
+.alert,
+.success {
+  z-index: 1000;
+  position: relative;
+  border-radius: 0.25rem;
+  min-height: 7rem;
+  background: #fff;
+  overflow: hidden;
+  padding: 1.25rem 1.8rem;
+
+  position: fixed;
+  width: 20rem;
+  top: 5rem;
+  right: 4rem;
+  box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.05);
+  @media (max-width: 768px) {
+    top: 0;
+    bottom: 5rem;
+    width: 100vw;
+    position: relative;
+    right: 0;
+    left: 0;
+  }
+
+  &:before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 0.3rem;
+    background: #da5656;
+  }
+}
+.success::before {
+  background: #6bca2b;
+}
+.success,
+.alert {
+  &__title {
+    font-size: 1.1rem;
+    line-height: 1.5rem;
+    color: #000;
+    margin-bottom: 0.5rem;
+  }
+}
+.success,
+.alert {
+  &__description {
+    font-size: 0.9rem;
+    line-height: 1.1rem;
+    color: #727272;
+  }
+}
+
+.auth {
+  position: relative;
+  margin: 0 auto;
+  padding: 3rem;
+  padding-bottom: 5.5rem;
+  max-width: 400px;
+  background: #fff;
+  box-sizing: border-box;
+  min-height: 27.25rem;
+  border-radius: 0.25rem;
+  text-align: center;
+  box-shadow: 0 0.25rem 0.75rem 0 rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  @media (max-height: 768px) {
+    padding: 0.2rem 0.4rem;
+    min-height: 23rem;
+    width: 80%;
+  }
+}
+
+.auth__footer {
+  background: #f7f7f7;
+  font-size: 0.9rem;
+  color: #727272;
+  line-height: 2rem;
+}
+
+.form__item {
+  margin: 1rem 0;
+  position: relative;
+}
+
+input {
+  font-size: 1rem;
+  height: 3rem;
+  width: 100%;
+  padding: 0 0.75rem;
+  padding-top: 1rem;
+  border: 1px solid #ced4da;
+  outline: none;
+  border-radius: 3px;
+  box-shadow: none;
+  transition: box-shadow 0.3s;
+
+  &:focus {
+    border-color: #88b8fe;
+    box-shadow: 0 0 0 4px rgba(#88b8fe, 0.25);
+  }
+}
+
+label {
+  position: absolute;
+  pointer-events: none;
+  left: 12px;
+  top: 0;
+  line-height: 3rem;
+  transition: 0.3s;
+  color: #6b757c;
+
+  input:focus ~ &,
+  input:not(:focus):valid ~ & {
+    top: -0.7rem;
+    font-size: 0.7rem;
+  }
+}
+
+.form__submit-button {
+  margin-top: 2.5rem;
+}
+button {
+  height: 3rem;
+  width: 100%;
+  border-radius: 0.25rem;
+  background: #428eff;
+  color: #fff;
+  text-transform: uppercase;
+  text-align: center;
+  border: 0;
+  &:hover {
+    cursor: pointer;
+  }
+}
+.errorInput {
+  background-color: rgb(219, 170, 170);
+  border: 1px solid red;
+}
