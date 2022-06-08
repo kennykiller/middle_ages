@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { FileUploader } from "@/utils/fileUpload";
-import { HTMLInputElement } from "../../../../interfaces/events";
 import { SnackType } from "../../../../interfaces/types";
 import { Film, Genre, FilmResponse } from "../../../../interfaces/models";
 import axios from "axios";
@@ -153,7 +152,7 @@ const resize = () => {
             draggable="false"
           />
           <input
-            @change="filmFileUploader.setFile($event as HTMLInputElement, film)"
+            @change="filmFileUploader.setFile($event, film)"
             type="file"
             id="fileInput"
             class="drop-zone__file-input"

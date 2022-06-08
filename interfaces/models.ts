@@ -54,7 +54,7 @@ export interface DiscountResponse {
   };
 }
 export interface Discount {
-  id: number | undefined;
+  id?: number;
   name: string;
   ageRestriction: string;
   posterUrl: string;

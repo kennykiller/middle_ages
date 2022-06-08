@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
-
+import { getImageUrl } from "@/utils/getImage";
 interface Props {
   url: string;
   description: string;
@@ -18,7 +18,7 @@ const fullName = computed(
   <Transition name="slide" appear>
     <div class="discount__container">
       <div class="special-box-shadow">
-        <img :src="require(`@/${url}`)" alt="" class="discount__image" />
+        <img :src="getImageUrl(url)" alt="" class="discount__image" />
       </div>
       <div class="discount__details">
         <h2>{{ fullName }}</h2>

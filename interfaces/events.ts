@@ -1,4 +1,4 @@
-export interface HTMLInputElement extends Event {
-    target: HTMLInputElement & EventTarget;
-    files: FileList;
+export interface IInputElement extends Event {
+  target: HTMLInputElement & EventTarget;
+  files: FileList;
 }

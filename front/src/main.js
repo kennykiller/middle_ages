@@ -1,4 +1,4 @@
-import { createApp } from "../node_modules/vue";
+import { createApp } from "vue";
 import { store, key } from "@/store";
 import App from "./App.vue";
 import router from "./router";

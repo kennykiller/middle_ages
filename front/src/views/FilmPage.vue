@@ -2,6 +2,7 @@
 import { onBeforeMount, reactive, Ref, ref } from "vue";
 import { useRoute } from "vue-router";
 import { Film, Genre } from "../../../interfaces/models";
+import { getImageUrl } from "@/utils/getImage";
 import axios, { AxiosResponse } from "axios";
 import BaseBadge from "@/components/UI/BaseBadge.vue";
 import CalendarComponent from "@/components/CalendarComponent.vue";
@@ -97,7 +98,7 @@ const getSessions = async (date: Date) => {
   <div class="item__wrapper film" v-if="film.value">
     <div class="film__base-info-wrapper">
       <div class="film__poster-wrapper">
-        <img class="film-poster" :src="require(`@/${url}`)" alt="" />
+        <img class="film-poster" :src="getImageUrl(url)" alt="" />
       </div>
       <div class="film__text-wrapper">
         <h1>{{ film.value.name }}</h1>
@@ -121,6 +122,7 @@ const getSessions = async (date: Date) => {
     </div>
     <div class="film__schedule-wrapper">
       <CalendarComponent
+        v-if="film.value.startDate"
         @check-theaters="checkTheaters = $event"
         @choose-date="getSessions($event)"
         text="Выберите дату"

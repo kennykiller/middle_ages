@@ -1,4 +1,17 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import axios from "axios";
+import { reactive } from "vue";
+
+const loginData = reactive({
+  email: "",
+  password: "",
+});
+
+const loginHandler = async () => {
+  const res = await axios.post("http://localhost:3000/auth/login", loginData);
+  console.log(res);
+};
+</script>
 
 <template>
   <div>
@@ -10,13 +23,13 @@
     </div>
     <section class="auth">
       <h1>Войдите в аккаунт</h1>
-      <form @submit.prevent="" class="form">
+      <form @submit.prevent="loginHandler" class="form">
         <div class="form__item">
-          <input type="email" />
+          <input type="email" v-model.trim="loginData.email" />
           <label>Email</label>
         </div>
         <div class="form__item">
-          <input type="password" />
+          <input type="password" v-model.trim="loginData.password" />
           <label>Пароль</label>
         </div>
         <div class="form__submit">

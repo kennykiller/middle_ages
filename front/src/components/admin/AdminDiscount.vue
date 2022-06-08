@@ -3,7 +3,6 @@ import { Discount, DiscountResponse } from "../../../../interfaces/models";
 import { SnackType } from "../../../../interfaces/types";
 import { FileUploader } from "@/utils/fileUpload";
 import axios from "axios";
-import { HTMLInputElement } from "../../../../interfaces/events";
 import { reactive, ref, onMounted, computed, Ref } from "vue";
 import BaseSnack from "../UI/BaseSnack.vue";
 
@@ -50,7 +49,7 @@ async function createDiscount() {
   formData.append("description", discount.description);
   formData.append("discountPercentage", String(discount.discountPercentage));
   try {
-    const res:DiscountResponse = await axios.post(
+    const res: DiscountResponse = await axios.post(
       "http://localhost:3000/admin/discount",
       formData,
       {
@@ -127,7 +126,7 @@ async function createDiscount() {
             draggable="false"
           />
           <input
-            @change="discountFileUploader.setFile($event as HTMLInputElement, discount)"
+            @change="discountFileUploader.setFile($event, discount)"
             type="file"
             id="fileInput"
             class="drop-zone__file-input"
