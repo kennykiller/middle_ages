@@ -3,6 +3,7 @@ import FilmCarouselItem from "./FilmCarouselItem.vue";
 import { reactive, onBeforeMount, ref, Ref, computed } from "vue";
 import { Film } from "../../../../interfaces/models";
 import axios from "axios";
+import BaseSubheader from "../UI/BaseSubheader.vue";
 
 type mode = "inc" | "dec";
 interface FilmsFromDB {
@@ -11,7 +12,7 @@ interface FilmsFromDB {
 }
 
 interface Props {
-  carouselType: 'all' | 'upcoming';
+  carouselType: "all" | "upcoming";
 }
 const props = defineProps<Props>();
 
@@ -39,7 +40,6 @@ onBeforeMount(async () => {
   } else {
     filmsToShow.value = films.value.slice(0);
     console.log(filmsToShow.value);
-    
   }
 });
 const getFilms = async (page: number) => {
@@ -47,9 +47,10 @@ const getFilms = async (page: number) => {
     "Access-Control-Allow-Origin": "*",
   };
   try {
-    const url = props.carouselType === 'all'
-      ? `http://localhost:3000/?page=${page}`
-      : `http://localhost:3000/upcoming?page=${page}`
+    const url =
+      props.carouselType === "all"
+        ? `http://localhost:3000/?page=${page}`
+        : `http://localhost:3000/upcoming?page=${page}`;
     const response = await axios.get(url, {
       headers,
     });
@@ -87,24 +88,14 @@ const carouselControl = async () => {
 
 <template>
   <section class="current-films__container">
-    <div
-      :class="{
-        'arrows__container--end': page === 1 && !isLastPage,
-        'arrows__container--start': page > 1 && isLastPage,
-      }"
-      class="arrows__container"
-    >
-      <div v-if="page > 1" @click="changePage('dec')" class="arrow arrow--back">
-        <img src="@/static/arrow.png" alt="" />
-      </div>
-      <div
-        v-if="!allFilmsReceived || !isLastPage"
-        @click="changePage('inc')"
-        class="arrow arrow--forward"
-      >
-        <img src="@/static/arrow.png" alt="" />
-      </div>
-    </div>
+    <BaseSubheader
+      :subtitle="carouselType === 'all' ? 'Фильмы' : 'Анонсы'"
+      :page="page"
+      :is-last-page="isLastPage"
+      :all-data-received="allFilmsReceived"
+      @next-page="changePage('inc')"
+      @prev-page="changePage('dec')"
+    ></BaseSubheader>
     <div class="film-carousel">
       <FilmCarouselItem
         v-for="film in filmsToShow.value"
@@ -124,40 +115,13 @@ const carouselControl = async () => {
   display: flex;
   justify-content: space-between;
   flex-direction: column;
-  .arrows__container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 3rem;
-    padding: 0.5rem;
-    margin-bottom: 1.5rem;
-    &--end {
-      justify-content: flex-end;
-    }
-    &--start {
-      justify-content: flex-start;
-    }
-    .arrow {
-      cursor: pointer;
-      &:hover img {
-        transform: scale(1.5);
-      }
-      &--forward {
-        transform: rotate(180deg);
-        &:hover img {
-          transform: scale(1.5);
-        }
-      }
-    }
-    .arrow,
-    .arrow img {
-      width: 1.5rem;
-      transition: transform 0.4s ease;
-    }
-  }
   .film-carousel {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr;
+    background: #fff;
+    padding: 10px 5px;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 15px #88b8fe;
     div {
       transition: opacity 0.6s ease;
     }

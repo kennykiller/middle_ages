@@ -1,6 +1,6 @@
 <script setup lang="ts">
 interface Props {
-  text: string;
+  text?: string;
   popover?: boolean;
   popoverText?: string;
 }
@@ -11,10 +11,12 @@ const props = defineProps<Props>();
 <template>
   <div class="badge__wrapper">
     <button>
-      <span>{{ props.text }}</span>
+      <slot name="image"
+        ><span>{{ props.text }}</span></slot
+      >
     </button>
     <div v-if="props.popover" class="badge__popover">
-        {{ props.popoverText }}
+      {{ props.popoverText }}
     </div>
   </div>
 </template>
@@ -37,7 +39,7 @@ const props = defineProps<Props>();
     box-shadow: 0 0 0 4px rgba(#88b8fe, 0.25);
   }
   &:hover .badge__popover {
-      opacity: 1;
+    opacity: 1;
   }
   button {
     border: none;
@@ -50,20 +52,21 @@ const props = defineProps<Props>();
   }
 }
 .badge__popover {
-    position: absolute;
-    opacity: 0;
-    width: 8rem;
-    top: calc(100% + 1rem);
-    left: 50%;
-    transition: opacity .5s ease;
-    transform: translateX(-50%);
-    padding: 0.5rem;
-    pointer-events: none;
-    background: #fff;
-    border-radius: 0.25rem;
-    font-size: 0.8rem;
-    color: #88b8fe;
-    border: 1px solid #88b8fe;
-    box-shadow: 0 0 0 4px rgba(#88b8fe, 0.25);
+  position: absolute;
+  opacity: 0;
+  width: auto;
+  top: calc(100% + 1rem);
+  left: 50%;
+  transition: opacity 0.5s ease;
+  transform: translateX(-50%);
+  padding: 0.5rem;
+  pointer-events: none;
+  background: #fff;
+  border-radius: 0.25rem;
+  text-align: center;
+  text-shadow: none;
+  color: #88b8fe;
+  border: 1px solid #88b8fe;
+  box-shadow: 0 0 0 4px rgba(#88b8fe, 0.25);
 }
 </style>

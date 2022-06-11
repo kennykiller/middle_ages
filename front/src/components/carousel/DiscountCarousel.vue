@@ -3,7 +3,7 @@ import DiscountCarouselItem from "./DiscountCarouselItem.vue";
 import { reactive, onBeforeMount, ref, Ref, computed } from "vue";
 import { Discount } from "../../../../interfaces/models";
 import axios from "axios";
-import DiscountCarouselItem1 from "./DiscountCarouselItem.vue";
+import BaseSubheader from "../UI/BaseSubheader.vue";
 
 type mode = "inc" | "dec";
 interface DiscountsFromDB {
@@ -93,24 +93,14 @@ const carouselControl = async () => {
 
 <template>
   <section class="current-discounts__container">
-    <div
-      :class="{
-        'arrows__container--end': page === 1 && !isLastPage,
-        'arrows__container--start': page > 1 && isLastPage,
-      }"
-      class="arrows__container"
-    >
-      <div v-if="page > 1" @click="changePage('dec')" class="arrow arrow--back">
-        <img src="@/static/arrow.png" alt="" />
-      </div>
-      <div
-        v-if="!allDiscountsReceived || !isLastPage"
-        @click="changePage('inc')"
-        class="arrow arrow--forward"
-      >
-        <img src="@/static/arrow.png" alt="" />
-      </div>
-    </div>
+    <BaseSubheader
+      subtitle="Акции"
+      :all-data-received="allDiscountsReceived"
+      :is-last-page="isLastPage"
+      :page="page"
+      @next-page="changePage('inc')"
+      @prev-page="changePage('dec')"
+    ></BaseSubheader>
     <div class="discount-carousel">
       <DiscountCarouselItem
         v-for="discount in discountsToShow.value"
@@ -130,40 +120,12 @@ const carouselControl = async () => {
   display: flex;
   justify-content: space-between;
   flex-direction: column;
-  .arrows__container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 3rem;
-    padding: 0.5rem;
-    margin-bottom: 1.5rem;
-    &--end {
-      justify-content: flex-end;
-    }
-    &--start {
-      justify-content: flex-start;
-    }
-    .arrow {
-      cursor: pointer;
-      &:hover img {
-        transform: scale(1.5);
-      }
-      &--forward {
-        transform: rotate(180deg);
-        &:hover img {
-          transform: scale(1.5);
-        }
-      }
-    }
-    .arrow,
-    .arrow img {
-      width: 1.5rem;
-      transition: transform 0.4s ease;
-    }
-  }
   .discount-carousel {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr;
+    padding: 10px 5px;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 15px #88b8fe;
     div {
       transition: opacity 0.6s ease;
     }
