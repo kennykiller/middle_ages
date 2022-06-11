@@ -97,6 +97,9 @@ import BaseBadge from "@/components/UI/BaseBadge.vue";
     display: flex;
     gap: 20px;
     &__item {
+      &:hover a {
+        color: #88b8fe;
+      }
       .router-link-exact-active {
         border-bottom: 5px solid #88b8fe;
       }

@@ -1,15 +1,16 @@
 <script setup lang="ts">
-import axios from "axios";
 import { reactive } from "vue";
+import { authModule } from "@/store/auth/auth-actions";
 
 const loginData = reactive({
   email: "",
   password: "",
 });
 
+// const store = useStore();
+
 const loginHandler = async () => {
-  const res = await axios.post("http://localhost:3000/auth/login", loginData);
-  console.log(res);
+  authModule.login(loginData);
 };
 </script>
 

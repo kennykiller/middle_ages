@@ -10,6 +10,16 @@
 // import SocketioService from "./utils/socketio";
 import HeaderComponent from "./components/HeaderComponent.vue";
 import FooterComponent from "./components/FooterComponent.vue";
+import { useStore } from "./store";
+import { onMounted } from "vue";
+const store = useStore();
+const resizeControl = () => {
+  store.commit("setWindowWidth", window.innerWidth);
+};
+onMounted(() => {
+  window.addEventListener("resize", resizeControl);
+  resizeControl();
+});
 // import { onBeforeMount, onBeforeUnmount } from "vue";
 
 // onBeforeMount(() => {

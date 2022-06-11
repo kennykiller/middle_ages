@@ -168,8 +168,6 @@ const getSessions = async (date: Date) => {
     display: flex;
     justify-content: center;
   }
-  &__text-wrapper {
-  }
   &__genres-wrapper {
     display: flex;
     width: 100%;

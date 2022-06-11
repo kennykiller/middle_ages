@@ -1,9 +1,17 @@
-import { createStore } from '../../node_modules/vuex';
+import { createStore, useStore as baseUseStore, } from "../../node_modules/vuex";
 // define injection key
 export const key = Symbol();
 export const store = createStore({
     state: {
-        'snack/error': false,
-        'snack/info': false
-    }
+        windowWidth: 0,
+    },
+    mutations: {
+        setWindowWidth(state, val) {
+            console.log(val, "in mutations");
+            state.windowWidth = val;
+        },
+    },
 });
+export function useStore() {
+    return baseUseStore(key);
+}
