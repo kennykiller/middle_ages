@@ -1,4 +1,5 @@
-import axios from "axios";
+import { useRouter } from "vue-router";
+import axios, { AxiosResponse, AxiosError } from "axios";
 import { VuexModule, Module, Mutation, Action } from "vuex-class-modules";
 
 interface loginPayload {
@@ -6,50 +7,86 @@ interface loginPayload {
   password: string;
 }
 interface userData {
-  id: number;
-  email: string;
-  name: string;
+  id?: number;
+  email?: string;
+  name?: string;
+  accessToken?: string | null;
+  refreshToken?: string;
+  message?: string;
+}
+
+interface tokens {
   accessToken: string;
   refreshToken: string;
 }
 
-const authHeader = () => {
-  const user = JSON.parse(localStorage.getItem("user"));
-  if (user && user.accessToken) {
-    return { "x-access-token": user.accessToken };
-  } else {
-    return {};
-  }
-};
+const router = useRouter();
 
 @Module
 class AuthModule extends VuexModule {
   isAuthenticated = false;
   isAdmin = false;
-  refreshTokenIsValid = false;
 
   @Mutation
   setSuccessfulLoginData(userData: userData) {
     this.isAuthenticated = !!userData.accessToken;
-    this.refreshTokenIsValid = !!userData.refreshToken;
     if (userData.accessToken) {
+      // axios.defaults.headers.common[
+      //   "Authorization"
+      // ] = `Bearer ${userData.accessToken}`;
       localStorage.setItem("user", JSON.stringify(userData));
     }
   }
-  checkAuthentication() {}
+  setUpdatedTokens(tokens: tokens) {
+    const user = localStorage.getItem("user");
+    if (user) {
+      const parsedUser = JSON.parse(user);
+      const updatedData = {
+        ...parsedUser,
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+      };
+      localStorage.setItem("user", JSON.stringify(updatedData));
+    }
+  }
+  resetData() {
+    this.isAuthenticated = false;
+    this.isAdmin = false;
+    localStorage.removeItem("user");
+    router.push("/");
+  }
+  // checkAuthentication() {
+  //   if (localStorage.getItem("user")) {
+
+  //   }
+  // }
 
   @Action
   async login(payload: loginPayload) {
     try {
-      const res = await axios.post("http://localhost:3000/auth/login", payload);
-      console.log(res);
+      const res: AxiosResponse<userData> = await axios.post(
+        "auth/login",
+        payload
+      );
+
       if (res.data?.id) {
         this.setSuccessfulLoginData(res.data);
+        return true;
       } else {
-        throw Error("неудачная попытка авторизации");
+        return res.data?.message;
       }
     } catch (e) {
       console.log(e);
+    }
+  }
+  async logout() {
+    const storedUser = localStorage.getItem("user");
+    const user = storedUser ? JSON.parse(storedUser) : null;
+    console.log(user);
+    if (user) {
+      await axios.post("auth/logout", { id: user.id });
+      axios.defaults.headers.common["Authorization"] = "";
+      this.resetData();
     }
   }
 }

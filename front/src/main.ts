@@ -3,6 +3,7 @@ import { store, key } from "@/store";
 import App from "./App.vue";
 import router from "./router";
 import "@/assets/styles/main.scss";
+import "@/utils/axios";
 
 const app = createApp(App);
 

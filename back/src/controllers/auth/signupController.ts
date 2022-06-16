@@ -29,13 +29,11 @@ export const createUser: RequestHandler = async (req, res, next) => {
       phone,
       email,
     });
-    res
-      .status(201)
-      .json({
-        success: true,
-        message: "Пользователь успешно зарегистрирован",
-        user,
-      });
+    res.status(201).json({
+      success: true,
+      message: "Пользователь успешно зарегистрирован",
+      user,
+    });
   } catch (e) {
     if (!e.statusCode) {
       e.statusCode = 500;
@@ -43,7 +41,5 @@ export const createUser: RequestHandler = async (req, res, next) => {
     next(e);
   }
 };
-export const login: RequestHandler = (req, res, next) => {};
-export const logout: RequestHandler = (req, res, next) => {};
 export const reset: RequestHandler = (req, res, next) => {};
 export const createNewPassword: RequestHandler = (req, res, next) => {};

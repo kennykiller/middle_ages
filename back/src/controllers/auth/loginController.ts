@@ -20,7 +20,7 @@ export const signin: RequestHandler = async (req, res, next) => {
       user.password
     );
     if (!passwordIsValid) {
-      return res.status(401).send({
+      return res.status(422).send({
         accessToken: null,
         message: "Неверный пароль",
       });
@@ -29,9 +29,12 @@ export const signin: RequestHandler = async (req, res, next) => {
       expiresIn: authConfig.jwtExpiration,
     });
     let refreshToken = await RefreshToken.createToken(user);
+    // res.cookie("refreshToken", refreshToken, {
+    //   httpOnly: true,
+    //   maxAge: 3 * 60 * 1000,
+    // });
     res.status(200).send({
       id: user.id,
-      email: user.email,
       name: user.name,
       accessToken: token,
       refreshToken: refreshToken,
@@ -57,7 +60,7 @@ export const refreshToken: RequestHandler = async (req, res, next) => {
       return;
     }
     if (RefreshToken.verifyExpiration(refreshToken)) {
-      RefreshToken.destroy({
+      await RefreshToken.destroy({
         where: {
           id: refreshToken.id,
         },
@@ -66,16 +69,36 @@ export const refreshToken: RequestHandler = async (req, res, next) => {
         message: "Рефреш-токен устарел",
       });
       return;
+    } else {
+      await RefreshToken.destroy({
+        where: {
+          id: refreshToken.id,
+        },
+      });
     }
     const user = await refreshToken.getUser();
     let newAccessToken = jwt.sign({ id: user.id }, authConfig.secret, {
       expiresIn: authConfig.jwtExpiration,
     });
+    const newRefreshToken = await RefreshToken.createToken(user);
     return res.status(200).json({
       accessToken: newAccessToken,
-      refreshToken: refreshToken.token,
+      refreshToken: newRefreshToken,
     });
   } catch (e) {
     return res.status(500).send({ message: e });
   }
+};
+
+export const logout: RequestHandler = async (req, res, next) => {
+  const id = req.body.id;
+  await RefreshToken.destroy({
+    where: {
+      userId: id,
+    },
+  });
+
+  res.send({
+    message: "success",
+  });
 };

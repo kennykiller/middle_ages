@@ -7,7 +7,6 @@ export const store = createStore({
     },
     mutations: {
         setWindowWidth(state, val) {
-            console.log(val, "in mutations");
             state.windowWidth = val;
         },
     },

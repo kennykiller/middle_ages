@@ -1,25 +1,35 @@
 <script setup lang="ts">
-import { reactive } from "vue";
+import { reactive, ref, computed } from "vue";
 import { authModule } from "@/store/auth/auth-actions";
+import { useRouter } from "vue-router";
 
 const loginData = reactive({
   email: "",
   password: "",
 });
 
-// const store = useStore();
+const router = useRouter();
+
+const errorMessage = ref("");
 
 const loginHandler = async () => {
-  authModule.login(loginData);
+  const res = await authModule.login(loginData);
+  if (typeof res === "string") {
+    errorMessage.value = res;
+    setTimeout(() => (errorMessage.value = ""), 4000);
+  } else if (res) {
+    router.push({ path: "/" });
+  }
+  console.log(res);
 };
 </script>
 
 <template>
   <div>
-    <div class="alert">
+    <div v-if="errorMessage" class="alert">
       <div class="alert__title">Ошибка авторизации</div>
       <div class="alert__description">
-        Проверьте введенные данные или зарегистрируйтесь.
+        {{ errorMessage }}
       </div>
     </div>
     <section class="auth">

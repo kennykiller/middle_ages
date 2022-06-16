@@ -1,5 +1,15 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import BaseBadge from "@/components/UI/BaseBadge.vue";
+import { authModule } from "@/store/auth/auth-actions";
+
+const isLoggedIn = computed(() => {
+  console.log(authModule.isAuthenticated);
+  return authModule.isAuthenticated;
+});
+const logoutHandler = async () => {
+  authModule.logout();
+};
 </script>
 
 <template>
@@ -24,14 +34,24 @@ import BaseBadge from "@/components/UI/BaseBadge.vue";
         </li>
         <li class="list__item auth">
           <div class="auth__wrapper">
-            <router-link to="/auth">
+            <BaseBadge
+              @click="logoutHandler"
+              v-if="isLoggedIn"
+              popover
+              popover-text="Выйти"
+            >
+              <template #image>
+                <img src="@/assets/images/logout.png" alt="logout" />
+              </template>
+            </BaseBadge>
+            <router-link to="/auth" v-if="!isLoggedIn">
               <BaseBadge popover popover-text="Войти">
                 <template #image>
                   <img src="@/assets/images/login.png" alt="login" />
                 </template>
               </BaseBadge>
             </router-link>
-            <router-link to="/signup">
+            <router-link to="/signup" v-if="!isLoggedIn">
               <BaseBadge popover popover-text="Регистрация">
                 <template #image
                   ><img src="@/assets/images/signup.png" alt="signup"

@@ -14,6 +14,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const path_1 = __importDefault(require("path"));
 const express_1 = __importDefault(require("express"));
+const cors_1 = __importDefault(require("cors"));
+const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const body_parser_1 = __importDefault(require("body-parser"));
 const multer_1 = __importDefault(require("multer"));
 const film_1 = __importDefault(require("./routes/film"));
@@ -53,14 +55,10 @@ const fileFilter = (req, file, cb) => {
     }
 };
 app.use(body_parser_1.default.json());
+app.use(cookie_parser_1.default());
 app.use(multer_1.default({ storage: fileStorage, fileFilter }).single("posterUrl"));
 app.use("/images", express_1.default.static(path_1.default.join(__dirname, "../front/src/images")));
-app.use((req, res, next) => {
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE");
-    res.setHeader("Access-Control-Allow-Headers", "*");
-    next();
-});
+app.use(cors_1.default({ credentials: true, origin: "http://localhost:8080" }));
 app.use(admin_1.default);
 app.use(home_1.default);
 app.use("/films", film_1.default);

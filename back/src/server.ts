@@ -2,6 +2,8 @@ import path from "path";
 
 import express, { Application } from "express";
 
+import cors from "cors";
+import cookieParser from "cookie-parser";
 import bodyParser from "body-parser";
 import multer from "multer";
 import { ioInstance } from "./socket";
@@ -46,17 +48,11 @@ const fileFilter = (req, file, cb) => {
   }
 };
 app.use(bodyParser.json());
+app.use(cookieParser());
 app.use(multer({ storage: fileStorage, fileFilter }).single("posterUrl"));
 app.use("/images", express.static(path.join(__dirname, "../front/src/images")));
-app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET, POST, PUT, PATCH, DELETE"
-  );
-  res.setHeader("Access-Control-Allow-Headers", "*");
-  next();
-});
+
+app.use(cors({ credentials: true, origin: "http://localhost:8080" }));
 app.use(adminRouter);
 app.use(homeRouter);
 app.use("/films", films);

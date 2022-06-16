@@ -3,11 +3,13 @@ import { check, body } from "express-validator/check";
 import {
   createUser,
   createNewPassword,
-  logout,
   reset,
 } from "../controllers/auth/signupController";
-import { signin, refreshToken } from "../controllers/auth/loginController";
-import { verifyToken } from "../authJwt";
+import {
+  signin,
+  refreshToken,
+  logout,
+} from "../controllers/auth/loginController";
 import { User } from "../models/user";
 
 const authRouter = Router();
