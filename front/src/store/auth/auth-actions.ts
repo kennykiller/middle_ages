@@ -1,5 +1,4 @@
-import { useRouter } from "vue-router";
-import axios, { AxiosResponse, AxiosError } from "axios";
+import axios, { AxiosResponse } from "axios";
 import { VuexModule, Module, Mutation, Action } from "vuex-class-modules";
 
 interface loginPayload {
@@ -20,8 +19,6 @@ interface tokens {
   refreshToken: string;
 }
 
-const router = useRouter();
-
 @Module
 class AuthModule extends VuexModule {
   isAuthenticated = false;
@@ -31,12 +28,10 @@ class AuthModule extends VuexModule {
   setSuccessfulLoginData(userData: userData) {
     this.isAuthenticated = !!userData.accessToken;
     if (userData.accessToken) {
-      // axios.defaults.headers.common[
-      //   "Authorization"
-      // ] = `Bearer ${userData.accessToken}`;
       localStorage.setItem("user", JSON.stringify(userData));
     }
   }
+  @Mutation
   setUpdatedTokens(tokens: tokens) {
     const user = localStorage.getItem("user");
     if (user) {
@@ -49,17 +44,12 @@ class AuthModule extends VuexModule {
       localStorage.setItem("user", JSON.stringify(updatedData));
     }
   }
+  @Mutation
   resetData() {
     this.isAuthenticated = false;
     this.isAdmin = false;
     localStorage.removeItem("user");
-    router.push("/");
   }
-  // checkAuthentication() {
-  //   if (localStorage.getItem("user")) {
-
-  //   }
-  // }
 
   @Action
   async login(payload: loginPayload) {
@@ -79,10 +69,10 @@ class AuthModule extends VuexModule {
       console.log(e);
     }
   }
+  @Action
   async logout() {
     const storedUser = localStorage.getItem("user");
     const user = storedUser ? JSON.parse(storedUser) : null;
-    console.log(user);
     if (user) {
       await axios.post("auth/logout", { id: user.id });
       axios.defaults.headers.common["Authorization"] = "";

@@ -1,14 +1,26 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
+import { useRouter } from "vue-router";
 import BaseBadge from "@/components/UI/BaseBadge.vue";
 import { authModule } from "@/store/auth/auth-actions";
 
-const isLoggedIn = computed(() => {
-  console.log(authModule.isAuthenticated);
-  return authModule.isAuthenticated;
-});
+const router = useRouter();
+
+// const isLoggedIn = computed(() => {
+//   console.log(authModule.isAuthenticated);
+//   return authModule.isAuthenticated;
+// });
+
+let isLoggedIn = ref(false);
+
+authModule.$watch(
+  (authModule) => authModule.isAuthenticated,
+  (val) => (isLoggedIn.value = val)
+);
+
 const logoutHandler = async () => {
-  authModule.logout();
+  await authModule.logout();
+  router.push("/");
 };
 </script>
 

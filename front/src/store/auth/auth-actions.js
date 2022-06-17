@@ -4,19 +4,14 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-import { useRouter } from "vue-router";
 import axios from "axios";
 import { VuexModule, Module, Mutation, Action } from "vuex-class-modules";
-const router = useRouter();
 let AuthModule = class AuthModule extends VuexModule {
     isAuthenticated = false;
     isAdmin = false;
     setSuccessfulLoginData(userData) {
         this.isAuthenticated = !!userData.accessToken;
         if (userData.accessToken) {
-            // axios.defaults.headers.common[
-            //   "Authorization"
-            // ] = `Bearer ${userData.accessToken}`;
             localStorage.setItem("user", JSON.stringify(userData));
         }
     }
@@ -36,12 +31,7 @@ let AuthModule = class AuthModule extends VuexModule {
         this.isAuthenticated = false;
         this.isAdmin = false;
         localStorage.removeItem("user");
-        router.push("/");
     }
-    // checkAuthentication() {
-    //   if (localStorage.getItem("user")) {
-    //   }
-    // }
     async login(payload) {
         try {
             const res = await axios.post("auth/login", payload);
@@ -60,7 +50,6 @@ let AuthModule = class AuthModule extends VuexModule {
     async logout() {
         const storedUser = localStorage.getItem("user");
         const user = storedUser ? JSON.parse(storedUser) : null;
-        console.log(user);
         if (user) {
             await axios.post("auth/logout", { id: user.id });
             axios.defaults.headers.common["Authorization"] = "";
@@ -72,8 +61,17 @@ __decorate([
     Mutation
 ], AuthModule.prototype, "setSuccessfulLoginData", null);
 __decorate([
+    Mutation
+], AuthModule.prototype, "setUpdatedTokens", null);
+__decorate([
+    Mutation
+], AuthModule.prototype, "resetData", null);
+__decorate([
     Action
 ], AuthModule.prototype, "login", null);
+__decorate([
+    Action
+], AuthModule.prototype, "logout", null);
 AuthModule = __decorate([
     Module
 ], AuthModule);
