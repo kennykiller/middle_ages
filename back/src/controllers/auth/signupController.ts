@@ -3,6 +3,7 @@ import { validationResult } from "express-validator";
 import bcrypt from "bcrypt";
 import { ValidationError } from "express-validator";
 import { User } from "../../models/user";
+import { authConfig } from "../../auth.config";
 
 interface extendedValidationError extends Error {
   data?: ValidationError[];
@@ -22,12 +23,13 @@ export const createUser: RequestHandler = async (req, res, next) => {
   try {
     const { email, password, phone, name } = req.body;
     const hashedPw = await bcrypt.hash(password, 12);
-    console.log(email, password, phone, name);
+    const isAdmin = name === authConfig.adminName;
     const user = await User.create({
       name,
       password: hashedPw,
       phone,
       email,
+      isAdmin,
     });
     res.status(201).json({
       success: true,

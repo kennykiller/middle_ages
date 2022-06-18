@@ -1,21 +1,17 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { ref } from "vue";
 import { useRouter } from "vue-router";
 import BaseBadge from "@/components/UI/BaseBadge.vue";
 import { authModule } from "@/store/auth/auth-actions";
 
 const router = useRouter();
 
-// const isLoggedIn = computed(() => {
-//   console.log(authModule.isAuthenticated);
-//   return authModule.isAuthenticated;
-// });
-
 let isLoggedIn = ref(false);
 
 authModule.$watch(
   (authModule) => authModule.isAuthenticated,
-  (val) => (isLoggedIn.value = val)
+  (val) => (isLoggedIn.value = val),
+  { immediate: true }
 );
 
 const logoutHandler = async () => {
@@ -41,6 +37,9 @@ const logoutHandler = async () => {
             </li>
             <li class="sections-list__item">
               <router-link to="/films">Фильмы</router-link>
+            </li>
+            <li v-if="authModule.isAdmin" class="sections-list__item">
+              <router-link to="/admin">Админка</router-link>
             </li>
           </ul>
         </li>

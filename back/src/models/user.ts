@@ -20,6 +20,9 @@ export const User = sequelize.define(
       allowNull: false,
       unique: true,
     },
+    isAdmin: {
+      type: Sequelize.BOOLEAN,
+    },
     phone: {
       type: Sequelize.STRING,
       allowNull: false,

@@ -12,6 +12,7 @@ interface userData {
   accessToken?: string | null;
   refreshToken?: string;
   message?: string;
+  isAdmin?: boolean;
 }
 
 interface tokens {
@@ -27,6 +28,7 @@ class AuthModule extends VuexModule {
   @Mutation
   setSuccessfulLoginData(userData: userData) {
     this.isAuthenticated = !!userData.accessToken;
+    this.isAdmin = !!userData?.isAdmin;
     if (userData.accessToken) {
       localStorage.setItem("user", JSON.stringify(userData));
     }
@@ -44,6 +46,16 @@ class AuthModule extends VuexModule {
       localStorage.setItem("user", JSON.stringify(updatedData));
     }
   }
+  @Mutation
+  checkAuthentication() {
+    const user = localStorage.getItem("user");
+    if (user) {
+      const parsedUser: userData = JSON.parse(user);
+      this.isAuthenticated = !!parsedUser.accessToken;
+      this.isAdmin = !!parsedUser?.isAdmin;
+    }
+  }
+
   @Mutation
   resetData() {
     this.isAuthenticated = false;
@@ -75,7 +87,7 @@ class AuthModule extends VuexModule {
     const user = storedUser ? JSON.parse(storedUser) : null;
     if (user) {
       await axios.post("auth/logout", { id: user.id });
-      axios.defaults.headers.common["Authorization"] = "";
+      axios.defaults.headers.common["x-access-token"] = "";
       this.resetData();
     }
   }

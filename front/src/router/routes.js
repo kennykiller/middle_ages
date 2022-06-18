@@ -26,7 +26,12 @@ export const routes = [
         component: SignupPage,
         meta: { title: "Signup" },
     },
-    { path: "/admin", component: AdminPage, meta: { title: "Admin Page" } },
+    {
+        path: "/admin",
+        name: "admin",
+        component: AdminPage,
+        meta: { title: "Admin Page" },
+    },
     { path: "/admin/film", component: AdminFilm, meta: { title: "Add film" } },
     {
         path: "/admin/discount",

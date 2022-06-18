@@ -11,11 +11,16 @@
 import HeaderComponent from "./components/HeaderComponent.vue";
 import FooterComponent from "./components/FooterComponent.vue";
 import { useStore } from "./store";
-import { onMounted } from "vue";
+import { onMounted, onBeforeMount } from "vue";
+import { authModule } from "./store/auth/auth-actions";
+
 const store = useStore();
 const resizeControl = () => {
   store.commit("setWindowWidth", window.innerWidth);
 };
+onBeforeMount(() => {
+  authModule.checkAuthentication();
+});
 onMounted(() => {
   window.addEventListener("resize", resizeControl);
   resizeControl();

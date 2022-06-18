@@ -11,6 +11,7 @@ let AuthModule = class AuthModule extends VuexModule {
     isAdmin = false;
     setSuccessfulLoginData(userData) {
         this.isAuthenticated = !!userData.accessToken;
+        this.isAdmin = !!userData?.isAdmin;
         if (userData.accessToken) {
             localStorage.setItem("user", JSON.stringify(userData));
         }
@@ -25,6 +26,14 @@ let AuthModule = class AuthModule extends VuexModule {
                 refreshToken: tokens.refreshToken,
             };
             localStorage.setItem("user", JSON.stringify(updatedData));
+        }
+    }
+    checkAuthentication() {
+        const user = localStorage.getItem("user");
+        if (user) {
+            const parsedUser = JSON.parse(user);
+            this.isAuthenticated = !!parsedUser.accessToken;
+            this.isAdmin = !!parsedUser?.isAdmin;
         }
     }
     resetData() {
@@ -52,7 +61,7 @@ let AuthModule = class AuthModule extends VuexModule {
         const user = storedUser ? JSON.parse(storedUser) : null;
         if (user) {
             await axios.post("auth/logout", { id: user.id });
-            axios.defaults.headers.common["Authorization"] = "";
+            axios.defaults.headers.common["x-access-token"] = "";
             this.resetData();
         }
     }
@@ -63,6 +72,9 @@ __decorate([
 __decorate([
     Mutation
 ], AuthModule.prototype, "setUpdatedTokens", null);
+__decorate([
+    Mutation
+], AuthModule.prototype, "checkAuthentication", null);
 __decorate([
     Mutation
 ], AuthModule.prototype, "resetData", null);

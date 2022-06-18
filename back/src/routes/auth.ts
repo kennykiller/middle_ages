@@ -41,7 +41,6 @@ authRouter.post(
       return true;
     }),
   ],
-  // verifyToken,
   createUser
 );
 

@@ -13,10 +13,14 @@ axios.interceptors.response.use((resp) => resp, async (error) => {
     console.log(error);
     if (error.response.status === 401 && !refresh) {
         refresh = true;
-        let payload = { refreshToken: null };
+        let payload = { refreshToken: "", userId: 0 };
         const user = localStorage.getItem("user");
         if (user) {
-            payload = { refreshToken: JSON.parse(user).refreshToken };
+            const parsedUser = JSON.parse(user);
+            payload = {
+                refreshToken: parsedUser.refreshToken,
+                userId: parsedUser.id,
+            };
         }
         try {
             const { status, data } = await axios.post("/auth/refreshtoken", payload);
@@ -32,6 +36,9 @@ axios.interceptors.response.use((resp) => resp, async (error) => {
         catch (e) {
             return Promise.reject(e);
         }
+    }
+    if (error.response.status === 403) {
+        authModule.resetData();
     }
     refresh = false;
     return error.response;

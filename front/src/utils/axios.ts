@@ -1,6 +1,14 @@
 import axios from "axios";
 import { authModule } from "@/store/auth/auth-actions";
 
+interface parsedUser {
+  accessToken: string;
+  refreshToken: string;
+  id: number;
+  name: string;
+  isAdmin?: boolean;
+}
+
 axios.defaults.baseURL = "http://localhost:3000/";
 axios.interceptors.request.use(
   (config) => {
@@ -24,10 +32,14 @@ axios.interceptors.response.use(
 
     if (error.response.status === 401 && !refresh) {
       refresh = true;
-      let payload = { refreshToken: null };
+      let payload = { refreshToken: "", userId: 0 };
       const user = localStorage.getItem("user");
       if (user) {
-        payload = { refreshToken: JSON.parse(user).refreshToken };
+        const parsedUser: parsedUser = JSON.parse(user);
+        payload = {
+          refreshToken: parsedUser.refreshToken,
+          userId: parsedUser.id,
+        };
       }
       try {
         const { status, data } = await axios.post(
@@ -49,6 +61,9 @@ axios.interceptors.response.use(
       } catch (e) {
         return Promise.reject(e);
       }
+    }
+    if (error.response.status === 403) {
+      authModule.resetData();
     }
     refresh = false;
     return error.response;
