@@ -27,6 +27,7 @@
     "@types/bcrypt": "^5.0.0",
     "@types/jsonwebtoken": "^8.5.8",
     "@types/multer": "^1.4.7",
+    "@types/nodemailer": "^6.4.4",
     "@types/sequelize": "^4.28.12",
     "axios": "^0.26.0",
     "bcrypt": "^5.0.1",
@@ -38,8 +39,10 @@
     "jsonwebtoken": "^8.5.1",
     "multer": "^1.4.4",
     "mysql2": "^2.3.3",
+    "nodemailer": "^6.7.5",
     "sequelize": "^6.16.2",
     "socket.io": "^4.5.1",
+    "unisender": "^1.1.1",
     "uuid": "^8.3.2",
     "webpack": "^5.69.1",
     "webpack-cli": "^4.9.2"

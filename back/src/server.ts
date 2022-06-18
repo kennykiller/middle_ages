@@ -16,7 +16,8 @@ import { Ticket } from "./models/ticket";
 import { Session } from "./models/session";
 import { Order } from "./models/order";
 import { User } from "./models/user";
-import RefreshToken from "./models/refresh-token";
+import RefreshToken from "./models/refresh_token";
+import { ResetToken } from "./models/reset_token";
 import { Genre } from "./models/genre";
 import { Discount } from "./models/discount";
 import adminRouter from "./routes/admin";
@@ -52,7 +53,7 @@ app.use(cookieParser());
 app.use(multer({ storage: fileStorage, fileFilter }).single("posterUrl"));
 app.use("/images", express.static(path.join(__dirname, "../front/src/images")));
 
-app.use(cors({ credentials: true, origin: "http://localhost:8080" }));
+app.use(cors({ origin: "http://localhost:8080" }));
 app.use(adminRouter);
 app.use(homeRouter);
 app.use("/films", films);
@@ -68,7 +69,9 @@ app.use((error, req, res, next) => {
 
 User.hasMany(Order);
 User.hasOne(RefreshToken);
+User.hasOne(ResetToken);
 RefreshToken.belongsTo(User, { foreignKey: "userId" });
+ResetToken.belongsTo(User, { foreignKey: "userId" });
 Order.belongsTo(User, { constraints: true, onDelete: "CASCADE" });
 Order.hasOne(PaymentStatus);
 PaymentStatus.belongsTo(Order);
