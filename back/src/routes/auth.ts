@@ -3,7 +3,8 @@ import { check, body } from "express-validator/check";
 import {
   createUser,
   createNewPassword,
-  reset,
+  resetLinkCreate,
+  resetPassword,
 } from "../controllers/auth/signupController";
 import {
   signin,
@@ -59,7 +60,8 @@ authRouter.post(
   signin
 );
 
-authRouter.post("/reset", reset);
+authRouter.post("/reset", resetLinkCreate);
+authRouter.post("/reset-password", resetPassword);
 
 authRouter.post(
   "/new-password",

@@ -50,7 +50,7 @@ const loginHandler = async () => {
       <div class="auth__footer">
         <p>
           Не можете войти?
-          <router-link to="#">Сбросить пароль</router-link> <br />
+          <router-link to="/reset">Сбросить пароль</router-link> <br />
           Еще не зарегистрированы?
           <router-link to="/signup">Давайте сделаем это!</router-link>
         </p>

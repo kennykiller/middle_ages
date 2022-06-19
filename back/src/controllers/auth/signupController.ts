@@ -48,7 +48,7 @@ export const createUser: RequestHandler = async (req, res, next) => {
     next(e);
   }
 };
-export const reset: RequestHandler = async (req, res, next) => {
+export const resetLinkCreate: RequestHandler = async (req, res, next) => {
   const { email } = req.body as { email: string };
   if (email) {
     try {
@@ -75,7 +75,7 @@ export const reset: RequestHandler = async (req, res, next) => {
         expiryDate,
       });
 
-      const link = `http://localhost:8080/passwordReset?token=${resetToken}&id=${user.id}`;
+      const link = `http://localhost:8080/password-reset?token=${resetToken}&id=${user.id}`;
       const emailHandler = new EmailHandler(email, "reset", user.name, link);
       emailHandler.sendMail();
     } catch (e) {
@@ -83,4 +83,5 @@ export const reset: RequestHandler = async (req, res, next) => {
     }
   }
 };
+export const resetPassword: RequestHandler = async (req, res, next) => {};
 export const createNewPassword: RequestHandler = (req, res, next) => {};

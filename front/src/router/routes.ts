@@ -9,6 +9,7 @@ import AdminDiscount from "@/components/admin/AdminDiscount.vue";
 import AdminFilm from "@/components/admin/AdminFilm.vue";
 import AdminSessions from "@/components/admin/AdminSessions.vue";
 import NotFound from "@/views/NotFound.vue";
+import ResetPage from "@/views/ResetPage.vue";
 
 export const routes = [
   { path: "/", component: HomePage, meta: { title: "Home" } },
@@ -26,6 +27,18 @@ export const routes = [
     path: "/signup",
     component: SignupPage,
     meta: { title: "Signup" },
+  },
+  {
+    name: "reset",
+    path: "/reset",
+    component: ResetPage,
+    meta: { title: "Reset Password" },
+  },
+  {
+    name: "password-reset",
+    path: "/password-reset",
+    component: ResetPage,
+    meta: { title: "Reset Password" },
   },
   {
     path: "/admin",
