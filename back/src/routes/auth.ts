@@ -2,7 +2,6 @@ import { Router } from "express";
 import { check, body } from "express-validator/check";
 import {
   createUser,
-  createNewPassword,
   resetLinkCreate,
   resetPassword,
 } from "../controllers/auth/signupController";
@@ -61,10 +60,9 @@ authRouter.post(
 );
 
 authRouter.post("/reset", resetLinkCreate);
-authRouter.post("/reset-password", resetPassword);
 
 authRouter.post(
-  "/new-password",
+  "/reset-password",
   [
     body("password", "Пароль должен быть не менее 6 символов").isLength({
       min: 6,
@@ -76,7 +74,7 @@ authRouter.post(
       return true;
     }),
   ],
-  createNewPassword
+  resetPassword
 );
 
 export default authRouter;

@@ -25,7 +25,6 @@ onMounted(() => {
   window.addEventListener("resize", resizeControl);
   resizeControl();
 });
-// import { onBeforeMount, onBeforeUnmount } from "vue";
 
 // onBeforeMount(() => {
 //   SocketioService.setupSocketConnection();

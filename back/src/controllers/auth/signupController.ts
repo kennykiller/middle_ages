@@ -2,6 +2,7 @@ import { RequestHandler } from "express";
 import { createHmac } from "crypto";
 import { validationResult } from "express-validator";
 import bcrypt from "bcrypt";
+import { Op } from "sequelize";
 import { ValidationError } from "express-validator";
 import { User } from "../../models/user";
 import { authConfig } from "../../auth.config";
@@ -12,6 +13,13 @@ interface extendedValidationError extends Error {
   data?: ValidationError[];
   statusCode?: number;
   success?: boolean;
+}
+
+interface resetPasswordBody {
+  token: string;
+  userId: number;
+  password: string;
+  passwordConfirmation: string;
 }
 
 export const createUser: RequestHandler = async (req, res, next) => {
@@ -78,10 +86,60 @@ export const resetLinkCreate: RequestHandler = async (req, res, next) => {
       const link = `http://localhost:8080/password-reset?token=${resetToken}&id=${user.id}`;
       const emailHandler = new EmailHandler(email, "reset", user.name, link);
       emailHandler.sendMail();
+      res.status(200).json({
+        success: true,
+        message: "Ссылка успешно отправлена на почту",
+      });
     } catch (e) {
-      console.log(e);
+      if (!e.statusCode) {
+        e.statusCode = 500;
+      }
+      next(e);
     }
   }
 };
-export const resetPassword: RequestHandler = async (req, res, next) => {};
-export const createNewPassword: RequestHandler = (req, res, next) => {};
+export const resetPassword: RequestHandler = async (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const error: extendedValidationError = new Error("Валидация не пройдена.");
+    error.statusCode = 422;
+    error.data = errors.array();
+    error.success = false;
+    return res.send(error);
+  }
+  const { userId, password, passwordConfirmation, token } =
+    req.body as resetPasswordBody;
+  try {
+    const passwordResetToken = await ResetToken.findOne({
+      where: {
+        [Op.and]: [
+          {
+            userId,
+            expiryDate: { [Op.gt]: new Date() },
+          },
+        ],
+      },
+    });
+    if (!passwordResetToken) {
+      throw new Error("Неверный либо просроченный токен сброса пароля!");
+    }
+    const isValid = await bcrypt.compare(token, passwordResetToken.token);
+    if (!isValid) {
+      throw new Error("Неверный либо просроченный токен сброса пароля!");
+    }
+    const hashedPw = await bcrypt.hash(password, 12);
+    const user = await User.findByPk(userId);
+    user.password = hashedPw;
+    await user.save();
+    await ResetToken.destroy({ where: { userId } });
+    res.status(202).json({
+      success: true,
+      message: "Пароль успешно изменен.",
+    });
+  } catch (e) {
+    if (!e.statusCode) {
+      e.statusCode = 500;
+    }
+    next(e);
+  }
+};

@@ -7,13 +7,13 @@ import { useRouter, useRoute } from "vue-router";
 const router = useRouter();
 const route = useRoute();
 
-let userId, token;
+let userId: string | undefined, token: string | undefined;
 
 if (route.query) {
   console.log(route.query);
 
-  userId = route.query.userId;
-  token = route.query.token;
+  userId = route.query.id as string;
+  token = route.query.token as string;
 }
 
 const userData = reactive({
@@ -25,7 +25,7 @@ const emailForRecover = reactive({
   email: "",
 });
 
-const isLinkCreatePage = computed(() => route.name === "reset");
+const isLinkCreatePage = route.name === "reset";
 const error = ref("");
 const success = ref(false);
 const successText = computed(() =>
@@ -48,12 +48,11 @@ const createLinkHandler = async () => {
     "http://localhost:3000/auth/reset",
     emailForRecover
   );
-  if (!res.data?.success && res.data?.data?.length) {
-    error.value = res.data.data[0].msg;
-    setTimeout(() => (error.value = ""), 2000);
-  } else if (!res.data?.success) {
-    error.value = "Попробуйте сбросить немного позднее, мы работаем над этим.";
-    setTimeout(() => (error.value = ""), 2000);
+  if (!res.data?.success) {
+    error.value =
+      res.data?.message ||
+      "Попробуйте сбросить пароль немного позднее, мы работаем над этим.";
+    setTimeout(() => (error.value = ""), 3000);
   } else {
     success.value = true;
     setTimeout(() => router.push({ name: "auth" }), 3000);
@@ -61,21 +60,27 @@ const createLinkHandler = async () => {
 };
 
 const passwordRefreshHandler = async () => {
+  if (!userId || !token) return;
+  const payload = { ...userData, userId: +userId, token };
   const res = await axios.post(
     "http://localhost:3000/auth/reset-password",
-    userData
+    payload
   );
   if (!res.data?.success && res.data?.data?.length) {
     error.value = res.data.data[0].msg;
-    setTimeout(() => (error.value = ""), 2000);
+    setTimeout(() => (error.value = ""), 3000);
   } else if (!res.data?.success) {
     error.value =
-      "Пароль восстановить не удалось, попробуйте немного позднее, мы работаем над этим.";
-    setTimeout(() => (error.value = ""), 2000);
+      "Пароль обновить не удалось, попробуйте немного позднее, мы работаем над этим.";
+    setTimeout(() => (error.value = ""), 3000);
   } else {
     success.value = true;
     setTimeout(() => router.push({ name: "auth" }), 3000);
   }
+};
+
+const chooseSubmitHandler = () => {
+  isLinkCreatePage ? createLinkHandler() : passwordRefreshHandler();
 };
 </script>
 
@@ -95,7 +100,7 @@ const passwordRefreshHandler = async () => {
     </div>
     <section class="auth">
       <h1>{{ headerText }}</h1>
-      <form @submit.prevent="createLinkHandler" class="auth__form form">
+      <form @submit.prevent="chooseSubmitHandler" class="auth__form form">
         <div class="form__item" v-if="isLinkCreatePage">
           <input type="email" required v-model.trim="emailForRecover.email" />
           <label>Ваш Email</label>
