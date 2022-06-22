@@ -107,7 +107,7 @@ export const refreshToken: RequestHandler = async (req, res, next) => {
     let newAccessToken = jwt.sign({ id: user.id }, authConfig.secret, {
       expiresIn: authConfig.jwtExpiration,
     });
-    const newRefreshToken = await RefreshToken.createToken(user);
+    const newRefreshToken = await RefreshToken.createToken(user.id);
     return res.status(200).json({
       accessToken: newAccessToken,
       refreshToken: newRefreshToken,

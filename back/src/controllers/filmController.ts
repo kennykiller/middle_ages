@@ -1,7 +1,8 @@
 import { RequestHandler } from "express";
 import { Op } from "sequelize";
-import { Film } from "../models/film";
+import { Film as FilmModel } from "../models/film";
 import { Genre } from "../models/genre";
+import { Film } from "../interfaces/models";
 
 const ITEMS_PER_PAGE = 4;
 interface FilmsFromDB {
@@ -12,7 +13,7 @@ export const getFilms: RequestHandler = async (req, res, next) => {
   const page: number = +req.query.page || 1;
   const offset: number = page === 1 ? 0 : page * ITEMS_PER_PAGE;
   const limitItems = offset ? ITEMS_PER_PAGE : ITEMS_PER_PAGE * 2;
-  const films: FilmsFromDB = await Film.findAndCountAll({
+  const films: FilmsFromDB = await FilmModel.findAndCountAll({
     limit: limitItems,
     offset,
     include: { model: Genre, through: { attributes: [] } },
@@ -34,7 +35,7 @@ export const getUpcomingFilms: RequestHandler = async (req, res, next) => {
     d.getMonth() + 1 > 9 ? d.getMonth() + 1 : `0${d.getMonth() + 1}`;
   const year = d.getFullYear();
   const fullDate = `${year}-${month}-${date}`;
-  const films: FilmsFromDB = await Film.findAndCountAll({
+  const films: FilmsFromDB = await FilmModel.findAndCountAll({
     where: { startDate: { [Op.gte]: fullDate } },
     limit: limitItems,
     offset,
@@ -49,7 +50,7 @@ export const getUpcomingFilms: RequestHandler = async (req, res, next) => {
 
 export const getFilm: RequestHandler = async (req, res, next) => {
   const id = req.params.id;
-  const film = await Film.findByPk(id, {
+  const film = await FilmModel.findByPk(id, {
     include: { model: Genre, through: { attributes: [] } },
     attributes: { exclude: ["createdAt", "updatedAt"] },
   });

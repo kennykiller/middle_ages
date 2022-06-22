@@ -14,8 +14,38 @@ const film_1 = require("../../models/film");
 const session_1 = require("../../models/session");
 const genre_1 = require("../../models/genre");
 const ITEMS_PER_PAGE = 4;
+exports.verifyCreationPossibility = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const startSchedulePeriod = new Date();
+    startSchedulePeriod.setUTCHours(0, 0, 0);
+    startSchedulePeriod.setUTCDate(startSchedulePeriod.getUTCDate() + 6);
+    const endSchedulePeriod = new Date();
+    endSchedulePeriod.setUTCHours(23, 59, 59);
+    endSchedulePeriod.setUTCDate(endSchedulePeriod.getUTCDate() + 12);
+    try {
+        const existingSchedule = yield session_1.Session.findOne({
+            where: {
+                filmStart: { [sequelize_1.Op.between]: [startSchedulePeriod, endSchedulePeriod] },
+            },
+        });
+        console.log(existingSchedule);
+        if (existingSchedule) {
+            return res
+                .status(400)
+                .send({ message: "На эти даты расписание уже создано" });
+        }
+        else {
+            req.body.startSchedulePeriod = startSchedulePeriod;
+            req.body.endSchedulePeriod = endSchedulePeriod;
+            next();
+        }
+    }
+    catch (e) {
+        return res.status(500).send({ message: e, details: "Серверная ошибка" });
+    }
+});
 exports.createSession = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const filmStart = req.body.filmStart;
+    console.log(filmStart, "film start");
     const { price } = req.body;
     const filmId = req.body.id;
     const session = yield session_1.Session.create({
@@ -157,14 +187,14 @@ const multipleFilmsSchedule = (films, scheduleArr) => {
         start.setUTCHours(5, 0, 0, 0); //настроеная дата для каждого нового рабочего дня
         const adjustedFilms = films.map((film) => {
             //фильмы, с добавленными полями для проверки возраста и новый фильм или нет
-            const [hDur, mDur, sDur] = film.dataValues.filmDuration.split(":");
+            const [hDur, mDur, sDur] = film.filmDuration.split(":");
             const d = new Date();
             d.setUTCHours(+hDur, +mDur + 15, +sDur);
             const totalDuration = calculateTime(d, "utc");
-            const dateForOldCheck = new Date(film.dataValues.startDate);
+            const dateForOldCheck = new Date(film.startDate);
             dateForOldCheck.setUTCDate(dateForOldCheck.getUTCDate() + 6);
-            const fullDay = parseInt(film.dataValues.ageRestriction, 10) > 11;
-            return Object.assign(Object.assign({}, film.dataValues), { totalDuration, isOld: dateForOldCheck <= start, fullDay });
+            const fullDay = parseInt(film.ageRestriction, 10) > 11;
+            return Object.assign(Object.assign({}, film), { totalDuration, isOld: dateForOldCheck <= start, fullDay });
         });
         const end = new Date(el);
         end.setUTCDate(+scheduleDate);
@@ -323,24 +353,33 @@ const prepareSchedule = (films, start, end) => {
         start.setUTCDate(start.getUTCDate() + 1);
     }
     if (films.length === 1) {
-        return films[0].dataValues.endDate > end
-            ? oneFilmSchedule(films[0].dataValues, weekSchedule)
-            : oneFilmSchedule(films[0].dataValues, weekSchedule, true);
+        return films[0].endDate > end
+            ? oneFilmSchedule(films[0], weekSchedule)
+            : oneFilmSchedule(films[0], weekSchedule, true);
     }
     else {
         return multipleFilmsSchedule(films, weekSchedule);
     }
 };
 exports.calculateSchedule = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const startSchedulePeriod = new Date();
-    startSchedulePeriod.setUTCHours(0, 0, 0);
-    startSchedulePeriod.setUTCDate(startSchedulePeriod.getUTCDate() + 6);
-    const endSchedulePeriod = new Date();
-    endSchedulePeriod.setUTCHours(23, 59, 59);
-    endSchedulePeriod.setUTCDate(endSchedulePeriod.getUTCDate() + 12);
-    const filmsToDistribute = yield receiveFilms(startSchedulePeriod, endSchedulePeriod);
-    const schedule = prepareSchedule(filmsToDistribute, startSchedulePeriod, endSchedulePeriod);
-    res.status(200).json(schedule);
+    // const startSchedulePeriod = new Date();
+    // startSchedulePeriod.setUTCHours(0, 0, 0);
+    // startSchedulePeriod.setUTCDate(startSchedulePeriod.getUTCDate() + 6);
+    // const endSchedulePeriod = new Date();
+    // endSchedulePeriod.setUTCHours(23, 59, 59);
+    // endSchedulePeriod.setUTCDate(endSchedulePeriod.getUTCDate() + 12);
+    const { startSchedulePeriod, endSchedulePeriod } = req.body;
+    console.log(startSchedulePeriod, endSchedulePeriod);
+    try {
+        const receivedFilms = yield receiveFilms(startSchedulePeriod, endSchedulePeriod);
+        const filmsToDistribute = receivedFilms.map((el) => el.dataValues);
+        console.log(filmsToDistribute);
+        const schedule = prepareSchedule(filmsToDistribute, startSchedulePeriod, endSchedulePeriod);
+        res.status(200).json(schedule);
+    }
+    catch (e) {
+        return res.status(500).send({ message: e, details: "Серверная ошибка" });
+    }
 });
 exports.adjustSchedule = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const arr = req.body; //массив фильмов, надо пересчитать время начала фильмов в зависимости от общей продолжительности и установить прайс

@@ -14,6 +14,7 @@ let datesToPass: { value: string[] } | { value: undefined } = reactive({
 });
 
 let openedScheduleIdx = ref(0);
+let isSaved = ref(false);
 
 onBeforeMount(async () => {
   schedules.value = await getSchedule();
@@ -36,44 +37,50 @@ const getSchedule = async () => {
 
 const saveSchedule = async () => {
   try {
-    const requests: any = schedules.value
-      ?.map((el) => {
-        const dateOfStart = new Date(Object.keys(el)[0]);
+    schedules.value?.forEach(async (el) => {
+      const dateOfStart = new Date(Object.keys(el)[0]);
 
-        const dataForSave = Object.values(el)[0].map((session) => {
-          const [hForSave, mForSave, sForSave] =
-            Object.keys(session)[0].split(":");
+      const dataForSave = Object.values(el)[0].map(async (session) => {
+        const [hForSave, mForSave, sForSave] =
+          Object.keys(session)[0].split(":");
 
-          dateOfStart.setHours(+hForSave);
-          dateOfStart.setMinutes(+mForSave);
-          dateOfStart.setSeconds(+sForSave);
-          if (+hForSave < 8) {
-            dateOfStart.setDate(dateOfStart.getDate() + 1);
-          }
-          const data = Object.values(session)[0];
-          return axios.post("http://localhost:3000/admin/sessions", {
-            filmStart: dateOfStart,
-            price: data.price,
-            id: data.id,
-          });
+        dateOfStart.setHours(+hForSave);
+        dateOfStart.setMinutes(+mForSave);
+        dateOfStart.setSeconds(+sForSave);
+
+        if (+hForSave < 8) {
+          dateOfStart.setDate(dateOfStart.getDate() + 1);
+        }
+        const data = Object.values(session)[0];
+        console.log({
+          filmStart: dateOfStart,
+          price: data.price,
+          id: data.id,
         });
-        return dataForSave;
-      })
-      .flat();
 
-    await Promise.all(requests);
+        await axios.post("http://localhost:3000/admin/sessions", {
+          filmStart: dateOfStart.toUTCString(),
+          price: data.price,
+          id: data.id,
+        });
+      });
+    });
   } catch (e) {
     console.log(e);
   }
+  isSaved.value = true;
 };
 </script>
 
 <template>
   <div class="calendar__wrapper">
-    <div>
+    <div v-if="datesToPass.value?.length && !isSaved">
       <BaseBadge @click="saveSchedule" text="Сохранить расписание"></BaseBadge>
     </div>
-    <h2>Настройте расписание</h2>
+    <h2 v-if="datesToPass.value?.length">Настройте расписание</h2>
+    <h2 v-if="!datesToPass.value?.length">
+      На ближайший период расписание уже сохранено
+    </h2>
     <div class="films__schedule-wrapper" v-if="datesToPass.value?.length">
       <AdminCalendar
         @open-schedule="openedScheduleIdx = $event"

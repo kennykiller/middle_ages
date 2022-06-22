@@ -1,12 +1,33 @@
 import { RequestHandler } from "express";
 import { Op } from "sequelize";
-import { Film } from "../../models/film";
+import { Film as FilmModel } from "../../models/film";
 import { Session } from "../../models/session";
-import { Genre } from "../../models/genre";
+import { Genre as GenreModel } from "../../models/genre";
 import { DailySchedule, FilmForSession } from "../../interfaces/base";
+import { Film } from "../../interfaces/models";
+import { Genre } from "../../interfaces/models";
 
 interface ScheduleForRecalculation extends Partial<DailySchedule> {}
 interface FilmForRecalculation extends Partial<FilmForSession> {}
+interface SequelizeBaseResponse {
+  dataValues: Film;
+  _previousDataValues: Film;
+  uniqno: 1;
+  _changed: Set<number>;
+  _options: {
+    isNewRecord: Boolean;
+    _schema: null;
+    _schemaDelimiter: string;
+    include: [];
+    includeNames: [];
+    includeMap: Object[];
+    includeValidated: Boolean;
+    attributes: string[];
+    raw: Boolean;
+  };
+  isNewRecord: false;
+  genres: Genre[];
+}
 
 type mode = "local" | "utc";
 
@@ -14,10 +35,40 @@ const ITEMS_PER_PAGE = 4;
 
 interface adjustedFilm {}
 
+export const verifyCreationPossibility = async (req, res, next) => {
+  const startSchedulePeriod = new Date();
+  startSchedulePeriod.setUTCHours(0, 0, 0);
+  startSchedulePeriod.setUTCDate(startSchedulePeriod.getUTCDate() + 6);
+  const endSchedulePeriod = new Date();
+  endSchedulePeriod.setUTCHours(23, 59, 59);
+  endSchedulePeriod.setUTCDate(endSchedulePeriod.getUTCDate() + 12);
+  try {
+    const existingSchedule = await Session.findOne({
+      where: {
+        filmStart: { [Op.between]: [startSchedulePeriod, endSchedulePeriod] },
+      },
+    });
+    console.log(existingSchedule);
+    if (existingSchedule) {
+      return res
+        .status(400)
+        .send({ message: "На эти даты расписание уже создано" });
+    } else {
+      req.body.startSchedulePeriod = startSchedulePeriod;
+      req.body.endSchedulePeriod = endSchedulePeriod;
+      next();
+    }
+  } catch (e) {
+    return res.status(500).send({ message: e, details: "Серверная ошибка" });
+  }
+};
+
 export const createSession: RequestHandler = async (req, res, next) => {
-  const filmStart = req.body.filmStart;
-  const { price } = req.body;
-  const filmId = req.body.id;
+  const filmStart: Date = req.body.filmStart;
+  console.log(filmStart, "film start");
+
+  const { price } = req.body as { price: number };
+  const filmId: number = req.body.id;
   const session = await Session.create({
     filmStart,
     price,
@@ -26,8 +77,11 @@ export const createSession: RequestHandler = async (req, res, next) => {
   res.status(201).json({ message: "Сеанс добавлен.", createdFilm: session });
 };
 
-const receiveFilms = async (start: Date, end: Date): Promise<Film[]> => {
-  const films: Film[] = await Film.findAll({
+const receiveFilms = async (
+  start: Date,
+  end: Date
+): Promise<SequelizeBaseResponse[]> => {
+  const films: SequelizeBaseResponse[] = await FilmModel.findAll({
     where: {
       [Op.or]: [
         {
@@ -57,7 +111,7 @@ const receiveFilms = async (start: Date, end: Date): Promise<Film[]> => {
       ],
     },
     include: {
-      model: Genre,
+      model: GenreModel,
       attributes: { exclude: ["createdAt", "updatedAt"] },
       through: { attributes: [] },
     },
@@ -174,22 +228,23 @@ const multipleFilmsSchedule = (films: Film[], scheduleArr: string[]) => {
     const daySchedule = {
       [el]: [],
     };
+
     const scheduleDate = el.split("-")[2];
     const start = new Date(el);
     start.setUTCDate(+scheduleDate);
     start.setUTCHours(5, 0, 0, 0); //настроеная дата для каждого нового рабочего дня
     const adjustedFilms = films.map((film) => {
       //фильмы, с добавленными полями для проверки возраста и новый фильм или нет
-      const [hDur, mDur, sDur] = film.dataValues.filmDuration.split(":");
+      const [hDur, mDur, sDur] = film.filmDuration.split(":");
       const d = new Date();
       d.setUTCHours(+hDur, +mDur + 15, +sDur);
       const totalDuration = calculateTime(d, "utc");
-      const dateForOldCheck = new Date(film.dataValues.startDate);
+      const dateForOldCheck = new Date(film.startDate);
       dateForOldCheck.setUTCDate(dateForOldCheck.getUTCDate() + 6);
 
-      const fullDay = parseInt(film.dataValues.ageRestriction, 10) > 11;
+      const fullDay = parseInt(film.ageRestriction, 10) > 11;
       return {
-        ...film.dataValues,
+        ...film,
         totalDuration,
         isOld: dateForOldCheck <= start,
         fullDay,
@@ -422,31 +477,41 @@ const prepareSchedule = (films: Film[], start: Date, end: Date) => {
     start.setUTCDate(start.getUTCDate() + 1);
   }
   if (films.length === 1) {
-    return films[0].dataValues.endDate > end
-      ? oneFilmSchedule(films[0].dataValues, weekSchedule)
-      : oneFilmSchedule(films[0].dataValues, weekSchedule, true);
+    return films[0].endDate > end
+      ? oneFilmSchedule(films[0], weekSchedule)
+      : oneFilmSchedule(films[0], weekSchedule, true);
   } else {
     return multipleFilmsSchedule(films, weekSchedule);
   }
 };
 
 export const calculateSchedule: RequestHandler = async (req, res, next) => {
-  const startSchedulePeriod = new Date();
-  startSchedulePeriod.setUTCHours(0, 0, 0);
-  startSchedulePeriod.setUTCDate(startSchedulePeriod.getUTCDate() + 6);
-  const endSchedulePeriod = new Date();
-  endSchedulePeriod.setUTCHours(23, 59, 59);
-  endSchedulePeriod.setUTCDate(endSchedulePeriod.getUTCDate() + 12);
-  const filmsToDistribute: Film[] = await receiveFilms(
-    startSchedulePeriod,
-    endSchedulePeriod
-  );
-  const schedule = prepareSchedule(
-    filmsToDistribute,
-    startSchedulePeriod,
-    endSchedulePeriod
-  );
-  res.status(200).json(schedule);
+  // const startSchedulePeriod = new Date();
+  // startSchedulePeriod.setUTCHours(0, 0, 0);
+  // startSchedulePeriod.setUTCDate(startSchedulePeriod.getUTCDate() + 6);
+  // const endSchedulePeriod = new Date();
+  // endSchedulePeriod.setUTCHours(23, 59, 59);
+  // endSchedulePeriod.setUTCDate(endSchedulePeriod.getUTCDate() + 12);
+  const { startSchedulePeriod, endSchedulePeriod } = req.body;
+  console.log(startSchedulePeriod, endSchedulePeriod);
+
+  try {
+    const receivedFilms: SequelizeBaseResponse[] = await receiveFilms(
+      startSchedulePeriod,
+      endSchedulePeriod
+    );
+    const filmsToDistribute: Film[] = receivedFilms.map((el) => el.dataValues);
+    console.log(filmsToDistribute);
+
+    const schedule = prepareSchedule(
+      filmsToDistribute,
+      startSchedulePeriod,
+      endSchedulePeriod
+    );
+    res.status(200).json(schedule);
+  } catch (e) {
+    return res.status(500).send({ message: e, details: "Серверная ошибка" });
+  }
 };
 
 export const adjustSchedule: RequestHandler = async (req, res, next) => {

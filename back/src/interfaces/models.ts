@@ -11,11 +11,11 @@ export interface Film {
   ageRestriction: string;
   posterUrl: string;
   description: string;
-  startDate: string;
+  startDate: Date;
   filmDuration: string;
   basePrice: number;
   genres: Genre[];
-  endDate: string;
+  endDate: Date;
 }
 export interface Genre {
   id: number;
