@@ -13,6 +13,7 @@ const sequelize_1 = require("sequelize");
 const film_1 = require("../../models/film");
 const session_1 = require("../../models/session");
 const genre_1 = require("../../models/genre");
+const time_calculation_1 = require("../../util/time-calculation");
 const ITEMS_PER_PAGE = 4;
 exports.verifyCreationPossibility = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const startSchedulePeriod = new Date();
@@ -98,36 +99,9 @@ const receiveFilms = (start, end) => __awaiter(void 0, void 0, void 0, function*
     return films;
 });
 const calculateTime = (start, mode) => {
-    let hourOfStart = "";
-    let minOfStart = "";
-    let secOfStart = "";
-    if (mode === "local") {
-        hourOfStart =
-            start.getHours() < 10 ? "0" + start.getHours() : String(start.getHours());
-        minOfStart =
-            start.getMinutes() < 10
-                ? "0" + start.getMinutes()
-                : String(start.getMinutes());
-        secOfStart =
-            start.getSeconds() < 10
-                ? "0" + start.getSeconds()
-                : String(start.getSeconds());
-    }
-    else {
-        hourOfStart =
-            start.getUTCHours() < 10
-                ? "0" + start.getUTCHours()
-                : String(start.getUTCHours());
-        minOfStart =
-            start.getUTCMinutes() < 10
-                ? "0" + start.getUTCMinutes()
-                : String(start.getUTCMinutes());
-        secOfStart =
-            start.getUTCSeconds() < 10
-                ? "0" + start.getUTCSeconds()
-                : String(start.getUTCSeconds());
-    }
-    return `${hourOfStart}:${minOfStart}:${secOfStart}`;
+    return mode === "local"
+        ? new time_calculation_1.LocalTime(start).timeOfStart
+        : new time_calculation_1.UTCTime(start).timeOfStart;
 };
 const setPrice = (start, arr, arrToPush, key, timeOfSessionStart, idx) => {
     if (start.getHours() < 12) {

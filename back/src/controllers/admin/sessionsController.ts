@@ -6,6 +6,7 @@ import { Genre as GenreModel } from "../../models/genre";
 import { DailySchedule, FilmForSession } from "../../interfaces/base";
 import { Film } from "../../interfaces/models";
 import { Genre } from "../../interfaces/models";
+import { LocalTime, UTCTime } from "../../util/time-calculation";
 
 interface ScheduleForRecalculation extends Partial<DailySchedule> {}
 interface FilmForRecalculation extends Partial<FilmForSession> {}
@@ -35,7 +36,11 @@ const ITEMS_PER_PAGE = 4;
 
 interface adjustedFilm {}
 
-export const verifyCreationPossibility = async (req, res, next) => {
+export const verifyCreationPossibility: RequestHandler = async (
+  req,
+  res,
+  next
+) => {
   const startSchedulePeriod = new Date();
   startSchedulePeriod.setUTCHours(0, 0, 0);
   startSchedulePeriod.setUTCDate(startSchedulePeriod.getUTCDate() + 6);
@@ -124,36 +129,9 @@ const receiveFilms = async (
 };
 
 const calculateTime = (start: Date, mode: mode) => {
-  let hourOfStart = "";
-  let minOfStart = "";
-  let secOfStart = "";
-  if (mode === "local") {
-    hourOfStart =
-      start.getHours() < 10 ? "0" + start.getHours() : String(start.getHours());
-    minOfStart =
-      start.getMinutes() < 10
-        ? "0" + start.getMinutes()
-        : String(start.getMinutes());
-    secOfStart =
-      start.getSeconds() < 10
-        ? "0" + start.getSeconds()
-        : String(start.getSeconds());
-  } else {
-    hourOfStart =
-      start.getUTCHours() < 10
-        ? "0" + start.getUTCHours()
-        : String(start.getUTCHours());
-    minOfStart =
-      start.getUTCMinutes() < 10
-        ? "0" + start.getUTCMinutes()
-        : String(start.getUTCMinutes());
-    secOfStart =
-      start.getUTCSeconds() < 10
-        ? "0" + start.getUTCSeconds()
-        : String(start.getUTCSeconds());
-  }
-
-  return `${hourOfStart}:${minOfStart}:${secOfStart}`;
+  return mode === "local"
+    ? new LocalTime(start).timeOfStart
+    : new UTCTime(start).timeOfStart;
 };
 
 const setPrice = (
