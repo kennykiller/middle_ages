@@ -7,6 +7,7 @@ import { DailySchedule, FilmForSession } from "../../interfaces/base";
 import { Film } from "../../interfaces/models";
 import { Genre } from "../../interfaces/models";
 import { LocalTime, UTCTime } from "../../util/time-calculation";
+import { oneFilmScheduleCreator } from "../../util/schedule-creator";
 
 interface ScheduleForRecalculation extends Partial<DailySchedule> {}
 interface FilmForRecalculation extends Partial<FilmForSession> {}
@@ -34,8 +35,6 @@ type mode = "local" | "utc";
 
 const ITEMS_PER_PAGE = 4;
 
-interface adjustedFilm {}
-
 export const verifyCreationPossibility: RequestHandler = async (
   req,
   res,
@@ -53,7 +52,6 @@ export const verifyCreationPossibility: RequestHandler = async (
         filmStart: { [Op.between]: [startSchedulePeriod, endSchedulePeriod] },
       },
     });
-    console.log(existingSchedule);
     if (existingSchedule) {
       return res
         .status(400)
@@ -70,8 +68,6 @@ export const verifyCreationPossibility: RequestHandler = async (
 
 export const createSession: RequestHandler = async (req, res, next) => {
   const filmStart: Date = req.body.filmStart;
-  console.log(filmStart, "film start");
-
   const { price } = req.body as { price: number };
   const filmId: number = req.body.id;
   const session = await Session.create({
@@ -173,27 +169,27 @@ const oneFilmSchedule = (
   scheduleArr: string[],
   filmEndsBeforeSchedule: Boolean = false
 ) => {
-  const [hDur, mDur, sDur] = film.filmDuration.split(":");
+  const filmScheduleCreator = new oneFilmScheduleCreator(
+    scheduleArr,
+    film,
+    filmEndsBeforeSchedule
+  );
+  filmScheduleCreator.durationCount(film);
   const arr = scheduleArr.map((el) => {
     const daySchedule = {
       [el]: [],
     };
-    const scheduleDate = el.split("-")[2];
-    const start = new Date(el);
-    start.setUTCDate(+scheduleDate);
-    start.setUTCHours(5, 0, 0, 0);
-    if (filmEndsBeforeSchedule && start > film.endDate) {
+    filmScheduleCreator.setSchedule(el);
+    if (filmEndsBeforeSchedule && filmScheduleCreator.start > film.endDate) {
       return daySchedule;
     }
-    const end = new Date(el);
-    end.setUTCDate(+scheduleDate);
-    end.setUTCHours(23, 59, 59, 999);
-    while (start < end) {
-      const timeOfSessionStart = calculateTime(start, "local");
+    while (filmScheduleCreator.start < filmScheduleCreator.end) {
+      const timeOfSessionStart = calculateTime(
+        filmScheduleCreator.start,
+        "local"
+      );
       daySchedule[el].push({ [timeOfSessionStart]: film });
-      start.setUTCHours(start.getUTCHours() + +hDur);
-      start.setUTCMinutes(start.getUTCMinutes() + +mDur + 15);
-      start.setUTCSeconds(start.getUTCSeconds() + +sDur);
+      filmScheduleCreator.postponeStart();
     }
     daySchedule[el].pop();
     return daySchedule;
@@ -464,14 +460,7 @@ const prepareSchedule = (films: Film[], start: Date, end: Date) => {
 };
 
 export const calculateSchedule: RequestHandler = async (req, res, next) => {
-  // const startSchedulePeriod = new Date();
-  // startSchedulePeriod.setUTCHours(0, 0, 0);
-  // startSchedulePeriod.setUTCDate(startSchedulePeriod.getUTCDate() + 6);
-  // const endSchedulePeriod = new Date();
-  // endSchedulePeriod.setUTCHours(23, 59, 59);
-  // endSchedulePeriod.setUTCDate(endSchedulePeriod.getUTCDate() + 12);
   const { startSchedulePeriod, endSchedulePeriod } = req.body;
-  console.log(startSchedulePeriod, endSchedulePeriod);
 
   try {
     const receivedFilms: SequelizeBaseResponse[] = await receiveFilms(
@@ -479,8 +468,6 @@ export const calculateSchedule: RequestHandler = async (req, res, next) => {
       endSchedulePeriod
     );
     const filmsToDistribute: Film[] = receivedFilms.map((el) => el.dataValues);
-    console.log(filmsToDistribute);
-
     const schedule = prepareSchedule(
       filmsToDistribute,
       startSchedulePeriod,
@@ -497,19 +484,8 @@ export const adjustSchedule: RequestHandler = async (req, res, next) => {
   const startOfSession = new Date();
   startOfSession.setHours(8, 0, 0, 0);
   const recalculatedSchedule = arr.map((session) => {
-    const hourOfStart =
-      startOfSession.getHours() < 10
-        ? "0" + startOfSession.getHours()
-        : String(startOfSession.getHours());
-    const minOfStart =
-      startOfSession.getMinutes() < 10
-        ? "0" + startOfSession.getMinutes()
-        : String(startOfSession.getMinutes());
-    const secOfStart =
-      startOfSession.getSeconds() < 10
-        ? "0" + startOfSession.getSeconds()
-        : String(startOfSession.getSeconds());
-    const timeOfSessionStart = `${hourOfStart}:${minOfStart}:${secOfStart}`; //пересчитанное время начала сеанса
+    const timeOfSessionStart = new LocalTime(startOfSession).timeOfStart;
+    //пересчитанное время начала сеанса
     const hourOfSessionStart = startOfSession.getHours();
     const basePrice = (Object.values(session)[0] as FilmForRecalculation)
       .basePrice;
