@@ -7,7 +7,10 @@ import { DailySchedule, FilmForSession } from "../../interfaces/base";
 import { Film } from "../../interfaces/models";
 import { Genre } from "../../interfaces/models";
 import { LocalTime, UTCTime } from "../../util/time-calculation";
-import { oneFilmScheduleCreator } from "../../util/schedule-creator";
+import {
+  oneFilmScheduleCreator,
+  multipleFilmsScheduleCreator,
+} from "../../util/schedule-creator";
 
 interface ScheduleForRecalculation extends Partial<DailySchedule> {}
 interface FilmForRecalculation extends Partial<FilmForSession> {}
@@ -197,248 +200,248 @@ const oneFilmSchedule = (
   return arr;
 };
 
-const multipleFilmsSchedule = (films: Film[], scheduleArr: string[]) => {
-  const arr = scheduleArr.map((el) => {
-    const daySchedule = {
-      [el]: [],
-    };
+// const multipleFilmsSchedule = (films: Film[], scheduleArr: string[]) => {
+//   const arr = scheduleArr.map((el) => {
+//     const daySchedule = {
+//       [el]: [],
+//     };
 
-    const scheduleDate = el.split("-")[2];
-    const start = new Date(el);
-    start.setUTCDate(+scheduleDate);
-    start.setUTCHours(5, 0, 0, 0); //настроеная дата для каждого нового рабочего дня
-    const adjustedFilms = films.map((film) => {
-      //фильмы, с добавленными полями для проверки возраста и новый фильм или нет
-      const [hDur, mDur, sDur] = film.filmDuration.split(":");
-      const d = new Date();
-      d.setUTCHours(+hDur, +mDur + 15, +sDur);
-      const totalDuration = calculateTime(d, "utc");
-      const dateForOldCheck = new Date(film.startDate);
-      dateForOldCheck.setUTCDate(dateForOldCheck.getUTCDate() + 6);
+// const scheduleDate = el.split("-")[2];
+// const start = new Date(el);
+// start.setUTCDate(+scheduleDate);
+// start.setUTCHours(5, 0, 0, 0); //настроеная дата для каждого нового рабочего дня
+// const adjustedFilms = films.map((film) => {
+//фильмы, с добавленными полями для проверки возраста и новый фильм или нет
+// const [hDur, mDur, sDur] = film.filmDuration.split(":");
+//   const d = new Date();
+//   d.setUTCHours(+hDur, +mDur + 15, +sDur);
+//   const totalDuration = calculateTime(d, "utc");
+//   const dateForOldCheck = new Date(film.startDate);
+//   dateForOldCheck.setUTCDate(dateForOldCheck.getUTCDate() + 6);
 
-      const fullDay = parseInt(film.ageRestriction, 10) > 11;
-      return {
-        ...film,
-        totalDuration,
-        isOld: dateForOldCheck <= start,
-        fullDay,
-      };
-    });
+//   const fullDay = parseInt(film.ageRestriction, 10) > 11;
+//   return {
+//     ...film,
+//     totalDuration,
+//     isOld: dateForOldCheck <= start,
+//     fullDay,
+//   };
+// });
 
-    const end = new Date(el);
-    end.setUTCDate(+scheduleDate);
-    end.setUTCHours(23, 59, 59, 999); //настроенная дата для окончания рабочего дня
-    if (
-      //фильмы либо новые, либо старые с одинаковой возрастной категорией
-      adjustedFilms.every((film) => !film.isOld && film.fullDay) ||
-      adjustedFilms.every((film) => !film.isOld && !film.fullDay) ||
-      adjustedFilms.every((film) => film.isOld && film.fullDay) ||
-      adjustedFilms.every((film) => film.isOld && !film.fullDay)
-    ) {
-      let currentIdx = 0;
-      const { length } = adjustedFilms;
+// const end = new Date(el);
+// end.setUTCDate(+scheduleDate);
+// end.setUTCHours(23, 59, 59, 999); //настроенная дата для окончания рабочего дня
+// if (
+//фильмы либо новые, либо старые с одинаковой возрастной категорией
+// adjustedFilms.every((film) => !film.isOld && film.fullDay) ||
+// adjustedFilms.every((film) => !film.isOld && !film.fullDay) ||
+// adjustedFilms.every((film) => film.isOld && film.fullDay) ||
+// adjustedFilms.every((film) => film.isOld && !film.fullDay)
+// ) {
+//   let currentIdx = 0;
+//   const { length } = adjustedFilms;
 
-      while (start < end) {
-        const timeOfSessionStart = calculateTime(start, "local");
-        setPrice(
-          start,
-          adjustedFilms,
-          daySchedule,
-          el,
-          timeOfSessionStart,
-          currentIdx
-        );
-        const [hDur, mDur, sDur] =
-          adjustedFilms[currentIdx].totalDuration.split(":");
-        start.setUTCHours(start.getUTCHours() + +hDur);
-        start.setUTCMinutes(start.getUTCMinutes() + +mDur);
-        start.setUTCSeconds(start.getUTCSeconds() + +sDur);
+//   while (start < end) {
+//     const timeOfSessionStart = calculateTime(start, "local");
+//     setPrice(
+//       start,
+//       adjustedFilms,
+//       daySchedule,
+//       el,
+//       timeOfSessionStart,
+//       currentIdx
+//     );
+//     const [hDur, mDur, sDur] =
+//       adjustedFilms[currentIdx].totalDuration.split(":");
+//     start.setUTCHours(start.getUTCHours() + +hDur);
+//     start.setUTCMinutes(start.getUTCMinutes() + +mDur);
+//     start.setUTCSeconds(start.getUTCSeconds() + +sDur);
 
-        currentIdx = currentIdx + 1 === length ? 0 : currentIdx + 1;
-      }
-      daySchedule[el].pop();
-    }
-    if (
-      //один фильм новый, а другой старый, но возрастные категории совпадают, чередование 2-1-2
-      adjustedFilms.some((film) => film.isOld) &&
-      adjustedFilms.some((film) => !film.isOld) &&
-      (adjustedFilms.every((film) => film.fullDay) ||
-        adjustedFilms.every((film) => !film.fullDay))
-    ) {
-      const oldIdxs = adjustedFilms.filter((film) => film.isOld);
-      const newIdxs = adjustedFilms.filter((film) => !film.isOld);
-      const newMaxInRow = 2 * newIdxs.length;
-      const oldMaxInRow = oldIdxs.length;
-      let currentOldInRow = 0;
-      let currentNewInRow = 0;
-      let newIdxToShow = 0;
-      while (start < end) {
-        const timeOfSessionStart = calculateTime(start, "local");
-        if (currentNewInRow < newMaxInRow) {
-          setPrice(
-            start,
-            newIdxs,
-            daySchedule,
-            el,
-            timeOfSessionStart,
-            newIdxToShow
-          );
-          const [hDur, mDur, sDur] =
-            adjustedFilms[newIdxToShow].totalDuration.split(":");
-          start.setUTCHours(start.getUTCHours() + +hDur);
-          start.setUTCMinutes(start.getUTCMinutes() + +mDur);
-          start.setUTCSeconds(start.getUTCSeconds() + +sDur);
-          currentNewInRow++;
-          newIdxToShow =
-            newIdxToShow + 1 === newIdxs.length ? 0 : newIdxToShow + 1;
-          currentOldInRow = 0;
-        } else if (currentOldInRow < oldMaxInRow) {
-          setPrice(
-            start,
-            oldIdxs,
-            daySchedule,
-            el,
-            timeOfSessionStart,
-            currentOldInRow
-          );
-          const [hDur, mDur, sDur] =
-            oldIdxs[currentOldInRow].totalDuration.split(":");
-          start.setUTCHours(start.getUTCHours() + +hDur);
-          start.setUTCMinutes(start.getUTCMinutes() + +mDur);
-          start.setUTCSeconds(start.getUTCSeconds() + +sDur);
-          currentOldInRow++;
-          if (currentOldInRow === oldMaxInRow) {
-            currentNewInRow = 0;
-            newIdxToShow = 0;
-          }
-        }
-      }
-      daySchedule[el].pop();
-    } else if (
-      (adjustedFilms.every((film) => !film.isOld) ||
-        adjustedFilms.every((film) => film.isOld)) &&
-      adjustedFilms.some((film) => film.fullDay) &&
-      adjustedFilms.some((film) => !film.fullDay)
-    ) {
-      //разная возрастная категория, оба новых или оба старых
-      let currentIdx = 0;
-      const adultFilms = adjustedFilms.filter((film) => film.fullDay);
-      let currentAdultIdx = 0;
-      const { length } = adjustedFilms;
+//     currentIdx = currentIdx + 1 === length ? 0 : currentIdx + 1;
+//   }
+//   daySchedule[el].pop();
+// }
+// if (
+//один фильм новый, а другой старый, но возрастные категории совпадают, чередование 2-1-2
+// adjustedFilms.every((film) => !film.isOld && film.fullDay) ||
+// adjustedFilms.every((film) => !film.isOld && !film.fullDay) ||
+// adjustedFilms.every((film) => film.isOld && film.fullDay) ||
+// adjustedFilms.every((film) => film.isOld && !film.fullDay)
+// ) {
+//   const oldIdxs = adjustedFilms.filter((film) => film.isOld);
+//   const newIdxs = adjustedFilms.filter((film) => !film.isOld);
+//   const newMaxInRow = 2 * newIdxs.length;
+//   const oldMaxInRow = oldIdxs.length;
+//   let currentOldInRow = 0;
+//   let currentNewInRow = 0;
+//   let newIdxToShow = 0;
+//   while (start < end) {
+//     const timeOfSessionStart = calculateTime(start, "local");
+//     if (currentNewInRow < newMaxInRow) {
+//       setPrice(
+//         start,
+//         newIdxs,
+//         daySchedule,
+//         el,
+//         timeOfSessionStart,
+//         newIdxToShow
+//       );
+//       const [hDur, mDur, sDur] =
+//         adjustedFilms[newIdxToShow].totalDuration.split(":");
+//       start.setUTCHours(start.getUTCHours() + +hDur);
+//       start.setUTCMinutes(start.getUTCMinutes() + +mDur);
+//       start.setUTCSeconds(start.getUTCSeconds() + +sDur);
+//       currentNewInRow++;
+//       newIdxToShow =
+//         newIdxToShow + 1 === newIdxs.length ? 0 : newIdxToShow + 1;
+//       currentOldInRow = 0;
+//     } else if (currentOldInRow < oldMaxInRow) {
+//       setPrice(
+//         start,
+//         oldIdxs,
+//         daySchedule,
+//         el,
+//         timeOfSessionStart,
+//         currentOldInRow
+//       );
+//       const [hDur, mDur, sDur] =
+//         oldIdxs[currentOldInRow].totalDuration.split(":");
+//       start.setUTCHours(start.getUTCHours() + +hDur);
+//       start.setUTCMinutes(start.getUTCMinutes() + +mDur);
+//       start.setUTCSeconds(start.getUTCSeconds() + +sDur);
+//       currentOldInRow++;
+//       if (currentOldInRow === oldMaxInRow) {
+//         currentNewInRow = 0;
+//         newIdxToShow = 0;
+//       }
+//     }
+//   }
+//   daySchedule[el].pop();
+// } else if (
+// (adjustedFilms.every((film) => !film.isOld) ||
+//   adjustedFilms.every((film) => film.isOld)) &&
+// adjustedFilms.some((film) => film.fullDay) &&
+// adjustedFilms.some((film) => !film.fullDay)
+// ) {
+//разная возрастная категория, оба новых или оба старых
+// let currentIdx = 0;
+// const adultFilms = adjustedFilms.filter((film) => film.fullDay);
+// let currentAdultIdx = 0;
+// const { length } = adjustedFilms;
 
-      while (start < end) {
-        const timeOfSessionStart = calculateTime(start, "local");
-        if (start.getUTCHours() > 18 || start.getHours() < 3) {
-          setPrice(
-            start,
-            adultFilms,
-            daySchedule,
-            el,
-            timeOfSessionStart,
-            currentAdultIdx
-          );
+// while (start < end) {
+//   const timeOfSessionStart = calculateTime(start, "local");
+//   if (start.getUTCHours() > 18 || start.getHours() < 3) {
+//     setPrice(
+//       start,
+//       adultFilms,
+//       daySchedule,
+//       el,
+//       timeOfSessionStart,
+//       currentAdultIdx
+//     );
 
-          const [hDur, mDur, sDur] =
-            adultFilms[currentAdultIdx].totalDuration.split(":");
-          start.setUTCHours(start.getUTCHours() + +hDur);
-          start.setUTCMinutes(start.getUTCMinutes() + +mDur);
-          start.setUTCSeconds(start.getUTCSeconds() + +sDur);
-          currentAdultIdx =
-            ++currentAdultIdx === adultFilms.length ? 0 : currentAdultIdx++;
-        } else {
-          setPrice(
-            start,
-            adjustedFilms,
-            daySchedule,
-            el,
-            timeOfSessionStart,
-            currentIdx
-          );
-          const [hDur, mDur, sDur] =
-            adjustedFilms[currentIdx].totalDuration.split(":");
-          start.setUTCHours(start.getUTCHours() + +hDur);
-          start.setUTCMinutes(start.getUTCMinutes() + +mDur);
-          start.setUTCSeconds(start.getUTCSeconds() + +sDur);
-          currentIdx = currentIdx + 1 === length ? 0 : currentIdx + 1;
-        }
-      }
-      daySchedule[el].pop();
-    } else {
-      //один новый, другой старый и разные возрастные категории
-      const oldIdxs = adjustedFilms.filter((film) => film.isOld);
-      const newIdxs = adjustedFilms.filter((film) => !film.isOld);
-      const newMaxInRow = 2 * newIdxs.length;
-      const oldMaxInRow = oldIdxs.length;
-      let currentOldInRow = 0;
-      let currentNewInRow = 0;
-      let newIdxToShow = 0;
-      let currentAdultIdx = 0;
-      const adultFilms = adjustedFilms.filter((film) => film.fullDay);
-      while (start < end) {
-        const timeOfSessionStart = calculateTime(start, "local");
-        if (start.getHours() > 18 || start.getHours() < 3) {
-          setPrice(
-            start,
-            adultFilms,
-            daySchedule,
-            el,
-            timeOfSessionStart,
-            currentAdultIdx
-          );
-          const [hDur, mDur, sDur] =
-            adultFilms[currentAdultIdx].totalDuration.split(":");
-          start.setUTCHours(start.getUTCHours() + +hDur);
-          start.setUTCMinutes(start.getUTCMinutes() + +mDur);
-          start.setUTCSeconds(start.getUTCSeconds() + +sDur);
-          currentAdultIdx =
-            ++currentAdultIdx === adultFilms.length ? 0 : currentAdultIdx++;
-        } else if (currentNewInRow < newMaxInRow) {
-          setPrice(
-            start,
-            newIdxs,
-            daySchedule,
-            el,
-            timeOfSessionStart,
-            newIdxToShow
-          );
+//     const [hDur, mDur, sDur] =
+//       adultFilms[currentAdultIdx].totalDuration.split(":");
+//     start.setUTCHours(start.getUTCHours() + +hDur);
+//     start.setUTCMinutes(start.getUTCMinutes() + +mDur);
+//     start.setUTCSeconds(start.getUTCSeconds() + +sDur);
+//     currentAdultIdx =
+//       ++currentAdultIdx === adultFilms.length ? 0 : currentAdultIdx++;
+//   } else {
+//     setPrice(
+//       start,
+//       adjustedFilms,
+//       daySchedule,
+//       el,
+//       timeOfSessionStart,
+//       currentIdx
+//     );
+//     const [hDur, mDur, sDur] =
+//       adjustedFilms[currentIdx].totalDuration.split(":");
+//     start.setUTCHours(start.getUTCHours() + +hDur);
+//     start.setUTCMinutes(start.getUTCMinutes() + +mDur);
+//     start.setUTCSeconds(start.getUTCSeconds() + +sDur);
+//     currentIdx = currentIdx + 1 === length ? 0 : currentIdx + 1;
+//   }
+// }
+// daySchedule[el].pop();
+// } else {
+//один новый, другой старый и разные возрастные категории
+//   const oldIdxs = adjustedFilms.filter((film) => film.isOld);
+//   const newIdxs = adjustedFilms.filter((film) => !film.isOld);
+//   const newMaxInRow = 2 * newIdxs.length;
+//   const oldMaxInRow = oldIdxs.length;
+//   let currentOldInRow = 0;
+//   let currentNewInRow = 0;
+//   let newIdxToShow = 0;
+//   let currentAdultIdx = 0;
+//   const adultFilms = adjustedFilms.filter((film) => film.fullDay);
+//   while (start < end) {
+//     const timeOfSessionStart = calculateTime(start, "local");
+//     if (start.getHours() > 18 || start.getHours() < 3) {
+//       setPrice(
+//         start,
+//         adultFilms,
+//         daySchedule,
+//         el,
+//         timeOfSessionStart,
+//         currentAdultIdx
+//       );
+//       const [hDur, mDur, sDur] =
+//         adultFilms[currentAdultIdx].totalDuration.split(":");
+//       start.setUTCHours(start.getUTCHours() + +hDur);
+//       start.setUTCMinutes(start.getUTCMinutes() + +mDur);
+//       start.setUTCSeconds(start.getUTCSeconds() + +sDur);
+//       currentAdultIdx =
+//         ++currentAdultIdx === adultFilms.length ? 0 : currentAdultIdx++;
+//     } else if (currentNewInRow < newMaxInRow) {
+//       setPrice(
+//         start,
+//         newIdxs,
+//         daySchedule,
+//         el,
+//         timeOfSessionStart,
+//         newIdxToShow
+//       );
 
-          const [hDur, mDur, sDur] =
-            newIdxs[newIdxToShow].totalDuration.split(":");
-          start.setUTCHours(start.getUTCHours() + +hDur);
-          start.setUTCMinutes(start.getUTCMinutes() + +mDur);
-          start.setUTCSeconds(start.getUTCSeconds() + +sDur);
-          currentNewInRow++;
-          newIdxToShow =
-            newIdxToShow + 1 === newIdxs.length ? 0 : newIdxToShow + 1;
-          currentOldInRow = 0;
-        } else if (currentOldInRow < oldMaxInRow) {
-          setPrice(
-            start,
-            oldIdxs,
-            daySchedule,
-            el,
-            timeOfSessionStart,
-            currentOldInRow
-          );
+//       const [hDur, mDur, sDur] =
+//         newIdxs[newIdxToShow].totalDuration.split(":");
+//       start.setUTCHours(start.getUTCHours() + +hDur);
+//       start.setUTCMinutes(start.getUTCMinutes() + +mDur);
+//       start.setUTCSeconds(start.getUTCSeconds() + +sDur);
+//       currentNewInRow++;
+//       newIdxToShow =
+//         newIdxToShow + 1 === newIdxs.length ? 0 : newIdxToShow + 1;
+//       currentOldInRow = 0;
+//     } else if (currentOldInRow < oldMaxInRow) {
+//       setPrice(
+//         start,
+//         oldIdxs,
+//         daySchedule,
+//         el,
+//         timeOfSessionStart,
+//         currentOldInRow
+//       );
 
-          const [hDur, mDur, sDur] =
-            oldIdxs[currentOldInRow].totalDuration.split(":");
-          start.setUTCHours(start.getUTCHours() + +hDur);
-          start.setUTCMinutes(start.getUTCMinutes() + +mDur);
-          start.setUTCSeconds(start.getUTCSeconds() + +sDur);
-          currentOldInRow++;
-          if (currentOldInRow === oldMaxInRow) {
-            currentNewInRow = 0;
-            newIdxToShow = 0;
-          }
-        }
-      }
-      daySchedule[el].pop();
-    }
-    return daySchedule;
-  });
-  return arr;
-};
+//       const [hDur, mDur, sDur] =
+//         oldIdxs[currentOldInRow].totalDuration.split(":");
+//       start.setUTCHours(start.getUTCHours() + +hDur);
+//       start.setUTCMinutes(start.getUTCMinutes() + +mDur);
+//       start.setUTCSeconds(start.getUTCSeconds() + +sDur);
+//       currentOldInRow++;
+//       if (currentOldInRow === oldMaxInRow) {
+//         currentNewInRow = 0;
+//         newIdxToShow = 0;
+//       }
+//     }
+//   }
+//   daySchedule[el].pop();
+// }
+// return daySchedule;
+// });
+// return arr;
+// };
 
 const prepareSchedule = (films: Film[], start: Date, end: Date) => {
   if (!films.length) {
@@ -455,7 +458,11 @@ const prepareSchedule = (films: Film[], start: Date, end: Date) => {
       ? oneFilmSchedule(films[0], weekSchedule)
       : oneFilmSchedule(films[0], weekSchedule, true);
   } else {
-    return multipleFilmsSchedule(films, weekSchedule);
+    const multipleCreator = new multipleFilmsScheduleCreator(
+      films,
+      weekSchedule
+    );
+    return multipleCreator.setupBase();
   }
 };
 
