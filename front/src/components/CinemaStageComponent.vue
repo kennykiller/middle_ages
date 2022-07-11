@@ -1,12 +1,18 @@
 <script setup lang="ts">
-const arr = [];
+import { reactive } from "vue";
+const arr: { isBusy: Boolean; id: number; isBooked: boolean }[] = reactive([]);
 const rows = [...Array(11).keys()].slice(1);
-console.log(rows);
 
 let id = 1;
 while (arr.length < 100) {
-  arr.push({ isBusy: false, id: id++ }, { isBusy: true, id: id++ });
+  arr.push(
+    { isBusy: false, id: id++, isBooked: false },
+    { isBusy: true, id: id++, isBooked: false }
+  );
 }
+const toggleBooking = (idx: number) => {
+  arr[idx].isBooked = !arr[idx].isBooked;
+};
 </script>
 
 <template>
@@ -19,22 +25,35 @@ while (arr.length < 100) {
         </li>
       </ul>
       <ul class="stage__list">
-        <li class="stage__list-item seat" v-for="seat of arr" :key="seat.id">
+        <li
+          class="stage__list-item seat"
+          v-for="(seat, idx) of arr"
+          :key="seat.id"
+        >
           <img
             class="seat__image seat__image--busy"
-            v-if="seat.isBusy"
+            v-if="seat.isBusy && !seat.isBooked"
             src="@/assets/images/busy-seat.png"
             alt="busy"
           />
           <img
             class="seat__image seat__image--free"
-            v-if="!seat.isBusy"
+            v-if="!seat.isBusy && !seat.isBooked"
             src="@/assets/images/free-seat.png"
+            @click="toggleBooking(idx)"
             alt="free"
+          />
+          <img
+            class="seat__image seat__image--booked"
+            v-if="seat.isBooked"
+            @click="toggleBooking(idx)"
+            src="@/assets/images/booked-seat.png"
+            alt="booked"
           />
         </li>
       </ul>
     </div>
+    <div class="stage__total"></div>
   </div>
 </template>
 
