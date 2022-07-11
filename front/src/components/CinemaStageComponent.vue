@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import { computed } from "@vue/reactivity";
 import { reactive } from "vue";
 const arr: { isBusy: Boolean; id: number; isBooked: boolean }[] = reactive([]);
 const rows = [...Array(11).keys()].slice(1);
-
+const chosenSeats: { isBusy: Boolean; id: number; isBooked: boolean }[] =
+  reactive([]);
 let id = 1;
 while (arr.length < 100) {
   arr.push(
@@ -12,6 +14,14 @@ while (arr.length < 100) {
 }
 const toggleBooking = (idx: number) => {
   arr[idx].isBooked = !arr[idx].isBooked;
+  if (arr[idx].isBooked) {
+    chosenSeats.push(arr[idx]);
+  } else {
+    const idxToRemove = chosenSeats.findIndex(
+      (seat) => seat.id === arr[idx].id
+    );
+    chosenSeats.splice(idxToRemove, 1);
+  }
 };
 </script>
 
@@ -53,7 +63,11 @@ const toggleBooking = (idx: number) => {
         </li>
       </ul>
     </div>
-    <div class="stage__total"></div>
+    <div class="stage__info info">
+      <div class="info__warning" v-if="!chosenSeats.length">
+        Выберите свободные места (указаны зеленым)
+      </div>
+    </div>
   </div>
 </template>
 
@@ -114,7 +128,8 @@ const toggleBooking = (idx: number) => {
     justify-content: center;
   }
 }
-.seat__image--free {
+.seat__image--free,
+.seat__image--booked {
   cursor: pointer;
   transition: transform 0.4s ease;
 }
