@@ -51,7 +51,7 @@ const getFilm = async () => {
     console.log(response.data);
 
     if (response?.data) return response.data as Film;
-    throw Error("no such film received");
+    throw new Error("no such film received");
   } catch (e) {
     console.log(e);
   }
@@ -87,7 +87,7 @@ const getSessions = async (date: Date) => {
 
       return;
     }
-    throw Error("На эту дату нет фильмов");
+    throw new Error("На эту дату нет фильмов");
   } catch (e) {
     console.log(e);
   }

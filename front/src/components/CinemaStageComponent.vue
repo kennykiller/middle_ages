@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { computed } from "@vue/reactivity";
 import { reactive } from "vue";
 const arr: { isBusy: Boolean; id: number; isBooked: boolean }[] = reactive([]);
 const rows = [...Array(11).keys()].slice(1);

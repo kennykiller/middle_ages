@@ -87,7 +87,7 @@ const carouselControl = async () => {
 </script>
 
 <template>
-  <section class="current-films__container">
+  <section v-if="films.value.length" class="current-films__container">
     <BaseSubheader
       :subtitle="carouselType === 'all' ? 'Фильмы' : 'Анонсы'"
       :page="page"

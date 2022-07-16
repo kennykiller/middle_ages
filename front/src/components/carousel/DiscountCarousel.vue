@@ -92,7 +92,7 @@ const carouselControl = async () => {
 </script>
 
 <template>
-  <section class="current-discounts__container">
+  <section v-if="discounts.value.length" class="current-discounts__container">
     <BaseSubheader
       subtitle="Акции"
       :all-data-received="allDiscountsReceived"
