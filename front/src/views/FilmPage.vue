@@ -7,6 +7,8 @@ import axios, { AxiosResponse } from "axios";
 import BaseBadge from "@/components/UI/BaseBadge.vue";
 import CalendarComponent from "@/components/CalendarComponent.vue";
 import SessionItem from "@/components/sessions/SessionItem.vue";
+import CinemaStageComponent from "@/components/CinemaStageComponent.vue";
+import BaseDialog from "@/components/UI/BaseDialog.vue";
 
 interface SessionResponse {
   filmId: number;
@@ -34,6 +36,7 @@ const film: { value: Film | undefined } = reactive({
 let url: Ref<string> = ref("");
 let checkTheaters: Ref<filmStart> = ref("past");
 let sessionsSchedule: SessionResponse[] = reactive([]);
+let chosenSession: Ref<number | null | undefined> = ref(null);
 onBeforeMount(async () => {
   film.value = await getFilm();
   url.value = film.value?.posterUrl.match(/images(.)+/g)![0] || "";
@@ -95,49 +98,56 @@ const getSessions = async (date: Date) => {
 </script>
 
 <template>
-  <div class="item__wrapper film" v-if="film.value">
-    <div class="film__base-info-wrapper">
-      <div class="film__poster-wrapper">
-        <img class="film-poster" :src="getImageUrl(url)" alt="" />
-      </div>
-      <div class="film__text-wrapper">
-        <h1>{{ film.value.name }}</h1>
-        <h2>{{ film.value.description }}</h2>
-        <h2>Возрастное ограничение: {{ film.value.ageRestriction }}</h2>
-        <h2>Продолжительность фильма: {{ film.value.filmDuration }}</h2>
-        <h3 v-if="checkTheaters !== 'past'">
-          Фильм в прокате с {{ film.value.startDate }} до
-          {{ film.value.endDate }}
-        </h3>
-        <div class="film__genres-wrapper">
-          <BaseBadge
-            v-for="genre in film.value.genres"
-            :key="genre.id"
-            :text="genre.name"
-            popover
-            popover-text="Найти похожие"
-          />
+  <div>
+    <BaseDialog @close="chosenSession = null" :is-opened="!!chosenSession">
+      <CinemaStageComponent></CinemaStageComponent>
+    </BaseDialog>
+    <div class="item__wrapper film" v-if="film.value">
+      <div class="film__base-info-wrapper">
+        <div class="film__poster-wrapper">
+          <img class="film-poster" :src="getImageUrl(url)" alt="" />
+        </div>
+        <div class="film__text-wrapper">
+          <h1>{{ film.value.name }}</h1>
+          <h2>{{ film.value.description }}</h2>
+          <h2>Возрастное ограничение: {{ film.value.ageRestriction }}</h2>
+          <h2>Продолжительность фильма: {{ film.value.filmDuration }}</h2>
+          <h3 v-if="checkTheaters !== 'past'">
+            Фильм в прокате с {{ film.value.startDate }} до
+            {{ film.value.endDate }}
+          </h3>
+          <div class="film__genres-wrapper">
+            <BaseBadge
+              v-for="genre in film.value.genres"
+              :key="genre.id"
+              :text="genre.name"
+              popover
+              popover-text="Найти похожие"
+            />
+          </div>
         </div>
       </div>
-    </div>
-    <div class="film__schedule-wrapper">
-      <CalendarComponent
-        v-if="film.value.startDate"
-        @check-theaters="checkTheaters = $event"
-        @choose-date="getSessions($event)"
-        text="Выберите дату"
-        :start-date="film.value.startDate"
-        :end-date="film.value.endDate"
-      ></CalendarComponent>
-    </div>
-    <div v-if="sessionsSchedule.length" class="film__sessions-wrapper">
-      <SessionItem
-        v-for="session of sessionsSchedule"
-        :key="session.filmId"
-        :time="session.filmStart"
-        :price="String(session.price)"
-        :places-left="String(session.seatsAvailable)"
-      ></SessionItem>
+      <div class="film__schedule-wrapper">
+        <CalendarComponent
+          v-if="film.value.startDate"
+          @check-theaters="checkTheaters = $event"
+          @choose-date="getSessions($event)"
+          text="Выберите дату"
+          :start-date="film.value.startDate"
+          :end-date="film.value.endDate"
+        ></CalendarComponent>
+      </div>
+      <div v-if="sessionsSchedule.length" class="film__sessions-wrapper">
+        <SessionItem
+          v-for="session of sessionsSchedule"
+          :key="session.filmId"
+          :time="session.filmStart"
+          :price="String(session.price)"
+          :places-left="String(session.seatsAvailable)"
+          :id="session.id"
+          @choose-session="chosenSession = $event"
+        ></SessionItem>
+      </div>
     </div>
   </div>
 </template>

@@ -78,6 +78,7 @@ const toggleBooking = (idx: number) => {
   z-index: 2;
   top: 50%;
   left: 50%;
+  background: white;
   transform: translate(-50%, -50%);
   box-shadow: 0 4px 7px #88b8fe;
   &__screen {

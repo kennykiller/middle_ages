@@ -33,6 +33,7 @@ const discount_1 = require("./models/discount");
 const admin_1 = __importDefault(require("./routes/admin"));
 const home_1 = __importDefault(require("./routes/home"));
 const auth_1 = __importDefault(require("./routes/auth"));
+const order_2 = __importDefault(require("./routes/order"));
 const app = express_1.default();
 const port = 3000;
 const fileStorage = multer_1.default.diskStorage({
@@ -62,6 +63,7 @@ app.use("/images", express_1.default.static(path_1.default.join(__dirname, "../f
 app.use(cors_1.default({ origin: "http://localhost:8080" }));
 app.use(admin_1.default);
 app.use(home_1.default);
+app.use("/order", order_2.default);
 app.use("/films", film_1.default);
 app.use("/auth", auth_1.default);
 app.use("/", film_1.default);

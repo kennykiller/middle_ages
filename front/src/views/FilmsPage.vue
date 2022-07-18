@@ -1,10 +1,7 @@
-<template>
-  <CinemaStageComponent></CinemaStageComponent>
-</template>
+<template>Hello</template>
 
 <script setup lang="ts">
 import { reactive, onBeforeMount } from "vue";
-import CinemaStageComponent from "@/components/CinemaStageComponent.vue";
 import { Film } from "../../../interfaces/models";
 import axios from "axios";
 

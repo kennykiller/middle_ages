@@ -2,6 +2,7 @@
 interface Props {
   time: string;
   price: string;
+  id?: number;
   placesLeft?: string;
   name?: string;
   draggedOver?: boolean;
@@ -9,6 +10,9 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+const emit = defineEmits<{
+  (e: "choose-session", val: Props["id"]): void;
+}>();
 </script>
 
 <template>
@@ -39,7 +43,7 @@ const props = defineProps<Props>();
       >
     </div>
     <div v-if="props.placesLeft" class="session__confirm">
-      <button>Выбрать место</button>
+      <button @click="emit('choose-session', props.id)">Выбрать место</button>
     </div>
   </div>
 </template>

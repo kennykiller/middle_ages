@@ -23,6 +23,7 @@ import { Discount } from "./models/discount";
 import adminRouter from "./routes/admin";
 import homeRouter from "./routes/home";
 import authRouter from "./routes/auth";
+import orderRouter from "./routes/order";
 
 const app: Application = express();
 const port = 3000;
@@ -56,6 +57,7 @@ app.use("/images", express.static(path.join(__dirname, "../front/src/images")));
 app.use(cors({ origin: "http://localhost:8080" }));
 app.use(adminRouter);
 app.use(homeRouter);
+app.use("/order", orderRouter);
 app.use("/films", films);
 app.use("/auth", authRouter);
 app.use("/", films);
