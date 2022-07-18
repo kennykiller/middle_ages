@@ -2,18 +2,21 @@ const Sequelize = require("sequelize");
 
 import { sequelize } from "../util/database";
 
-export const Order = sequelize.define("order", {
+export const Seat = sequelize.define("seat", {
   id: {
     type: Sequelize.INTEGER,
     autoIncrement: true,
     allowNull: false,
     primaryKey: true,
   },
-  userId: {
+  number: {
     type: Sequelize.INTEGER,
     allowNull: false,
   },
-  statusId: {
+  orderId: {
+    type: Sequelize.INTEGER,
+  },
+  sessionId: {
     type: Sequelize.INTEGER,
     allowNull: false,
   },

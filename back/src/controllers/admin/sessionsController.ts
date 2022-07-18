@@ -2,6 +2,7 @@ import { RequestHandler } from "express";
 import { Op } from "sequelize";
 import { Film as FilmModel } from "../../models/film";
 import { Session } from "../../models/session";
+import { Seat } from "../../models/seat";
 import { Genre as GenreModel } from "../../models/genre";
 import { DailySchedule, FilmForSession } from "../../interfaces/base";
 import { Film } from "../../interfaces/models";
@@ -73,12 +74,23 @@ export const createSession: RequestHandler = async (req, res, next) => {
   const filmStart: Date = req.body.filmStart;
   const { price } = req.body as { price: number };
   const filmId: number = req.body.id;
-  const session = await Session.create({
-    filmStart,
-    price,
-    filmId,
-  });
-  res.status(201).json({ message: "Сеанс добавлен.", createdFilm: session });
+  try {
+    const session = await Session.create({
+      filmStart,
+      price,
+      filmId,
+    });
+    const requests = [];
+    for (let i = 1; i < 101; i++) {
+      requests.push(
+        Seat.create({ number: i, orderId: null, sessionId: session.id })
+      );
+    }
+    await Promise.all(requests);
+    res.status(201).json({ message: "Сеанс добавлен.", createdFilm: session });
+  } catch (e) {
+    next(e);
+  }
 };
 
 const receiveFilms = async (
