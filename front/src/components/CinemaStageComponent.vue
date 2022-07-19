@@ -1,31 +1,52 @@
 <script setup lang="ts">
 import { reactive } from "vue";
-const arr: { isBusy: Boolean; id: number; isBooked: boolean }[] = reactive([]);
+
+interface Props {
+  sessionId: number;
+}
+interface Seat {
+  id: number;
+  number: number;
+  sessionId: number;
+  createdAt: Date;
+  updatedAt: Date;
+  status: number | null;
+}
+
+const props = defineProps<Props>();
+//get seats
+
+const seats: Seat[] = reactive([]);
+const getSeats = async (sessionId: number) => {
+  try {
+  } catch (e) {}
+};
+
 const rows = [...Array(11).keys()].slice(1);
 const chosenSeats: { isBusy: Boolean; id: number; isBooked: boolean }[] =
   reactive([]);
 let id = 1;
-while (arr.length < 100) {
-  arr.push(
-    { isBusy: false, id: id++, isBooked: false },
-    { isBusy: true, id: id++, isBooked: false }
-  );
-}
-const toggleBooking = (idx: number) => {
-  arr[idx].isBooked = !arr[idx].isBooked;
-  if (arr[idx].isBooked) {
-    chosenSeats.push(arr[idx]);
-  } else {
-    const idxToRemove = chosenSeats.findIndex(
-      (seat) => seat.id === arr[idx].id
-    );
-    chosenSeats.splice(idxToRemove, 1);
-  }
-};
+// while (arr.length < 100) {
+//   arr.push(
+//     { isBusy: false, id: id++, isBooked: false },
+//     { isBusy: true, id: id++, isBooked: false }
+//   );
+// }
+// const toggleBooking = (idx: number) => {
+//   arr[idx].isBooked = !arr[idx].isBooked;
+//   if (arr[idx].isBooked) {
+//     chosenSeats.push(arr[idx]);
+//   } else {
+//     const idxToRemove = chosenSeats.findIndex(
+//       (seat) => seat.id === arr[idx].id
+//     );
+//     chosenSeats.splice(idxToRemove, 1);
+//   }
+// };
 </script>
 
 <template>
-  <div class="stage">
+  <div class="stage" @click.stop>
     <div class="stage__screen"><span>Экран</span></div>
     <div class="stage__scheme scheme">
       <ul class="scheme__rows">
