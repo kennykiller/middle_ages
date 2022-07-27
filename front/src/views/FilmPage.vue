@@ -100,7 +100,9 @@ const getSessions = async (date: Date) => {
 <template>
   <div>
     <BaseDialog @close="chosenSession = null" :is-opened="!!chosenSession">
-      <CinemaStageComponent></CinemaStageComponent>
+      <CinemaStageComponent
+        :session-id="chosenSession || 0"
+      ></CinemaStageComponent>
     </BaseDialog>
     <div class="item__wrapper film" v-if="film.value">
       <div class="film__base-info-wrapper">

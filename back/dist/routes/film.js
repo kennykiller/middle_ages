@@ -8,4 +8,5 @@ films.get("/", filmController_1.getFilms);
 films.get("/upcoming", filmController_1.getUpcomingFilms);
 films.post("/sessions/:id", sessionsController_1.getSessions);
 films.get("/:id", filmController_1.getFilm);
+films.get("/seats/:sessionId", sessionsController_1.getSeats);
 exports.default = films;

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { reactive } from "vue";
+import axios from "axios";
 
 interface Props {
   sessionId: number;
@@ -19,9 +20,13 @@ const props = defineProps<Props>();
 const seats: Seat[] = reactive([]);
 const getSeats = async (sessionId: number) => {
   try {
-  } catch (e) {}
+    const response = await axios.get(`seats/${sessionId}`);
+    console.log(response, "res");
+  } catch (e) {
+    console.log(e);
+  }
 };
-
+getSeats(props.sessionId);
 const rows = [...Array(11).keys()].slice(1);
 const chosenSeats: { isBusy: Boolean; id: number; isBooked: boolean }[] =
   reactive([]);
@@ -47,7 +52,7 @@ let id = 1;
 
 <template>
   <div class="stage" @click.stop>
-    <div class="stage__screen"><span>Экран</span></div>
+    <!-- <div class="stage__screen"><span>Экран</span></div>
     <div class="stage__scheme scheme">
       <ul class="scheme__rows">
         <li class="scheme__row" v-for="row of rows" :key="row">
@@ -87,7 +92,7 @@ let id = 1;
       <div class="info__warning" v-if="!chosenSeats.length">
         Выберите свободные места (указаны зеленым)
       </div>
-    </div>
+    </div> -->
   </div>
 </template>
 

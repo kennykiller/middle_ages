@@ -11,23 +11,43 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
 const session_1 = require("../models/session");
+const seat_1 = require("../models/seat");
 exports.getSessions = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const id = +req.params.id;
     const dateStart = new Date(req.body.date).setUTCHours(0, 0, 0, 0);
     const dateEnd = new Date(req.body.date).setUTCHours(23, 59, 59, 999);
-    const sessions = yield session_1.Session.findAll({
-        where: {
-            filmId: id,
-            filmStart: {
-                [sequelize_1.Op.gte]: dateStart,
-                [sequelize_1.Op.lte]: dateEnd,
+    try {
+        const sessions = yield session_1.Session.findAll({
+            where: {
+                filmId: id,
+                filmStart: {
+                    [sequelize_1.Op.gte]: dateStart,
+                    [sequelize_1.Op.lte]: dateEnd,
+                },
             },
-        },
-        order: [["filmStart", "ASC"]],
-        attributes: { exclude: ["createdAt", "updatedAt"] },
-    });
-    if (!sessions) {
-        throw new Error("Сеансы на эту дату не найдены");
+            order: [["filmStart", "ASC"]],
+            attributes: { exclude: ["createdAt", "updatedAt"] },
+        });
+        if (!sessions) {
+            throw new Error("Сеансы на эту дату не найдены");
+        }
+        res.status(200).json({ sessions });
     }
-    res.status(200).json({ sessions });
+    catch (e) {
+        next(e);
+    }
+});
+exports.getSeats = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const sessionId = +req.params.sessionId;
+    try {
+        const seatsResponse = yield seat_1.Seat.findAll({
+            where: {
+                sessionId,
+            },
+        });
+        console.log(seatsResponse, "response");
+    }
+    catch (e) {
+        next(e);
+    }
 });
