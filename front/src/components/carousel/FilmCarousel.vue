@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import FilmCarouselItem from "./FilmCarouselItem.vue";
 import { reactive, onBeforeMount, ref, Ref, computed } from "vue";
-import { Film } from "../../../../interfaces/models";
+import { Film } from "@/interfaces/models";
 import axios from "axios";
 import BaseSubheader from "../UI/BaseSubheader.vue";
 

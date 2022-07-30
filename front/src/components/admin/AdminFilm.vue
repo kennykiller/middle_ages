@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { FileUploader } from "@/utils/fileUpload";
-import { SnackType } from "../../../../interfaces/types";
-import { Film, Genre, FilmResponse } from "../../../../interfaces/models";
+import { SnackType } from "@/interfaces/types";
+import { Film, Genre, FilmResponse } from "@/interfaces/models";
 import axios from "axios";
 import { reactive, onBeforeMount, ref, onMounted, Ref, computed } from "vue";
 import BaseSnack from "../UI/BaseSnack.vue";

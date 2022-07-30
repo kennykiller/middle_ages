@@ -2,7 +2,7 @@
 
 <script setup lang="ts">
 import { reactive, onBeforeMount } from "vue";
-import { Film } from "../../../interfaces/models";
+import { Film } from "@/interfaces/models";
 import axios from "axios";
 
 const films: { value: Film[] | [] } = reactive({ value: [] });

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { monthNumber } from "../../../../interfaces/types";
+import { monthNumber } from "@/interfaces/types";
 import BaseBadge from "@/components/UI/BaseBadge.vue";
 import { computed } from "@vue/reactivity";
 interface DateToShow {

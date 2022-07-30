@@ -1,10 +1,6 @@
 <script setup lang="ts">
 import SessionItem from "./SessionItem.vue";
-import {
-  DailySchedule,
-  Schedules,
-  FilmForSession,
-} from "../../../../interfaces/base";
+import { DailySchedule, Schedules, FilmForSession } from "@/interfaces/base";
 import { computed, ref, Ref } from "@vue/reactivity";
 import axios from "axios";
 

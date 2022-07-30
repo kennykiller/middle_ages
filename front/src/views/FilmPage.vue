@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onBeforeMount, reactive, Ref, ref } from "vue";
 import { useRoute } from "vue-router";
-import { Film, Genre } from "../../../interfaces/models";
+import { Film, Genre } from "@/interfaces/models";
 import { getImageUrl } from "@/utils/getImage";
 import axios, { AxiosResponse } from "axios";
 import BaseBadge from "@/components/UI/BaseBadge.vue";

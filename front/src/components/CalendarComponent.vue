@@ -2,7 +2,7 @@
 import { reactive, onBeforeMount, ref } from "vue";
 import DatePicker from "@vuepic/vue-datepicker";
 import BaseBadge from "@/components/UI/BaseBadge.vue";
-import { monthNumber } from "../../../interfaces/types";
+import { monthNumber } from "@/interfaces/types";
 
 type filmStart = "past" | "now" | "future";
 interface Props {

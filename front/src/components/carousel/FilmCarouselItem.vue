@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Genre } from "../../../../interfaces/models";
+import { Genre } from "@/interfaces/models";
 import { getImageUrl } from "@/utils/getImage";
 interface Props {
   url: string;

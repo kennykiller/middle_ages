@@ -1,4 +1,4 @@
-import { IInputElement } from "../../../interfaces/events";
+import { IInputElement } from "@/interfaces/events";
 interface basicObj extends Object {
   [prop: string]: any;
 }

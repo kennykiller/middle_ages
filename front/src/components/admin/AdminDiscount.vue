@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { Discount, DiscountResponse } from "../../../../interfaces/models";
-import { SnackType } from "../../../../interfaces/types";
+import { Discount, DiscountResponse } from "@/interfaces/models";
+import { SnackType } from "@/interfaces/types";
 import { FileUploader } from "@/utils/fileUpload";
 import axios from "axios";
 import { reactive, ref, onMounted, computed, Ref } from "vue";

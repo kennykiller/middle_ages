@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import DiscountCarouselItem from "./DiscountCarouselItem.vue";
 import { reactive, onBeforeMount, ref, Ref, computed } from "vue";
-import { Discount } from "../../../../interfaces/models";
+import { Discount } from "@/interfaces/models";
 import axios from "axios";
 import BaseSubheader from "../UI/BaseSubheader.vue";
 
