@@ -78,6 +78,7 @@ RefreshToken.belongsTo(User, { foreignKey: "userId" });
 ResetToken.belongsTo(User, { foreignKey: "userId" });
 Order.belongsTo(User, { constraints: true, onDelete: "CASCADE" });
 Order.hasOne(PaymentStatus);
+Order.hasOne(Discount);
 PaymentStatus.belongsTo(Order);
 Session.hasMany(Order);
 Order.belongsTo(Session);

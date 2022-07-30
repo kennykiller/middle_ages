@@ -12,7 +12,7 @@ export const User = sequelize.define(
       primaryKey: true,
     },
     name: {
-      type: Sequelize.STRING,
+      type: Sequelize.STRING(120),
       allowNull: false,
     },
     email: {
@@ -22,13 +22,14 @@ export const User = sequelize.define(
     },
     isAdmin: {
       type: Sequelize.BOOLEAN,
+      defaultValue: false,
     },
     phone: {
-      type: Sequelize.STRING,
+      type: Sequelize.STRING(80),
       allowNull: false,
     },
     password: {
-      type: Sequelize.STRING,
+      type: Sequelize.STRING(150),
       allowNull: false,
     },
     amtVisits: {

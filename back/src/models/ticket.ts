@@ -1,20 +1,24 @@
-const { STRING, INTEGER } = require("sequelize");
+const Sequelize = require("sequelize");
 
 import { sequelize } from "../util/database";
 
 export const Ticket = sequelize.define("ticket", {
   id: {
-    type: INTEGER,
+    type: Sequelize.INTEGER,
     autoIncrement: true,
     allowNull: false,
     primaryKey: true,
   },
   totalPrice: {
-    type: INTEGER,
+    type: Sequelize.DECIMAL(6, 2),
     allowNull: false,
   },
-  seat: {
-    type: STRING,
+  seatId: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+  },
+  orderId: {
+    type: Sequelize.INTEGER,
     allowNull: false,
   },
 });

@@ -5,14 +5,23 @@ import { authConfig } from "../auth.config";
 
 const { v4: uuidv4 } = require("uuid");
 const RefreshToken = sequelize.define("refresh_token", {
+  id: {
+    type: Sequelize.INTEGER,
+    autoIncrement: true,
+    allowNull: false,
+    primaryKey: true,
+  },
   token: {
     type: Sequelize.STRING,
+    allowNull: false,
   },
   expiryDate: {
     type: Sequelize.DATE,
+    allowNull: false,
   },
   userId: {
     type: Sequelize.INTEGER,
+    allowNull: false,
   },
 });
 RefreshToken.createToken = async function (userId: number) {

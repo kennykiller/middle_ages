@@ -17,4 +17,7 @@ export const Order = sequelize.define("order", {
     type: Sequelize.INTEGER,
     allowNull: false,
   },
+  discountId: {
+    type: Sequelize.INTEGER,
+  },
 });

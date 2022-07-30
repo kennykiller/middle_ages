@@ -10,11 +10,11 @@ export const Film = sequelize.define("film", {
     primaryKey: true,
   },
   name: {
-    type: Sequelize.STRING,
+    type: Sequelize.STRING(120),
     allowNull: false,
   },
   ageRestriction: {
-    type: Sequelize.STRING,
+    type: Sequelize.STRING(5),
     allowNull: false,
   },
   posterUrl: {
@@ -30,6 +30,7 @@ export const Film = sequelize.define("film", {
   basePrice: {
     type: Sequelize.INTEGER,
     allowNull: false,
+    defaultValue: 500,
   },
   startDate: {
     type: Sequelize.DATE,

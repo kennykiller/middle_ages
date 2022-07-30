@@ -10,11 +10,11 @@ export const Discount = sequelize.define("discount", {
     primaryKey: true,
   },
   name: {
-    type: Sequelize.STRING,
+    type: Sequelize.STRING(120),
     allowNull: false,
   },
   ageRestriction: {
-    type: Sequelize.STRING,
+    type: Sequelize.STRING(5),
     allowNull: false,
   },
   posterUrl: {
