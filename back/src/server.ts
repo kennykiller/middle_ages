@@ -24,6 +24,8 @@ import adminRouter from "./routes/admin";
 import homeRouter from "./routes/home";
 import authRouter from "./routes/auth";
 import orderRouter from "./routes/order";
+import { Seat } from "./models/seat";
+import { FilmGenres } from "./models/film_genres";
 
 const app: Application = express();
 const port = 3000;
@@ -71,27 +73,18 @@ app.use((error, req, res, next) => {
   res.status(status).json({ message: message, data: data });
 });
 
-User.hasMany(Order);
+User.hasMany(Order, { constraints: true, onDelete: "CASCADE" });
 User.hasOne(RefreshToken);
 User.hasOne(ResetToken);
-RefreshToken.belongsTo(User, { foreignKey: "userId" });
-ResetToken.belongsTo(User, { foreignKey: "userId" });
-Order.belongsTo(User, { constraints: true, onDelete: "CASCADE" });
-Order.hasOne(PaymentStatus);
-Order.hasOne(Discount);
-PaymentStatus.belongsTo(Order);
-Session.hasMany(Order);
-Order.belongsTo(Session);
+Discount.hasMany(Order);
+PaymentStatus.hasMany(Order);
+Session.belongsToMany(Order, { through: Seat });
+Session.hasMany(Seat);
+Order.hasMany(Seat);
 Order.hasMany(Ticket);
-Ticket.belongsTo(Order);
-Discount.hasMany(Ticket);
-Ticket.belongsTo(Discount);
-Film.belongsToMany(Genre, { through: "film_genres" });
-Genre.belongsToMany(Film, { through: "film_genres" });
+Genre.belongsToMany(Film, { through: FilmGenres });
 Film.hasMany(Session, { constraints: true, onDelete: "CASCADE" });
-Session.belongsTo(Film);
-Ticket.belongsTo(Session);
-Session.hasMany(Ticket, { constraints: true, onDelete: "CASCADE" }); //каждая сессия должна иметь места сколько в зале, чтобы их при покупке билета занимали
+Seat.hasOne(Ticket, { constraints: true, onDelete: "CASCADE" });
 
 async function startServer() {
   try {
