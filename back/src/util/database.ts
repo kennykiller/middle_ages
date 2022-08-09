@@ -1,11 +1,11 @@
 const Sequelize = require("sequelize");
 
 export const sequelize = new Sequelize(
-  "dota-cinema",
-  "root",
-  "!DotaCinema2012",
+  "middle-ages",
+  "developer",
+  "dev-secret",
   {
     dialect: "mysql",
-    host: "localhost",
+    host: "mysql",
   }
 );

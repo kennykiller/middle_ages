@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.adjustSchedule = exports.calculateSchedule = exports.createSession = exports.verifyCreationPossibility = void 0;
 const sequelize_1 = require("sequelize");
 const film_1 = require("../../models/film");
 const session_1 = require("../../models/session");
@@ -17,7 +18,7 @@ const genre_1 = require("../../models/genre");
 const time_calculation_1 = require("../../util/time-calculation");
 const schedule_creator_1 = require("../../util/schedule-creator");
 const ITEMS_PER_PAGE = 4;
-exports.verifyCreationPossibility = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const verifyCreationPossibility = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const startSchedulePeriod = new Date();
     startSchedulePeriod.setUTCHours(0, 0, 0);
     startSchedulePeriod.setUTCDate(startSchedulePeriod.getUTCDate() + 6);
@@ -45,7 +46,8 @@ exports.verifyCreationPossibility = (req, res, next) => __awaiter(void 0, void 0
         return res.status(500).send({ message: e, details: "Серверная ошибка" });
     }
 });
-exports.createSession = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+exports.verifyCreationPossibility = verifyCreationPossibility;
+const createSession = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const filmStart = req.body.filmStart;
     const { price } = req.body;
     const filmId = req.body.id;
@@ -66,6 +68,7 @@ exports.createSession = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
         next(e);
     }
 });
+exports.createSession = createSession;
 const receiveFilms = (start, end) => __awaiter(void 0, void 0, void 0, function* () {
     const films = yield film_1.Film.findAll({
         where: {
@@ -154,7 +157,7 @@ const prepareSchedule = (films, start, end) => {
         return multipleCreator.setupBase();
     }
 };
-exports.calculateSchedule = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const calculateSchedule = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { startSchedulePeriod, endSchedulePeriod } = req.body;
     try {
         const receivedFilms = yield receiveFilms(startSchedulePeriod, endSchedulePeriod);
@@ -166,7 +169,8 @@ exports.calculateSchedule = (req, res, next) => __awaiter(void 0, void 0, void 0
         return res.status(500).send({ message: e, details: "Серверная ошибка" });
     }
 });
-exports.adjustSchedule = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+exports.calculateSchedule = calculateSchedule;
+const adjustSchedule = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const arr = req.body; //массив фильмов, надо пересчитать время начала фильмов в зависимости от общей продолжительности и установить прайс
     const startOfSession = new Date();
     startOfSession.setHours(8, 0, 0, 0);
@@ -191,3 +195,4 @@ exports.adjustSchedule = (req, res, next) => __awaiter(void 0, void 0, void 0, f
     });
     res.status(200).json(recalculatedSchedule);
 });
+exports.adjustSchedule = adjustSchedule;

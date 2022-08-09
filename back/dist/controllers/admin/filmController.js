@@ -9,10 +9,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getGenre = exports.createFilm = void 0;
 const film_1 = require("../../models/film");
 const genre_1 = require("../../models/genre");
 const film_genres_1 = require("../../models/film_genres");
-exports.createFilm = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const createFilm = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const filmData = req.body;
     if (!req.file) {
         const error = new Error("No image provided.");
@@ -39,7 +40,9 @@ exports.createFilm = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
     yield film_genres_1.FilmGenres.bulkCreate(filmGenresIds);
     res.status(201).json({ message: "Film added.", createdFilm: film });
 });
-exports.getGenre = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+exports.createFilm = createFilm;
+const getGenre = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const genres = yield genre_1.Genre.findAll();
     res.status(200).json({ genres });
 });
+exports.getGenre = getGenre;

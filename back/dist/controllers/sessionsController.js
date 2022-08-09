@@ -9,10 +9,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getSeats = exports.getSessions = void 0;
 const sequelize_1 = require("sequelize");
 const session_1 = require("../models/session");
 const seat_1 = require("../models/seat");
-exports.getSessions = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const getSessions = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const id = +req.params.id;
     const dateStart = new Date(req.body.date).setUTCHours(0, 0, 0, 0);
     const dateEnd = new Date(req.body.date).setUTCHours(23, 59, 59, 999);
@@ -37,13 +38,15 @@ exports.getSessions = (req, res, next) => __awaiter(void 0, void 0, void 0, func
         next(e);
     }
 });
-exports.getSeats = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+exports.getSessions = getSessions;
+const getSeats = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const sessionId = +req.params.sessionId;
     try {
         const seatsResponse = yield seat_1.Seat.findAll({
             where: {
                 sessionId,
             },
+            // include: { model: Order },
         });
         console.log(seatsResponse, "response");
     }
@@ -51,3 +54,4 @@ exports.getSeats = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
         next(e);
     }
 });
+exports.getSeats = getSeats;

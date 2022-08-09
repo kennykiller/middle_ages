@@ -9,11 +9,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getFilm = exports.getUpcomingFilms = exports.getFilms = void 0;
 const sequelize_1 = require("sequelize");
 const film_1 = require("../models/film");
 const genre_1 = require("../models/genre");
 const ITEMS_PER_PAGE = 4;
-exports.getFilms = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const getFilms = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const page = +req.query.page || 1;
         const offset = page === 1 ? 0 : page * ITEMS_PER_PAGE;
@@ -33,7 +34,8 @@ exports.getFilms = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
         next(e);
     }
 });
-exports.getUpcomingFilms = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+exports.getFilms = getFilms;
+const getUpcomingFilms = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const page = +req.query.page || 1;
         const offset = page === 1 ? 0 : page * ITEMS_PER_PAGE;
@@ -59,7 +61,8 @@ exports.getUpcomingFilms = (req, res, next) => __awaiter(void 0, void 0, void 0,
         next(e);
     }
 });
-exports.getFilm = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+exports.getUpcomingFilms = getUpcomingFilms;
+const getFilm = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const id = req.params.id;
         const film = yield film_1.Film.findByPk(id, {
@@ -89,3 +92,4 @@ exports.getFilm = (req, res, next) => __awaiter(void 0, void 0, void 0, function
         next(e);
     }
 });
+exports.getFilm = getFilm;

@@ -9,8 +9,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.createDiscount = void 0;
 const discount_1 = require("../../models/discount");
-exports.createDiscount = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const createDiscount = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const discountData = req.body;
     if (!req.file) {
         const error = new Error("No image provided.");
@@ -29,3 +30,4 @@ exports.createDiscount = (req, res, next) => __awaiter(void 0, void 0, void 0, f
         .status(201)
         .json({ message: "Discount added.", createdDiscount: discount });
 });
+exports.createDiscount = createDiscount;
