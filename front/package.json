@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "tsc-watch --onCompilationComplete \"vite\"",
+    "dev": "tsc-watch --onCompilationComplete \"vite --host\"",
     "serve": "vite preview",
     "build": "vite build"
   },
