@@ -1,0 +1,9 @@
+{
+  "development": {
+    "username": "developer",
+    "password": "dev-secret",
+    "database": "middle-ages",
+    "host": "mysql",
+    "dialect": "mysql"
+  }
+}

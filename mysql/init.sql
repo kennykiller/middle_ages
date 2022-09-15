@@ -1,4 +1,4 @@
-CREATE DATABASE `middle-ages`;
+-- CREATE DATABASE `middle-ages`;
 USE `middle-ages`;
 CREATE TABLE users (
     id INT AUTO_INCREMENT,
