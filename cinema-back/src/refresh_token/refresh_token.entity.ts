@@ -18,7 +18,7 @@ export class RefreshToken {
   @Column({ type: 'date' })
   expiryDate: Date;
 
-  @OneToOne(() => User, { onDelete: 'CASCADE' })
+  @OneToOne(() => User, { cascade: true })
   @JoinColumn()
   user: User;
 }

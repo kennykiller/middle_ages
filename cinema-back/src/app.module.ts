@@ -4,10 +4,13 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import dbConfig from 'db/db-config';
+import { JwtModule } from '@nestjs/jwt';
+import { AccessTokenStrategy } from './auth/strategies/accessToken.strategy';
+import { RefreshTokenStrategy } from './auth/strategies/refreshToken.strategy';
 
 @Module({
-  imports: [TypeOrmModule.forRoot(dbConfig), AuthModule],
+  imports: [TypeOrmModule.forRoot(dbConfig), AuthModule, JwtModule],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, AccessTokenStrategy, RefreshTokenStrategy],
 })
 export class AppModule {}

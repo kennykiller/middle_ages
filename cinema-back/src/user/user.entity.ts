@@ -27,10 +27,8 @@ export class User {
     type: 'varchar',
   })
   phone: string;
-  @Column({
-    type: 'int',
-  })
-  password: number;
+
+  password: string;
 
   @OneToMany(() => Order, (o) => o.user)
   orders: Order[];

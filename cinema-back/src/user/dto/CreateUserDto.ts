@@ -10,4 +10,6 @@ export class CreateUserDto {
 
   @Match(CreateUserDto, (s) => s.password)
   passwordConfirmation: string;
+
+  name: string;
 }

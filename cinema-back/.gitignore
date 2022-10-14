@@ -3,7 +3,7 @@
 /node_modules
 
 # private data
-/src/auth/auth.config.ts
+/src/.env
 
 # Logs
 logs
