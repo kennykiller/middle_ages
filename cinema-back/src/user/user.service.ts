@@ -3,7 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/CreateUserDto';
 import { User } from './user.entity';
-import bcrypt from 'bcrypt';
+import * as argon2 from 'argon2';
+import { UpdateUserDto } from './dto/UpdateUserDto';
 
 @Injectable()
 export class UsersService {
@@ -12,25 +13,45 @@ export class UsersService {
     private usersRepository: Repository<User>,
   ) {}
   async createUser(createUserDto: CreateUserDto) {
-    const hashedPw = await bcrypt.hash(createUserDto.password, 12);
-    const isAdmin = createUserDto.name === process.env.ADMIN_NAME;
-    const user = await this.usersRepository.create({
-      name: createUserDto.name,
-      email: createUserDto.email,
-      password: hashedPw,
-      isAdmin,
-    });
-    await this.usersRepository.save(user);
-    delete user.password;
-    return user;
+    try {
+      const hashedPw = await argon2.hash(createUserDto.password);
+      const isAdmin = createUserDto.name === process.env.ADMIN_NAME;
+      const user = this.usersRepository.create({
+        name: createUserDto.name,
+        email: createUserDto.email,
+        password: hashedPw,
+        isAdmin,
+      });
+      await this.usersRepository.save(user);
+      delete user.password;
+      return user;
+    } catch (e) {
+      throw new Error(e.message);
+    }
   }
 
-  findAll(): Promise<User[]> {
+  async findAll(): Promise<User[]> {
     return this.usersRepository.find();
   }
 
-  findOne(id: number): Promise<User> {
+  async findOne(id: number): Promise<User> {
     return this.usersRepository.findOneBy({ id });
+  }
+
+  async findOneByEmail(email: string): Promise<User> {
+    return this.usersRepository.findOneBy({ email });
+  }
+
+  async update(userUpdateDto: UpdateUserDto): Promise<void> {
+    const result = await this.usersRepository
+      .createQueryBuilder()
+      .update({
+        refreshToken: userUpdateDto.refreshToken,
+      })
+      .where({ id: userUpdateDto.id })
+      .returning('*')
+      .execute();
+    return result.raw[0];
   }
 
   async remove(id: number): Promise<void> {

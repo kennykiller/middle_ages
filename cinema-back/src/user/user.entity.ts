@@ -28,7 +28,11 @@ export class User {
   })
   phone: string;
 
+  @Column()
   password: string;
+
+  @Column()
+  refreshToken: string;
 
   @OneToMany(() => Order, (o) => o.user)
   orders: Order[];
