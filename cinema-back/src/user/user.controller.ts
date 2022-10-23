@@ -6,7 +6,9 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  UseGuards,
 } from '@nestjs/common';
+import { AccessTokenGuard } from '../common/guards/accessToken.guard';
 import { CreateUserDto } from './dto/CreateUserDto';
 import { User } from './user.entity';
 import { UsersService } from './user.service';
@@ -27,6 +29,7 @@ export class UsersController {
     return this.usersService.findOne(id);
   }
 
+  @UseGuards(AccessTokenGuard)
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.remove(id);

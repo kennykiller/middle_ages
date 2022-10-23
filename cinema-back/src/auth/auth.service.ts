@@ -1,10 +1,14 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from '../user/dto/CreateUserDto';
 import { UsersService } from '../user/user.service';
 import { AuthDto } from './dto/auth.dto';
-import { RefreshTokenService } from '../refresh_token/refresh_token.service';
+import * as bcrypt from 'bcrypt';
 import { User } from '../user/user.entity';
 @Injectable()
 export class AuthService {
@@ -12,7 +16,6 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
     private configService: ConfigService,
-    private refreshTokenService: RefreshTokenService,
   ) {}
   async signUp(createUserDto: CreateUserDto) {
     const userExists = await this.usersService.findOneByEmail(
@@ -25,10 +28,88 @@ export class AuthService {
     const newUser = await this.usersService.createUser(createUserDto);
 
     const tokens = await this.getTokens(newUser);
+    await this.updateRefreshToken(newUser.id, tokens.refreshToken);
+    return tokens;
+  }
+
+  async signIn(signInData: AuthDto) {
+    const user = await this.usersService.findOneByEmail(signInData.email);
+    if (!user) {
+      throw new BadRequestException('Пользователя не существует.');
+    }
+    const passwordsMatched = await bcrypt.compare(
+      user.password,
+      signInData.password,
+    );
+    if (!passwordsMatched) {
+      throw new BadRequestException('Введен неверный пароль.');
+    }
+    const tokens = await this.getTokens(user);
+    await this.updateRefreshToken(user.id, tokens.refreshToken);
+    return tokens;
+  }
+
+  async logout(userId: number) {
+    return this.usersService.updateRefreshToken(userId, null);
   }
 
   async getTokens(user: User) {
-    const accessToken = 1;
-    const refreshToken = this.refreshTokenService.createRefreshToken(user);
+    const [accessToken, refreshToken] = await Promise.all([
+      this.jwtService.signAsync(
+        {
+          sub: user.id,
+          email: user.email,
+        },
+        {
+          secret: this.configService.get<string>('ACCESS_TOKEN_SECRET'),
+          expiresIn: `${this.configService.get<string>(
+            'ACCESS_TOKEN_EXPIRATION',
+          )}s`,
+        },
+      ),
+      this.jwtService.signAsync(
+        {
+          sub: user.id,
+          email: user.email,
+        },
+        {
+          secret: this.configService.get<string>('REFRESH_TOKEN_SECRET'),
+          expiresIn: `${this.configService.get<string>(
+            'REFRESH_TOKEN_EXPIRATION',
+          )}s`,
+        },
+      ),
+    ]);
+    return { accessToken, refreshToken };
+  }
+
+  async updateRefreshToken(userId: number, token: string) {
+    const hashedToken = await this.hashData(token);
+    const updatedUserData = await this.usersService.updateRefreshToken(
+      userId,
+      hashedToken,
+    );
+    console.log(updatedUserData, 'updated user data');
+  }
+
+  async refreshTokens(userId: number, refreshToken: string) {
+    const user = await this.usersService.findOne(userId);
+    if (!user || !user.refreshToken) {
+      throw new ForbiddenException('Доступ запрещен.');
+    }
+    const refreshTokenMatches = await bcrypt.compare(
+      user.refreshToken,
+      refreshToken,
+    );
+    if (!refreshTokenMatches) {
+      throw new ForbiddenException('Доступ запрещен.');
+    }
+    const tokens = await this.getTokens(user);
+    await this.updateRefreshToken(userId, tokens.refreshToken);
+    return tokens;
+  }
+
+  hashData(dataToHash: string) {
+    return bcrypt.hash(dataToHash, 10);
   }
 }

@@ -3,8 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/CreateUserDto';
 import { User } from './user.entity';
-import * as argon2 from 'argon2';
-import { UpdateUserDto } from './dto/UpdateUserDto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -14,13 +13,14 @@ export class UsersService {
   ) {}
   async createUser(createUserDto: CreateUserDto) {
     try {
-      const hashedPw = await argon2.hash(createUserDto.password);
+      const hashedPw = await bcrypt.hash(createUserDto.password, 10);
       const isAdmin = createUserDto.name === process.env.ADMIN_NAME;
       const user = this.usersRepository.create({
         name: createUserDto.name,
         email: createUserDto.email,
         password: hashedPw,
         isAdmin,
+        refreshToken: createUserDto.refreshToken,
       });
       await this.usersRepository.save(user);
       delete user.password;
@@ -42,15 +42,16 @@ export class UsersService {
     return this.usersRepository.findOneBy({ email });
   }
 
-  async update(userUpdateDto: UpdateUserDto): Promise<void> {
+  async updateRefreshToken(userId: number, hashedToken: string | null) {
     const result = await this.usersRepository
       .createQueryBuilder()
       .update({
-        refreshToken: userUpdateDto.refreshToken,
+        refreshToken: hashedToken,
       })
-      .where({ id: userUpdateDto.id })
+      .where({ id: userId })
       .returning('*')
       .execute();
+
     return result.raw[0];
   }
 

@@ -12,4 +12,6 @@ export class CreateUserDto {
   passwordConfirmation: string;
 
   name: string;
+
+  refreshToken: string | null;
 }

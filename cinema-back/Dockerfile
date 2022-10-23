@@ -4,7 +4,17 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm install --only=development
+RUN npm ci --only=development
+
+COPY . .
+
+FROM node:18-alpine3.15 As build
+
+WORKDIR /app
+
+COPY package*.json ./
+
+COPY --from=development /app/node_modules ./node_modules
 
 COPY . .
 
@@ -12,17 +22,7 @@ RUN npm run build
 
 FROM node:18-alpine3.15 As production
 
-ARG NODE_ENV=production
-ENV NODE_ENV=${NODE_ENV}
-
-WORKDIR /app
-
-COPY package*.json ./
-
-RUN npm install --only=production
-
-COPY . .
-
-COPY --from=development /app/dist ./dist
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/dist ./dist
 
 CMD ["node", "dist/main"]
