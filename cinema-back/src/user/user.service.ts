@@ -19,6 +19,7 @@ export class UsersService {
         name: createUserDto.name,
         email: createUserDto.email,
         password: hashedPw,
+        phone: createUserDto.phone,
         isAdmin,
         refreshToken: createUserDto.refreshToken,
       });
@@ -43,16 +44,17 @@ export class UsersService {
   }
 
   async updateRefreshToken(userId: number, hashedToken: string | null) {
-    const result = await this.usersRepository
-      .createQueryBuilder()
-      .update({
-        refreshToken: hashedToken,
-      })
-      .where({ id: userId })
-      .returning('*')
-      .execute();
-
-    return result.raw[0];
+    try {
+      await this.usersRepository
+        .createQueryBuilder()
+        .update({
+          refreshToken: hashedToken,
+        })
+        .where({ id: userId })
+        .execute();
+    } catch (e) {
+      throw new Error(e);
+    }
   }
 
   async remove(id: number): Promise<void> {

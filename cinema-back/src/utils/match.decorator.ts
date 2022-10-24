@@ -30,8 +30,7 @@ export class MatchConstraint implements ValidatorConstraintInterface {
     return fn(args.object) === value;
   }
 
-  defaultMessage(args: ValidationArguments) {
-    const [constraintProperty]: (() => any)[] = args.constraints;
-    return `${constraintProperty} и ${args.property} не совпадают`;
+  defaultMessage() {
+    return 'Пароль и повтор пароля не совпадают';
   }
 }

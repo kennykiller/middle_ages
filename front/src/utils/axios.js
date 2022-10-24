@@ -3,14 +3,16 @@ import { authModule } from "@/store/auth/auth-actions";
 axios.defaults.baseURL = "http://localhost:3000/";
 axios.interceptors.request.use((config) => {
     const user = localStorage.getItem("user");
+    console.log(user, 'user');
     if (user && config.headers) {
+        console.log(config.headers, 'headers');
         config.headers["x-access-token"] = `Bearer ${JSON.parse(user).accessToken}`;
     }
     return config;
 }, (error) => Promise.reject(error));
 let refresh = false;
 axios.interceptors.response.use((resp) => resp, async (error) => {
-    console.log(error);
+    console.log(error, 'error  from interceptor');
     if (error.response.status === 401 && !refresh) {
         refresh = true;
         let payload = { refreshToken: "", userId: 0 };
@@ -41,5 +43,6 @@ axios.interceptors.response.use((resp) => resp, async (error) => {
         authModule.resetData();
     }
     refresh = false;
+    console.log('in the end of error response');
     return error.response;
 });

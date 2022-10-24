@@ -61,10 +61,8 @@ export class AuthService {
           email: user.email,
         },
         {
-          secret: this.configService.get<string>('ACCESS_TOKEN_SECRET'),
-          expiresIn: `${this.configService.get<string>(
-            'ACCESS_TOKEN_EXPIRATION',
-          )}s`,
+          secret: this.configService.get('ACCESS_TOKEN_SECRET'),
+          expiresIn: `${this.configService.get('ACCESS_TOKEN_EXPIRATION')}s`,
         },
       ),
       this.jwtService.signAsync(
@@ -73,10 +71,8 @@ export class AuthService {
           email: user.email,
         },
         {
-          secret: this.configService.get<string>('REFRESH_TOKEN_SECRET'),
-          expiresIn: `${this.configService.get<string>(
-            'REFRESH_TOKEN_EXPIRATION',
-          )}s`,
+          secret: this.configService.get('REFRESH_TOKEN_SECRET'),
+          expiresIn: `${this.configService.get('REFRESH_TOKEN_EXPIRATION')}s`,
         },
       ),
     ]);
@@ -85,11 +81,7 @@ export class AuthService {
 
   async updateRefreshToken(userId: number, token: string) {
     const hashedToken = await this.hashData(token);
-    const updatedUserData = await this.usersService.updateRefreshToken(
-      userId,
-      hashedToken,
-    );
-    console.log(updatedUserData, 'updated user data');
+    await this.usersService.updateRefreshToken(userId, hashedToken);
   }
 
   async refreshTokens(userId: number, refreshToken: string) {

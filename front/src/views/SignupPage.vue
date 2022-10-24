@@ -16,18 +16,25 @@ const error = ref("");
 const success = ref(false);
 
 const signupHandler = async () => {
-  const res = await axios.post("http://localhost:3000/auth/signup", userData);
-  if (!res.data?.success && res.data?.data?.length) {
-    error.value = res.data.data[0].msg;
-    setTimeout(() => (error.value = ""), 2000);
-  } else if (!res.data?.success) {
-    error.value =
-      "Регистрация не доступна, попробуйте немного позднее, мы работаем над этим.";
-    setTimeout(() => (error.value = ""), 2000);
-  } else {
-    success.value = true;
-    setTimeout(() => router.push({ name: "auth" }), 2000);
+  try {
+    const res = await axios.post("auth/signup", userData);
+    console.log(res, 'res');
+    
+    if (!res.data?.success && res.data?.data?.length) {
+      error.value = res.data.data[0].msg;
+      setTimeout(() => (error.value = ""), 2000);
+    } else if (!res.data?.success) {
+      error.value =
+        "Регистрация не доступна, попробуйте немного позднее, мы работаем над этим.";
+      setTimeout(() => (error.value = ""), 2000);
+    } else {
+      success.value = true;
+      setTimeout(() => router.push({ name: "auth" }), 2000);
+    }
+  } catch (e)  {
+    console.log(e, 'error');
   }
+  
 };
 </script>
 

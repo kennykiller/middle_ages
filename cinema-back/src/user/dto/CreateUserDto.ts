@@ -1,4 +1,4 @@
-import { IsEmail, MinLength } from 'class-validator';
+import { IsEmail, IsPhoneNumber, MinLength } from 'class-validator';
 import { Match } from 'src/utils/match.decorator';
 
 export class CreateUserDto {
@@ -12,6 +12,9 @@ export class CreateUserDto {
   passwordConfirmation: string;
 
   name: string;
+
+  @IsPhoneNumber('RU')
+  phone: string;
 
   refreshToken: string | null;
 }
