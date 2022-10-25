@@ -61,17 +61,18 @@ class AuthModule extends VuexModule {
     this.isAuthenticated = false;
     this.isAdmin = false;
     localStorage.removeItem("user");
+    localStorage.removeItem("token");
   }
 
   @Action
   async login(payload: loginPayload) {
     try {
       const res: AxiosResponse<userData> = await axios.post(
-        "auth/login",
+        "auth/signin",
         payload
       );
 
-      if (res.data?.id) {
+      if (res.data.accessToken && res.data.refreshToken) {
         this.setSuccessfulLoginData(res.data);
         return true;
       } else {
@@ -86,8 +87,7 @@ class AuthModule extends VuexModule {
     const storedUser = localStorage.getItem("user");
     const user = storedUser ? JSON.parse(storedUser) : null;
     if (user) {
-      await axios.post("auth/logout", { id: user.id });
-      axios.defaults.headers.common["x-access-token"] = "";
+      await axios.get("auth/logout");
       this.resetData();
     }
   }

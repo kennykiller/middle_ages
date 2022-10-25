@@ -13,11 +13,9 @@ axios.defaults.baseURL = "http://localhost:3000/";
 axios.interceptors.request.use(
   (config) => {
     const user = localStorage.getItem("user");
-    console.log(user, 'user');
     
     if (user && config.headers) {
-      console.log(config.headers, 'headers')
-      config.headers["x-access-token"] = `Bearer ${
+      config.headers["Authorization"] = `Bearer ${
         JSON.parse(user).accessToken
       }`;
     }
@@ -55,9 +53,9 @@ axios.interceptors.response.use(
           authModule.setUpdatedTokens(data);
 
           axios.defaults.headers.common[
-            "x-access-token"
+            "Authorization"
           ] = `Bearer ${data.accessToken}`;
-          console.log(axios.defaults.headers.common["x-access-token"]);
+          console.log(axios.defaults.headers.common["Authorization"]);
           refresh = false;
           return axios(error.config);
         }

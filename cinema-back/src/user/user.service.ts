@@ -4,17 +4,20 @@ import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/CreateUserDto';
 import { User } from './user.entity';
 import * as bcrypt from 'bcrypt';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+    private configService: ConfigService,
   ) {}
   async createUser(createUserDto: CreateUserDto) {
     try {
       const hashedPw = await bcrypt.hash(createUserDto.password, 10);
-      const isAdmin = createUserDto.name === process.env.ADMIN_NAME;
+      const isAdmin =
+        createUserDto.name === this.configService.get<string>('ADMIN_NAME');
       const user = this.usersRepository.create({
         name: createUserDto.name,
         email: createUserDto.email,

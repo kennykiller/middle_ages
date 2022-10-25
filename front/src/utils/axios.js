@@ -3,10 +3,8 @@ import { authModule } from "@/store/auth/auth-actions";
 axios.defaults.baseURL = "http://localhost:3000/";
 axios.interceptors.request.use((config) => {
     const user = localStorage.getItem("user");
-    console.log(user, 'user');
     if (user && config.headers) {
-        console.log(config.headers, 'headers');
-        config.headers["x-access-token"] = `Bearer ${JSON.parse(user).accessToken}`;
+        config.headers["Authorization"] = `Bearer ${JSON.parse(user).accessToken}`;
     }
     return config;
 }, (error) => Promise.reject(error));
@@ -29,8 +27,8 @@ axios.interceptors.response.use((resp) => resp, async (error) => {
             if (status === 200) {
                 console.log(data, "data");
                 authModule.setUpdatedTokens(data);
-                axios.defaults.headers.common["x-access-token"] = `Bearer ${data.accessToken}`;
-                console.log(axios.defaults.headers.common["x-access-token"]);
+                axios.defaults.headers.common["Authorization"] = `Bearer ${data.accessToken}`;
+                console.log(axios.defaults.headers.common["Authorization"]);
                 refresh = false;
                 return axios(error.config);
             }

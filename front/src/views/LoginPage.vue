@@ -14,6 +14,8 @@ const errorMessage = ref("");
 
 const loginHandler = async () => {
   const res = await authModule.login(loginData);
+  console.log(res, 'res');
+  
   if (typeof res === "string") {
     errorMessage.value = res;
     setTimeout(() => (errorMessage.value = ""), 4000);

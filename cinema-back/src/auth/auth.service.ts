@@ -38,15 +38,15 @@ export class AuthService {
       throw new BadRequestException('Пользователя не существует.');
     }
     const passwordsMatched = await bcrypt.compare(
-      user.password,
       signInData.password,
+      user.password,
     );
     if (!passwordsMatched) {
       throw new BadRequestException('Введен неверный пароль.');
     }
     const tokens = await this.getTokens(user);
     await this.updateRefreshToken(user.id, tokens.refreshToken);
-    return tokens;
+    return { ...user, ...tokens };
   }
 
   async logout(userId: number) {
