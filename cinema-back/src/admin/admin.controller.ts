@@ -4,7 +4,7 @@ import { IsAdminGuard } from '../common/guards/isAdmin.guard';
 import { AdminService } from './admin.service';
 
 @Controller('admin')
-@UseGuards(AccessTokenGuard)
+@UseGuards(AccessTokenGuard, IsAdminGuard)
 export class AdminController {
   constructor(private adminService: AdminService) {}
 
