@@ -2,7 +2,7 @@
 import { FileUploader } from "@/utils/fileUpload";
 import { SnackType } from "@/interfaces/types";
 import { Film, Genre, FilmResponse } from "@/interfaces/models";
-import axios from "axios";
+import { axiosInstance } from "../../utils/axios";
 import { reactive, onBeforeMount, ref, onMounted, Ref, computed } from "vue";
 import BaseSnack from "../UI/BaseSnack.vue";
 
@@ -50,7 +50,7 @@ async function createFilm() {
   formData.append("endDate", film.endDate);
   formData.append("genres", JSON.stringify(film.genres));
   try {
-    const res: FilmResponse = await axios.post(
+    const res: FilmResponse = await axiosInstance.post(
       "http://localhost:3000/admin/film",
       formData,
       {
@@ -73,7 +73,7 @@ async function getGenres(): Promise<Genre[] | []> {
     "Access-Control-Allow-Origin": "*",
   };
   try {
-    const response = await axios.get("http://localhost:3000/admin/genres", {
+    const response = await axiosInstance.get("http://localhost:3000/admin/genres", {
       headers,
     });
     return response?.data ? reactive(response.data.genres) : reactive([]);

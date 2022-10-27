@@ -58,7 +58,7 @@ export class AuthService {
       this.jwtService.signAsync(
         {
           sub: user.id,
-          email: user.email,
+          username: user.email,
         },
         {
           secret: this.configService.get('ACCESS_TOKEN_SECRET'),
@@ -68,7 +68,7 @@ export class AuthService {
       this.jwtService.signAsync(
         {
           sub: user.id,
-          email: user.email,
+          username: user.email,
         },
         {
           secret: this.configService.get('REFRESH_TOKEN_SECRET'),
@@ -86,12 +86,13 @@ export class AuthService {
 
   async refreshTokens(userId: number, refreshToken: string) {
     const user = await this.usersService.findOne(userId);
+
     if (!user || !user.refreshToken) {
       throw new ForbiddenException('Доступ запрещен.');
     }
     const refreshTokenMatches = await bcrypt.compare(
-      user.refreshToken,
       refreshToken,
+      user.refreshToken,
     );
     if (!refreshTokenMatches) {
       throw new ForbiddenException('Доступ запрещен.');

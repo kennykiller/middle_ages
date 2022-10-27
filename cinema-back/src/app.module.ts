@@ -8,11 +8,13 @@ import { JwtModule } from '@nestjs/jwt';
 import { AccessTokenStrategy } from './auth/strategies/accessToken.strategy';
 import { RefreshTokenStrategy } from './auth/strategies/refreshToken.strategy';
 import { ConfigModule } from '@nestjs/config';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot(dbConfig),
     AuthModule,
+    AdminModule,
     JwtModule,
     ConfigModule.forRoot({ isGlobal: true }),
   ],

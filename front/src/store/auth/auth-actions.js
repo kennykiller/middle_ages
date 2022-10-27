@@ -4,7 +4,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-import axios from "axios";
+import { axiosInstance } from "../../utils/axios";
 import { VuexModule, Module, Mutation, Action } from "vuex-class-modules";
 let AuthModule = class AuthModule extends VuexModule {
     isAuthenticated = false;
@@ -44,7 +44,7 @@ let AuthModule = class AuthModule extends VuexModule {
     }
     async login(payload) {
         try {
-            const res = await axios.post("auth/signin", payload);
+            const res = await axiosInstance.post("auth/signin", payload);
             if (res.data.accessToken && res.data.refreshToken) {
                 this.setSuccessfulLoginData(res.data);
                 return true;
@@ -61,7 +61,7 @@ let AuthModule = class AuthModule extends VuexModule {
         const storedUser = localStorage.getItem("user");
         const user = storedUser ? JSON.parse(storedUser) : null;
         if (user) {
-            await axios.get("auth/logout");
+            await axiosInstance.get("auth/logout");
             this.resetData();
         }
     }

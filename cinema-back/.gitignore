@@ -3,7 +3,7 @@
 /node_modules
 
 # private data
-/src/.env
+.env
 
 # Logs
 logs
