@@ -9,6 +9,7 @@ import { AccessTokenStrategy } from './auth/strategies/accessToken.strategy';
 import { RefreshTokenStrategy } from './auth/strategies/refreshToken.strategy';
 import { ConfigModule } from '@nestjs/config';
 import { AdminModule } from './admin/admin.module';
+import { MulterModule } from '@nestjs/platform-express';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { AdminModule } from './admin/admin.module';
     AdminModule,
     JwtModule,
     ConfigModule.forRoot({ isGlobal: true }),
+    MulterModule.register(),
   ],
   controllers: [AppController],
   providers: [AppService, AccessTokenStrategy, RefreshTokenStrategy],
