@@ -1,5 +1,5 @@
 import { AxiosResponse } from "axios";
-import { axiosInstance } from "../../utils/axios";
+import { axiosInstance as axios } from "../../utils/axios";
 import { VuexModule, Module, Mutation, Action } from "vuex-class-modules";
 
 interface loginPayload {
@@ -68,7 +68,7 @@ class AuthModule extends VuexModule {
   @Action
   async login(payload: loginPayload) {
     try {
-      const res: AxiosResponse<userData> = await axiosInstance.post(
+      const res: AxiosResponse<userData> = await axios.post(
         "auth/signin",
         payload
       );
@@ -88,7 +88,7 @@ class AuthModule extends VuexModule {
     const storedUser = localStorage.getItem("user");
     const user = storedUser ? JSON.parse(storedUser) : null;
     if (user) {
-      await axiosInstance.get("auth/logout");
+      await axios.get("auth/logout");
       this.resetData();
     }
   }

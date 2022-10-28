@@ -2,7 +2,7 @@
 import FilmCarouselItem from "./FilmCarouselItem.vue";
 import { reactive, onBeforeMount, ref, Ref, computed } from "vue";
 import { Film } from "@/interfaces/models";
-import axios from "axios";
+import { axiosInstance as axios } from "../../utils/axios";
 import BaseSubheader from "../UI/BaseSubheader.vue";
 
 type mode = "inc" | "dec";

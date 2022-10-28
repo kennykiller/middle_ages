@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import axios from "axios";
+import { axiosInstance as axios } from "../utils/axios";
 import { reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 
@@ -18,15 +18,16 @@ const success = ref(false);
 const signupHandler = async () => {
   try {
     const res = await axios.post("auth/signup", userData);
-    console.log(res, 'res');
-    
-    if (!res.data?.success && res.data?.data?.length) {
-      error.value = res.data.data[0].msg;
-      setTimeout(() => (error.value = ""), 2000);
-    } else if (!res.data?.success) {
+    if (!res.data?.accessToken && !res.data?.refreshToken && res.data.message) {
+      const message:string[] = [res.data.message as string | string[]].flat();
+
+      [error.value] = message[0] === 'phone must be a valid phone number' ? ['Номер телефона должен начинаться с 7'] : message;
+      
+      setTimeout(() => (error.value = ""), 2500);
+    } else if (res.status !== 201) {
       error.value =
         "Регистрация не доступна, попробуйте немного позднее, мы работаем над этим.";
-      setTimeout(() => (error.value = ""), 2000);
+      setTimeout(() => (error.value = ""), 2500);
     } else {
       success.value = true;
       setTimeout(() => router.push({ name: "auth" }), 2000);

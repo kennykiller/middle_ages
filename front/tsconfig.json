@@ -27,7 +27,8 @@
       "esnext",
       "dom",
       "dom.iterable",
-      "scripthost"
+      "scripthost",
+      "ES2022"
     ]
   },
   "include": [

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onBeforeMount, reactive, ref } from "vue";
 import { Schedules } from "@/interfaces/base";
-import axios from "axios";
+import { axiosInstance as axios } from "../../utils/axios";
 import SessionsComponent from "@/components/sessions/SessionsComponent.vue";
 import AdminCalendar from "./AdminCalendar.vue";
 import BaseBadge from "../UI/BaseBadge.vue";

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { reactive } from "vue";
-import axios from "axios";
+import { axiosInstance as axios } from "../utils/axios";
 
 interface Props {
   sessionId: number;

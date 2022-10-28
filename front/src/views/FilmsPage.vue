@@ -1,9 +1,7 @@
-<template>Hello</template>
-
 <script setup lang="ts">
 import { reactive, onBeforeMount } from "vue";
 import { Film } from "@/interfaces/models";
-import axios from "axios";
+import { axiosInstance as axios } from "../utils/axios";
 
 const films: { value: Film[] | [] } = reactive({ value: [] });
 onBeforeMount(async () => {
@@ -24,3 +22,5 @@ const getFilms = async () => {
   }
 };
 </script>
+
+<template><div>Hello</div></template>

@@ -2,7 +2,7 @@
 import SessionItem from "./SessionItem.vue";
 import { DailySchedule, Schedules, FilmForSession } from "@/interfaces/base";
 import { computed, ref, Ref } from "@vue/reactivity";
-import axios from "axios";
+import { axiosInstance as axios } from "../../utils/axios";
 
 interface ScheduleForRecalculation extends Partial<DailySchedule> {
   [key: string]: any;

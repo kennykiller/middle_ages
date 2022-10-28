@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { computed } from "@vue/reactivity";
-import axios from "axios";
+import { axiosInstance as axios } from "../utils/axios";
 import { reactive, ref } from "vue";
 import { useRouter, useRoute } from "vue-router";
 
