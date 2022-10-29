@@ -1,4 +1,5 @@
-import { IsArray, IsDate, IsInt, IsString } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
+import { IsDate, IsInt, IsString, ValidateNested } from 'class-validator';
 import { Genre } from '../../genre/genre.entity';
 
 export class CreateFilmDto {
@@ -14,15 +15,21 @@ export class CreateFilmDto {
   @IsString()
   ageRestriction: string;
 
-  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => Genre)
   genres: Genre[];
 
   @IsString()
   filmDuration: string;
 
   @IsDate()
+  @Transform(({ value }) => new Date(value))
   startDate: Date;
 
   @IsDate()
+  @Transform(({ value }) => new Date(value))
   endDate: Date;
+
+  @IsString()
+  posterUrl: string;
 }

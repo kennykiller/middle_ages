@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -6,6 +7,7 @@ import {
   UploadedFile,
   UseGuards,
   UseInterceptors,
+  ValidationPipe,
 } from '@nestjs/common';
 import { AccessTokenGuard } from '../common/guards/accessToken.guard';
 import { IsAdminGuard } from '../common/guards/isAdmin.guard';
@@ -30,7 +32,7 @@ export class AdminController {
     return this.adminService.getGenres();
   }
 
-  @Post('film')
+  @Post('poster')
   @UseInterceptors(
     FileInterceptor('posterUrl', {
       storage: diskStorage({
@@ -42,12 +44,18 @@ export class AdminController {
       fileFilter: imageFileFilter,
     }),
   )
-  async create(
-    @UploadedFile() poster: Express.Multer.File,
-    @Body(new GenericValidation()) createFilmDto: CreateFilmDto,
-  ) {
-    console.log(poster, 'poster');
+  async savePoster(@UploadedFile() poster: Express.Multer.File) {
+    if (poster?.path)
+      return { message: 'Poster added', status: 201, url: poster.path };
+    throw new BadRequestException({
+      message: 'Empty or incorrect poster data sent',
+    });
+  }
 
+  @Post('film')
+  async createFilm(
+    @Body(new ValidationPipe({ transform: true })) createFilmDto: CreateFilmDto,
+  ) {
     console.log(createFilmDto, 'dto in post');
     return this.filmService.createFilm(createFilmDto);
   }

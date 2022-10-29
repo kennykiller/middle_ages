@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { FileUploader } from "@/utils/fileUpload";
 import { SnackType } from "@/interfaces/types";
-import { Film, Genre, FilmResponse } from "@/interfaces/models";
+import { Film, Genre, FilmResponse, SavedPosterResponse } from "@/interfaces/models";
 import { axiosInstance as axios } from "../../utils/axios";
 import { reactive, onBeforeMount, ref, onMounted, Ref, computed } from "vue";
 import BaseSnack from "../UI/BaseSnack.vue";
@@ -39,25 +39,27 @@ async function createFilm() {
   const headers = {
     "Access-Control-Allow-Origin": "*",
   };
-  const formData = new FormData();
-  formData.append("name", film.name);
-  formData.append("ageRestriction", film.ageRestriction);
-  formData.append("posterUrl", film.posterUrl);
-  formData.append("basePrice", String(film.basePrice));
-  formData.append("description", film.description);
-  formData.append("filmDuration", film.filmDuration);
-  formData.append("startDate", film.startDate);
-  formData.append("endDate", film.endDate);
-  formData.append("genres", JSON.stringify(film.genres));
+  const posterData = new FormData();
+  posterData.append("posterUrl", film.posterUrl);
   try {
-    const res: FilmResponse = await axios.post(
-      "http://localhost:3000/admin/film",
-      formData,
+    const savedPoster:SavedPosterResponse = await axios.post(
+      "http://localhost:3000/admin/poster",
+      posterData,
       {
         headers,
       }
     );
-    mode.value = res.data?.createdFilm?.id ? "success" : "error";
+    console.log(savedPoster, 'savedPoster');
+    
+    if (savedPoster.data.status === 201) {
+      const addedFilm:FilmResponse = await axios.post(
+        "http://localhost:3000/admin/film",
+        { ...film, posterUrl: savedPoster.data.url }
+      );
+      mode.value = addedFilm.data?.createdFilm?.id ? "success" : "error";
+    } else {
+      mode.value = "error";
+    }
     snackIsVisible.value = true;
     setTimeout(() => (snackIsVisible.value = false), 4000);
   } catch (e) {

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateFilmDto } from './dto/CreateFilmDto';
@@ -12,35 +12,22 @@ export class FilmService {
   ) {}
 
   async createFilm(createFilmDto: CreateFilmDto) {
-    console.log(createFilmDto, 'dto');
-    // if (!createFilmDto.posterUrl) {
-    //     const error: ErrorException = new Error("No image provided.");
-    //     error.statusCode = 422;
-    //     throw error;
-    // }
-
-    // const startDate = new Date(filmData.startDate);
-    // const endDate = new Date(filmData.endDate);
-    // endDate.setUTCHours(23, 59, 59, 999);
-
-    // const imageUrl: string = req.file.path;
-    // const film = await Film.create({
-    //     name: filmData.name,
-    //     ageRestriction: filmData.ageRestriction,
-    //     posterUrl: imageUrl,
-    //     description: filmData.description,
-    //     filmDuration: filmData.filmDuration,
-    //     basePrice: +filmData.basePrice,
-    //     startDate: startDate,
-    //     endDate: endDate,
-    // });
-
-    // const filmGenresIds: { genreId: number; filmId: number }[] = JSON.parse(
-    //     filmData.genres
-    // ).map((genre) => {
-    //     return { genreId: genre.id, filmId: film.dataValues.id };
-    // });
-    // await FilmGenres.bulkCreate(filmGenresIds);
-    // res.status(201).json({ message: "Film added.", createdFilm: film });
+    const film = this.filmRepository.create({
+      name: createFilmDto.name,
+      ageRestriction: createFilmDto.ageRestriction,
+      posterUrl: createFilmDto.posterUrl,
+      description: createFilmDto.description,
+      filmDuration: createFilmDto.filmDuration,
+      basePrice: createFilmDto.basePrice,
+      startDate: createFilmDto.startDate,
+      endDate: new Date(createFilmDto.endDate.setUTCHours(23, 59, 59, 999)),
+      genres: createFilmDto.genres,
+    });
+    try {
+      const response = await this.filmRepository.save(film);
+      return response;
+    } catch (e) {
+      throw new HttpException('Creation did not succeed', 400);
+    }
   }
 }

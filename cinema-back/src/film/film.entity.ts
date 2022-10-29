@@ -1,5 +1,13 @@
 import { MaxLength } from 'class-validator';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { Genre } from '../genre/genre.entity';
 import { Session } from '../session/session.entity';
 
 @Entity()
@@ -35,4 +43,8 @@ export class Film {
 
   @OneToMany(() => Session, (s) => s.film)
   sessions: Session[];
+
+  @ManyToMany(() => Genre)
+  @JoinTable({ name: 'film_genres' })
+  genres: Genre[];
 }

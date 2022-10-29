@@ -27,6 +27,14 @@ export interface FilmResponse {
   };
 }
 
+export interface SavedPosterResponse {
+  data: {
+    status: number;
+    url: string;
+    message: string;
+  };
+}
+
 export interface Genre {
   id: number;
   name: string;
