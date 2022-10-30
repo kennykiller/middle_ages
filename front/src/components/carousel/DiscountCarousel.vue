@@ -7,7 +7,7 @@ import BaseSubheader from "../UI/BaseSubheader.vue";
 
 type mode = "inc" | "dec";
 interface DiscountsFromDB {
-  rows: Discount[];
+  discounts: Discount[];
   count: number;
 }
 
@@ -27,43 +27,31 @@ let allDiscountsReceived = computed(() => {
 
 onBeforeMount(async () => {
   const res: DiscountsFromDB = await getDiscounts(page.value);
-  console.log(res);
+
   if (res.count) {
-    ({ rows: discounts.value, count: totalDiscountsAmt.value } = res);
+    ({ discounts: discounts.value, count: totalDiscountsAmt.value } = res);
   }
   if (discounts.value.length > 4) {
     discountsToShow.value = discounts.value.slice(0, 4);
   } else {
     discountsToShow.value = discounts.value.slice(0);
   }
-  console.log(totalDiscountsAmt.value);
-  console.log(discounts.value);
-
-  console.log(discountsToShow.value);
 });
 const getDiscounts = async (page: number) => {
-  const headers = {
-    "Access-Control-Allow-Origin": "*",
-  };
   try {
-    const response = await axios.get(
-      `http://localhost:3000/discounts?page=${page}`,
-      {
-        headers,
-      }
-    );
+    const response = await axios.get(`discounts?page=${page}`);
     if (response?.data?.count) {
       return response.data;
-    }
-    return [];
+    } 
+    return { discounts: [], count: 0 }
   } catch (e) {
     console.log(e);
+    return { discounts: [], count: 0 }
   }
 };
 
 function changePage(mode: mode) {
   mode === "inc" ? page.value++ : page.value--;
-  console.log(page.value);
   carouselControl();
 }
 
@@ -79,9 +67,9 @@ const carouselControl = async () => {
     const res: DiscountsFromDB = await getDiscounts(page.value);
     if (
       res.count &&
-      !discounts.value.find((film) => res.rows.some((v) => v.id === film.id))
+      !discounts.value.find((d) => res.discounts.some((v) => v.id === d.id))
     ) {
-      res.rows.forEach((film) => discounts.value.push(film));
+      res.discounts.forEach((d) => discounts.value.push(d));
     }
     discountsToShow.value = discounts.value.slice(
       (page.value - 1) * 4,

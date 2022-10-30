@@ -12,18 +12,15 @@ export interface Film {
 }
 export interface FilmResponse {
   data: {
-    createdFilm: {
-      id: number;
-      ageRestriction: string;
-      description: string;
-      createdAt: string;
-      name: string;
-      posterUrl: string;
-      updatedAt: string;
-      startDate: string;
-      endDate: string;
-    };
-    message: string;
+    id: number;
+    ageRestriction: string;
+    description: string;
+    createdAt: string;
+    name: string;
+    posterUrl: string;
+    updatedAt: string;
+    startDate: string;
+    endDate: string;
   };
 }
 
@@ -49,16 +46,13 @@ export interface GenreCut {
 }
 export interface DiscountResponse {
   data: {
-    createdDiscount: {
-      id: number;
-      ageRestriction: string;
-      description: string;
-      discountPercentage: string;
-      name: string;
-      posterUrl: string;
-      updatedAt: string;
-    };
-    message: string;
+    id: number;
+    ageRestriction: string;
+    description: string;
+    discountPercentage: string;
+    name: string;
+    posterUrl: string;
+    updatedAt: string;
   };
 }
 export interface Discount {

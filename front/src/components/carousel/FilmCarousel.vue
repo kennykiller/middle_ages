@@ -7,7 +7,7 @@ import BaseSubheader from "../UI/BaseSubheader.vue";
 
 type mode = "inc" | "dec";
 interface FilmsFromDB {
-  rows: Film[];
+  films: Film[];
   count: number;
 }
 
@@ -22,8 +22,6 @@ let totalFilmsAmt: Ref<number> = ref(0);
 let page = ref(1);
 
 let isLastPage = computed(() => {
-  console.log(page.value * 4 >= totalFilmsAmt.value, "is last page");
-
   return page.value * 4 >= totalFilmsAmt.value;
 });
 let allFilmsReceived = computed(() => {
@@ -32,8 +30,8 @@ let allFilmsReceived = computed(() => {
 
 onBeforeMount(async () => {
   const res: FilmsFromDB = await getFilms(page.value);
-  if (res.count) {
-    ({ rows: films.value, count: totalFilmsAmt.value } = res);
+  if (res?.count) {
+    ({ films: films.value, count: totalFilmsAmt.value } = res);
   }
   if (films.value.length > 4) {
     filmsToShow.value = films.value.slice(0, 4);
@@ -43,17 +41,9 @@ onBeforeMount(async () => {
   }
 });
 const getFilms = async (page: number) => {
-  const headers = {
-    "Access-Control-Allow-Origin": "*",
-  };
   try {
-    const url =
-      props.carouselType === "all"
-        ? `http://localhost:3000/?page=${page}`
-        : `http://localhost:3000/upcoming?page=${page}`;
-    const response = await axios.get(url, {
-      headers,
-    });
+    const url = props.carouselType === "all" ? `films/all?page=${page}` : `films/upcoming?page=${page}`;
+    const response = await axios.get(url);
     if (response?.data?.count) {
       return response.data;
     }
@@ -77,9 +67,9 @@ const carouselControl = async () => {
     const res: FilmsFromDB = await getFilms(page.value);
     if (
       res.count &&
-      !films.value.find((film) => res.rows.some((v) => v.id === film.id))
+      !films.value.find((film) => res.films.some((v) => v.id === film.id))
     ) {
-      res.rows.forEach((film) => films.value.push(film));
+      res.films.forEach((film) => films.value.push(film));
     }
     filmsToShow.value = films.value.slice((page.value - 1) * 4, page.value * 4);
   }

@@ -6,36 +6,35 @@ import {
 } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
+import { unlink } from 'fs/promises';
+import { CreateDiscountDto } from '../discount/dto/CreateDiscountDto';
+import { CreateFilmDto } from '../film/dto/CreateFilmDto';
 
 @Injectable()
 export class GenericValidation implements PipeTransform {
   async transform(value: any, { metatype }: ArgumentMetadata) {
-    console.log(value, 'value in pipe');
-    console.log(metatype, 'metatype');
-
     if (!metatype || !this.toValidate(metatype)) {
-      console.log('in falsy metatype before return');
-
       return value;
     }
     const object = plainToInstance(metatype, value);
-    console.log(object, 'object');
-
     const errors = await validate(object);
 
-    console.log(errors, 'errors after validate object');
-
-    if (errors.length > 0) {
-      console.log('validation failed');
-      throw new BadRequestException('Validation failed');
+    if (errors.length) {
+      if (
+        object instanceof CreateFilmDto ||
+        object instanceof CreateDiscountDto
+      ) {
+        await unlink(object.posterUrl);
+      }
+      throw new BadRequestException({
+        validationErrors: errors,
+        message: 'validation failed',
+      });
     }
     return value;
   }
 
   private toValidate(metatype: Function): boolean {
-    console.log('in to validate fn');
-    console.log(metatype, 'metatype in toValidate fn');
-
     const types: Function[] = [String, Boolean, Number, Array, Object];
     return !types.includes(metatype);
   }

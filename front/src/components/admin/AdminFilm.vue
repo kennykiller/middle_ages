@@ -49,14 +49,13 @@ async function createFilm() {
         headers,
       }
     );
-    console.log(savedPoster, 'savedPoster');
     
     if (savedPoster.data.status === 201) {
       const addedFilm:FilmResponse = await axios.post(
         "http://localhost:3000/admin/film",
         { ...film, posterUrl: savedPoster.data.url }
       );
-      mode.value = addedFilm.data?.createdFilm?.id ? "success" : "error";
+      mode.value = addedFilm.data?.id ? "success" : "error";
     } else {
       mode.value = "error";
     }

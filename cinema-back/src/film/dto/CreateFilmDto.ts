@@ -10,6 +10,7 @@ export class CreateFilmDto {
   description: string;
 
   @IsInt()
+  @Transform(({ value }) => Number(value))
   basePrice: number;
 
   @IsString()

@@ -18,6 +18,8 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { editFileName, imageFileFilter } from '../utils/file-upload';
 import { GenericValidation } from '../pipes/GenericValidation.pipe';
+import { CreateDiscountDto } from '../discount/dto/CreateDiscountDto';
+import { DiscountService } from '../discount/discount.service';
 
 @Controller('admin')
 @UseGuards(AccessTokenGuard, IsAdminGuard)
@@ -25,6 +27,7 @@ export class AdminController {
   constructor(
     private adminService: AdminService,
     private filmService: FilmService,
+    private discountService: DiscountService,
   ) {}
 
   @Get('genres')
@@ -54,9 +57,15 @@ export class AdminController {
 
   @Post('film')
   async createFilm(
-    @Body(new ValidationPipe({ transform: true })) createFilmDto: CreateFilmDto,
+    @Body(new GenericValidation()) createFilmDto: CreateFilmDto,
   ) {
-    console.log(createFilmDto, 'dto in post');
     return this.filmService.createFilm(createFilmDto);
+  }
+
+  @Post('discount')
+  async createDiscount(
+    @Body(new GenericValidation()) createDiscountDto: CreateDiscountDto,
+  ) {
+    return this.discountService.createDiscount(createDiscountDto);
   }
 }

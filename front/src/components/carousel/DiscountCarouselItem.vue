@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { getImageUrl } from "@/utils/getImage";
+import { getUrl } from "@/utils/createUrl"
 interface Props {
   url: string;
   description: string;
@@ -8,9 +8,9 @@ interface Props {
   discountPercentage: string;
 }
 const props = defineProps<Props>();
-const url: string = props.url.match(/images(.)+/g)![0] || "";
+const urlToSend = getUrl('discounts', props.url);
 const fullName = computed(
-  () => `${props.name}, со скидкой ${props.discountPercentage}%!`
+  () => `${props.name}`
 );
 </script>
 
@@ -18,7 +18,7 @@ const fullName = computed(
   <Transition name="slide" appear>
     <div class="discount__container">
       <div class="special-box-shadow">
-        <img :src="getImageUrl(url)" alt="" class="discount__image" />
+        <img :src="urlToSend" alt="" class="discount__image" />
       </div>
       <div class="discount__details">
         <h2>{{ fullName }}</h2>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Discount, DiscountResponse } from "@/interfaces/models";
+import { Discount, DiscountResponse, SavedPosterResponse } from "@/interfaces/models";
 import { SnackType } from "@/interfaces/types";
 import { FileUploader } from "../../utils/fileUpload";
 import { axiosInstance as axios } from "../../utils/axios";
@@ -16,8 +16,8 @@ let discount: Discount = reactive({
   discountPercentage: 0,
 });
 
-const successText = "Фильм успешно добавлен";
-const failureText = "Проблема при сохранении фильма";
+const successText = "Акция успешно добавлена";
+const failureText = "Проблема при сохранении акции";
 const textToDisplay = computed(() =>
   mode.value === "error" ? failureText : successText
 );
@@ -42,21 +42,26 @@ async function createDiscount() {
   const headers = {
     "Access-Control-Allow-Origin": "*",
   };
-  const formData = new FormData();
-  formData.append("name", discount.name);
-  formData.append("ageRestriction", discount.ageRestriction);
-  formData.append("posterUrl", discount.posterUrl);
-  formData.append("description", discount.description);
-  formData.append("discountPercentage", String(discount.discountPercentage));
+  const posterData = new FormData();
+  posterData.append("posterUrl", discount.posterUrl);
   try {
-    const res: DiscountResponse = await axios.post(
-      "http://localhost:3000/admin/discount",
-      formData,
+    const savedPoster:SavedPosterResponse = await axios.post(
+      "http://localhost:3000/admin/poster",
+      posterData,
       {
         headers,
       }
     );
-    mode.value = res.data?.createdDiscount?.id ? "success" : "error";
+    
+    if (savedPoster.data.status === 201) {
+      const addedDiscount:DiscountResponse = await axios.post(
+        "http://localhost:3000/admin/discount",
+        { ...discount, posterUrl: savedPoster.data.url }
+      );
+      mode.value = addedDiscount.data?.id ? "success" : "error";
+    } else {
+      mode.value = "error";
+    }
     snackIsVisible.value = true;
     setTimeout(() => (snackIsVisible.value = false), 4000);
   } catch (e) {

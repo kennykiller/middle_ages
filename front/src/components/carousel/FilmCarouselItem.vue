@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Genre } from "@/interfaces/models";
-import { getImageUrl } from "@/utils/getImage";
+import { axiosInstance as axios } from "../../utils/axios";
+import { getUrl } from "@/utils/createUrl";
 interface Props {
   url: string;
   genres: Genre[];
@@ -8,10 +9,7 @@ interface Props {
   id: number;
 }
 const props = defineProps<Props>();
-console.log(props.url);
-
-const url: string = props.url.match(/images(.)+/g)![0] || "";
-
+const urlToSend = getUrl('films', props.url);
 const filmTypes = props.genres.map((genre) => genre.name).join(", ");
 const filmRoute = `/films/${props.id}`;
 </script>
@@ -21,7 +19,7 @@ const filmRoute = `/films/${props.id}`;
     <div class="film__container">
       <router-link :to="filmRoute">
         <div class="special-box-shadow">
-          <img :src="getImageUrl(url)" alt="" class="film__image" />
+          <img :src="urlToSend" alt="" class="film__image" />
         </div>
         <div class="film__details">
           <h2>{{ props.name }}</h2>

@@ -2,9 +2,9 @@
 import { onBeforeMount, reactive, Ref, ref } from "vue";
 import { useRoute } from "vue-router";
 import { Film, Genre } from "@/interfaces/models";
-import { getImageUrl } from "@/utils/getImage";
 import { AxiosResponse } from "axios";
 import { axiosInstance as axios } from "../utils/axios";
+import { getUrl } from "@/utils/createUrl"
 import BaseBadge from "@/components/UI/BaseBadge.vue";
 import CalendarComponent from "@/components/CalendarComponent.vue";
 import SessionItem from "@/components/sessions/SessionItem.vue";
@@ -61,6 +61,8 @@ const getFilm = async () => {
   }
 };
 
+const urlToSend = getUrl('films', url.value);
+
 const getSessions = async (date: Date) => {
   try {
     const response: AxiosResponse<{ sessions: SessionResponse[] }> =
@@ -108,7 +110,7 @@ const getSessions = async (date: Date) => {
     <div class="item__wrapper film" v-if="film.value">
       <div class="film__base-info-wrapper">
         <div class="film__poster-wrapper">
-          <img class="film-poster" :src="getImageUrl(url)" alt="" />
+          <img class="film-poster" :src="image" alt="" />
         </div>
         <div class="film__text-wrapper">
           <h1>{{ film.value.name }}</h1>
