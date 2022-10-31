@@ -12,7 +12,7 @@ export class DiscountController {
     return this.discountService.getDiscounts(+page);
   }
 
-  @Get('/:posterUrl')
+  @Get('/poster/:posterUrl')
   async servePoster(
     @Param('posterUrl') posterUrl: string,
     @Res() res: Response,

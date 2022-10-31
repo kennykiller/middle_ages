@@ -1,4 +1,4 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MoreThanOrEqual, Repository } from 'typeorm';
 import { CreateFilmDto } from './dto/CreateFilmDto';
@@ -73,6 +73,42 @@ export class FilmService {
       return { films, count };
     } catch {
       throw new HttpException('Upcoming films were not found, try later', 400);
+    }
+  }
+
+  async getFilm(id: number) {
+    try {
+      const film = await this.filmRepository.findOne({
+        relations: ['genres'],
+        where: { id },
+      });
+
+      if (!film) {
+        throw new NotFoundException('film do not exist');
+      }
+      const end = new Date(film.endDate);
+
+      const endYear = end.getUTCFullYear();
+      const endDate =
+        end.getUTCDate() > 9 ? end.getUTCDate() : `0${end.getUTCDate()}`;
+      const endMonth =
+        end.getUTCMonth() + 1 > 9
+          ? end.getUTCMonth() + 1
+          : `0${end.getUTCMonth() + 1}`;
+      const e = `${endYear}-${endMonth}-${endDate}`;
+      const start = new Date(film.startDate);
+      const startYear = start.getUTCFullYear();
+      const startDate =
+        start.getUTCDate() > 9 ? start.getUTCDate() : `0${start.getUTCDate()}`;
+      const startMonth =
+        start.getUTCMonth() + 1 > 9
+          ? start.getUTCMonth() + 1
+          : `0${start.getUTCMonth() + 1}`;
+      const s = `${startYear}-${startMonth}-${startDate}`;
+
+      return { ...film, endDate: e, startDate: s };
+    } catch {
+      throw new HttpException('Internal error', 500);
     }
   }
 }

@@ -35,41 +35,30 @@ const film: { value: Film | undefined } = reactive({
   },
 });
 let url: Ref<string> = ref("");
+let urlForImg: Ref<string> = ref("");
 let checkTheaters: Ref<filmStart> = ref("past");
 let sessionsSchedule: SessionResponse[] = reactive([]);
 let chosenSession: Ref<number | null | undefined> = ref(null);
 onBeforeMount(async () => {
   film.value = await getFilm();
-  url.value = film.value?.posterUrl.match(/images(.)+/g)![0] || "";
+  url.value = film.value?.posterUrl || "";
+  urlForImg.value = getUrl('films', url.value);
 });
 
 const getFilm = async () => {
-  const headers = {
-    "Access-Control-Allow-Origin": "*",
-  };
   try {
-    const response = await axios.get(
-      `http://localhost:3000/films/${route.params.id}`,
-      { headers }
-    );
-    console.log(response.data);
-
-    if (response?.data) return response.data as Film;
+    const response:AxiosResponse<Film> = await axios.get(`films/${route.params.id}`);
+    if (response?.data) return response.data;
     throw new Error("no such film received");
   } catch (e) {
     console.log(e);
   }
 };
 
-const urlToSend = getUrl('films', url.value);
-
 const getSessions = async (date: Date) => {
   try {
     const response: AxiosResponse<{ sessions: SessionResponse[] }> =
-      await axios.post(
-        `http://localhost:3000/films/sessions/${route.params.id}`,
-        { date }
-      );
+      await axios.post(`films/sessions/${route.params.id}`, { date });
 
     if (response?.data?.sessions) {
       sessionsSchedule.length = 0;
@@ -110,7 +99,7 @@ const getSessions = async (date: Date) => {
     <div class="item__wrapper film" v-if="film.value">
       <div class="film__base-info-wrapper">
         <div class="film__poster-wrapper">
-          <img class="film-poster" :src="image" alt="" />
+          <img class="film-poster" :src="urlForImg" alt="" />
         </div>
         <div class="film__text-wrapper">
           <h1>{{ film.value.name }}</h1>

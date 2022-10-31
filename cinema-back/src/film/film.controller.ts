@@ -1,4 +1,11 @@
-import { Controller, Get, Param, Query, Res } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Query,
+  Res,
+} from '@nestjs/common';
 import { Response } from 'express';
 import { join } from 'path';
 import { FilmService } from './film.service';
@@ -17,11 +24,16 @@ export class FilmController {
     return this.filmService.getUpcomingFilms(+page);
   }
 
-  @Get('/:posterUrl')
+  @Get('/poster/:posterUrl')
   async servePoster(
     @Param('posterUrl') posterUrl: string,
     @Res() res: Response,
   ): Promise<any> {
     res.sendFile(join(process.cwd(), 'src/assets/posters', posterUrl));
+  }
+
+  @Get('/:id')
+  async getFilm(@Param('id', ParseIntPipe) id: number) {
+    return this.filmService.getFilm(id);
   }
 }
