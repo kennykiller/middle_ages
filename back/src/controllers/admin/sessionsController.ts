@@ -7,11 +7,11 @@ import { Genre as GenreModel } from "../../models/genre";
 import { DailySchedule, FilmForSession } from "../../interfaces/base";
 import { Film } from "../../interfaces/models";
 import { Genre } from "../../interfaces/models";
-import { LocalTime, UTCTime } from "../../util/time-calculation";
+import { LocalTime, UTCTime } from "../../../../cinema-back/src/utils/time-calculation";
 import {
   oneFilmScheduleCreator,
   multipleFilmsScheduleCreator,
-} from "../../util/schedule-creator";
+} from "../../../../cinema-back/src/utils/schedule-creator";
 
 interface ScheduleForRecalculation extends Partial<DailySchedule> {}
 interface FilmForRecalculation extends Partial<FilmForSession> {}

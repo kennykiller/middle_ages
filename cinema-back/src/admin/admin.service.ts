@@ -8,4 +8,20 @@ export class AdminService {
   async getGenres() {
     return this.genreService.getGenres();
   }
+
+  async verifyCreationPossibility() {
+    this.calculateSchedule();
+  }
+
+  async calculateSchedule() {
+
+  }
+
+  async createSession() {
+
+  }
+
+  async adjustSchedule() {
+
+  }
 }

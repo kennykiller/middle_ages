@@ -6,7 +6,7 @@ export interface FilmModel {
   endDate: string;
 }
 export interface Film {
-  id?: number | undefined;
+  id?: number;
   name: string;
   ageRestriction: string;
   posterUrl: string;

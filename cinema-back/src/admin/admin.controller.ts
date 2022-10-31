@@ -68,4 +68,19 @@ export class AdminController {
   ) {
     return this.discountService.createDiscount(createDiscountDto);
   }
+
+  @Get('sessions')
+  async getSchedule() {
+    return this.adminService.verifyCreationPossibility();
+  }
+
+  @Post('sessions')
+  async createSessions() {
+    return this.adminService.createSession();
+  }
+
+  @Post('sessions-adjust')
+  async adjustSessions() {
+    return this.adminService.adjustSchedule();
+  }
 }
