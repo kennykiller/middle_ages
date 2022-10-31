@@ -1,4 +1,5 @@
-import { Film, Genre } from '../../../back/src/interfaces/models';
+import { Genre } from '../genre/genre.entity';
+import { Film } from '../film/film.entity';
 import { LocalTime, UTCTime } from './time-calculation';
 
 type mode = 'local' | 'utc';
@@ -54,12 +55,10 @@ export class oneFilmScheduleCreator extends scheduleCreator {
   sDur: string;
   constructor(
     public scheduleArr: string[],
-    public film: Film,
-    public filmEndsBeforeSchedule: boolean = false,
+    private film: Film,
+    private filmEndsBeforeSchedule: boolean = false,
   ) {
     super(scheduleArr);
-    this.film = film;
-    this.filmEndsBeforeSchedule = filmEndsBeforeSchedule;
   }
 
   durationCount(film: Film) {

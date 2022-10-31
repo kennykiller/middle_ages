@@ -1,9 +1,16 @@
 import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { MoreThanOrEqual, Repository } from 'typeorm';
+import {
+  Between,
+  Brackets,
+  createQueryBuilder,
+  MoreThanOrEqual,
+  Repository,
+} from 'typeorm';
 import { CreateFilmDto } from './dto/CreateFilmDto';
 import { Film } from './film.entity';
 import { unlink } from 'fs/promises';
+import { User } from '../user/user.entity';
 
 @Injectable()
 export class FilmService {
@@ -109,6 +116,43 @@ export class FilmService {
       return { ...film, endDate: e, startDate: s };
     } catch {
       throw new HttpException('Internal error', 500);
+    }
+  }
+
+  async getFilmsByPeriod(start: Date, end: Date) {
+    try {
+      const films = await this.filmRepository
+        .createQueryBuilder()
+        .where(
+          new Brackets((qb) => {
+            qb.where('startDate >= :start', { start }).andWhere(
+              'startDate <= :end',
+              { end },
+            );
+          }),
+        )
+        .orWhere(
+          new Brackets((qb) => {
+            qb.where('endDate >= :start', { start }).andWhere(
+              'endDate <= :end',
+              {
+                end,
+              },
+            );
+          }),
+        )
+        .orWhere(
+          new Brackets((qb) => {
+            qb.where('startDate <= :start', { start }).andWhere(
+              'endDate >= :end',
+              { end },
+            );
+          }),
+        )
+        .getMany();
+      return films;
+    } catch (e) {
+      throw new HttpException('Error occured, try later', 400);
     }
   }
 }

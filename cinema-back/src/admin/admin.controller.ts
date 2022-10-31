@@ -7,12 +7,10 @@ import {
   UploadedFile,
   UseGuards,
   UseInterceptors,
-  ValidationPipe,
 } from '@nestjs/common';
 import { AccessTokenGuard } from '../common/guards/accessToken.guard';
 import { IsAdminGuard } from '../common/guards/isAdmin.guard';
 import { CreateFilmDto } from '../film/dto/CreateFilmDto';
-import { AdminService } from './admin.service';
 import { FilmService } from '../film/film.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -20,19 +18,24 @@ import { editFileName, imageFileFilter } from '../utils/file-upload';
 import { GenericValidation } from '../pipes/GenericValidation.pipe';
 import { CreateDiscountDto } from '../discount/dto/CreateDiscountDto';
 import { DiscountService } from '../discount/discount.service';
+import { GenreService } from '../genre/genre.service';
+import { SessionService } from '../session/session.service';
+import { CreateSessionDto } from '../session/dto/CreateSessionDto';
+import { DailySchedule } from '../interfaces/schedule';
 
 @Controller('admin')
 @UseGuards(AccessTokenGuard, IsAdminGuard)
 export class AdminController {
   constructor(
-    private adminService: AdminService,
     private filmService: FilmService,
+    private genreService: GenreService,
     private discountService: DiscountService,
+    private sessionService: SessionService,
   ) {}
 
   @Get('genres')
   getGenres() {
-    return this.adminService.getGenres();
+    return this.genreService.getGenres();
   }
 
   @Post('poster')
@@ -71,16 +74,18 @@ export class AdminController {
 
   @Get('sessions')
   async getSchedule() {
-    return this.adminService.verifyCreationPossibility();
+    return this.sessionService.verifyCreationPossibility();
   }
 
   @Post('sessions')
-  async createSessions() {
-    return this.adminService.createSession();
+  async createSessions(
+    @Body(new GenericValidation()) createSessionDto: CreateSessionDto,
+  ) {
+    return this.sessionService.createSession(createSessionDto);
   }
 
   @Post('sessions-adjust')
-  async adjustSessions() {
-    return this.adminService.adjustSchedule();
+  adjustSessions(@Body() sessionsArray: DailySchedule[]) {
+    return this.sessionService.adjustSchedule(sessionsArray);
   }
 }
