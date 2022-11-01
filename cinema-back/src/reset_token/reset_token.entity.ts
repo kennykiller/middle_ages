@@ -15,7 +15,7 @@ export class ResetToken {
   @Column()
   token: string;
 
-  @Column({ type: 'date' })
+  @Column({ type: 'datetime' })
   expiryDate: Date;
 
   @OneToOne(() => User, { onDelete: 'CASCADE' })

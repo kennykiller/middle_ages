@@ -44,11 +44,8 @@ const successHeader = computed(() =>
 );
 
 const createLinkHandler = async () => {
-  const res = await axios.post(
-    "http://localhost:3000/auth/reset",
-    emailForRecover
-  );
-  if (!res.data?.success) {
+  const res = await axios.post("auth/reset/link", emailForRecover);
+  if (res.data?.status !== 200) {
     error.value =
       res.data?.message ||
       "Попробуйте сбросить пароль немного позднее, мы работаем над этим.";
@@ -62,10 +59,7 @@ const createLinkHandler = async () => {
 const passwordRefreshHandler = async () => {
   if (!userId || !token) return;
   const payload = { ...userData, userId: +userId, token };
-  const res = await axios.post(
-    "http://localhost:3000/auth/reset-password",
-    payload
-  );
+  const res = await axios.post("auth/reset/password",payload);
   if (!res.data?.success && res.data?.data?.length) {
     error.value = res.data.data[0].msg;
     setTimeout(() => (error.value = ""), 3000);
