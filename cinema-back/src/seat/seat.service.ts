@@ -1,6 +1,7 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { BadRequestException, HttpException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { Session } from '../session/session.entity';
 import { CreateSeatDto } from './dto/CreateSeatDto';
 import { Seat } from './seat.entity';
 
@@ -27,6 +28,17 @@ export class SeatService {
       await Promise.all(requests);
     } catch {
       throw new HttpException('Could not add seats to session', 400);
+    }
+  }
+
+  async getSeatsForSession(session: Session) {
+    try {
+      const seats = await this.seatRepo.findAndCount({
+        where: { session },
+      });
+      return seats;
+    } catch (e) {
+      throw new BadRequestException('Seats for sessions were not found');
     }
   }
 }

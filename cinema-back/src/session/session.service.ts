@@ -1,6 +1,9 @@
 import {
   BadRequestException,
   ConflictException,
+  forwardRef,
+  HttpException,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -17,6 +20,7 @@ import {
 } from '../utils/schedule-creator';
 import { LocalTime, UTCTime } from '../utils/time-calculation';
 import { CreateSessionDto } from './dto/CreateSessionDto';
+import { FindSessionDto } from './dto/FindSessionDto';
 
 type mode = 'local' | 'utc';
 type FilmForRecalculation = Partial<FilmForSession>;
@@ -25,10 +29,11 @@ export class SessionService {
   public ITEMS_PER_PAGE = 4;
 
   constructor(
+    @Inject(forwardRef(() => SeatService))
+    private seatService: SeatService,
     @InjectRepository(Session)
     private sessionRepo: Repository<Session>,
     private filmService: FilmService,
-    private seatService: SeatService,
   ) {}
 
   async verifyCreationPossibility() {
@@ -108,10 +113,10 @@ export class SessionService {
         .basePrice;
       const price =
         hourOfSessionStart < 12
-          ? basePrice * 0.85
+          ? Math.floor(basePrice * 0.85)
           : hourOfSessionStart >= 18
-          ? basePrice * 1.15
-          : basePrice;
+          ? Math.floor(basePrice * 1.15)
+          : Math.floor(basePrice);
       const [hDur, mDur, sDur] = (
         Object.values(session)[0] as FilmForRecalculation
       ).totalDuration.split(':');
@@ -188,5 +193,36 @@ export class SessionService {
     return mode === 'local'
       ? new LocalTime(start).timeOfStart
       : new UTCTime(start).timeOfStart;
+  }
+
+  async getSessionWithSeats(id: number) {
+    try {
+      const session = await this.sessionRepo.findOneBy({ id });
+      const seats = await this.seatService.getSeatsForSession(session);
+      return { seats, session };
+    } catch (e) {
+      throw new BadRequestException('Session does not exist');
+    }
+  }
+
+  async findSessions(dto: FindSessionDto) {
+    try {
+      const film = await this.filmService.getFilmWithoutModify(dto.filmId);
+      const dateStart = new Date(dto.date);
+      dateStart.setUTCHours(0, 0, 0, 0);
+      const dateEnd = new Date(dto.date);
+      dateEnd.setUTCHours(23, 59, 59, 999);
+
+      const sessions = await this.sessionRepo.find({
+        where: {
+          film,
+          filmStart: Between(dateStart, dateEnd),
+        },
+      });
+
+      return sessions;
+    } catch (e) {
+      throw new HttpException(e.message || 'Error occured', 400);
+    }
   }
 }

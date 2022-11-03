@@ -1,7 +1,5 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import dbConfig from 'db/db-config';
 import { JwtModule } from '@nestjs/jwt';
@@ -20,7 +18,6 @@ import { MulterModule } from '@nestjs/platform-express';
     ConfigModule.forRoot({ isGlobal: true }),
     MulterModule.register(),
   ],
-  controllers: [AppController],
-  providers: [AppService, AccessTokenStrategy, RefreshTokenStrategy],
+  providers: [AccessTokenStrategy, RefreshTokenStrategy],
 })
 export class AppModule {}

@@ -119,6 +119,13 @@ export class FilmService {
     }
   }
 
+  async getFilmWithoutModify(id: number) {
+    const film = await this.filmRepository.findOne({
+      where: { id },
+    });
+    return film;
+  }
+
   async getFilmsByPeriod(start: Date, end: Date) {
     try {
       const films = await this.filmRepository

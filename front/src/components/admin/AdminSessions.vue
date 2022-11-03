@@ -22,13 +22,8 @@ onBeforeMount(async () => {
 });
 
 const getSchedule = async () => {
-  const headers = {
-    "Access-Control-Allow-Origin": "*",
-  };
   try {
-    const response = await axios.get(`http://localhost:3000/admin/sessions`, {
-      headers,
-    });
+    const response = await axios.get(`admin/sessions`);
     if (response.data?.length) return response.data as Schedules[];
   } catch (e) {
     console.log(e);
@@ -52,16 +47,11 @@ const saveSchedule = async () => {
           dateOfStart.setDate(dateOfStart.getDate() + 1);
         }
         const data = Object.values(session)[0];
-        console.log({
-          filmStart: dateOfStart,
-          price: data.price,
-          id: data.id,
-        });
 
-        await axios.post("http://localhost:3000/admin/sessions", {
+        await axios.post("admin/sessions", {
           filmStart: dateOfStart.toUTCString(),
           price: data.price,
-          id: data.id,
+          filmId: data.id,
         });
       });
     });

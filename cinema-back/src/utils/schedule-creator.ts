@@ -308,7 +308,7 @@ export class multipleFilmsScheduleCreator extends scheduleCreator {
     idx: number,
   ) {
     if (start.getHours() < 12) {
-      const reducedPrice = arr[idx].basePrice * 0.85;
+      const reducedPrice = Math.floor(arr[idx].basePrice * 0.85);
       arrToPush[key].push({
         [timeOfSessionStart]: {
           ...arr[idx],
@@ -316,7 +316,7 @@ export class multipleFilmsScheduleCreator extends scheduleCreator {
         },
       });
     } else if (start.getHours() > 18) {
-      const increasedPrice = arr[idx].basePrice * 1.15;
+      const increasedPrice = Math.floor(arr[idx].basePrice * 1.15);
       arrToPush[key].push({
         [timeOfSessionStart]: {
           ...arr[idx],
@@ -327,7 +327,7 @@ export class multipleFilmsScheduleCreator extends scheduleCreator {
       arrToPush[key].push({
         [timeOfSessionStart]: {
           ...arr[idx],
-          price: arr[idx].basePrice,
+          price: Math.floor(arr[idx].basePrice),
         },
       });
     }

@@ -56,9 +56,13 @@ const getFilm = async () => {
 };
 
 const getSessions = async (date: Date) => {
+  const year = date.getFullYear();
+  const month = date.getMonth() < 9 ? `0${date.getMonth() + 1}` : date.getMonth() + 1;
+  const day = date.getDate() < 10 ? `0${date.getDate()}` : date.getDate();
+  const dateToSend = `${year}-${month}-${day}`;
   try {
     const response: AxiosResponse<{ sessions: SessionResponse[] }> =
-      await axios.post(`films/sessions/${route.params.id}`, { date });
+      await axios.get(`/sessions/${route.params.id}/${dateToSend}`);
 
     if (response?.data?.sessions) {
       sessionsSchedule.length = 0;
