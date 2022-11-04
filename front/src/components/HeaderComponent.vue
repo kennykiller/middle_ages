@@ -18,6 +18,10 @@ const logoutHandler = async () => {
   await authModule.logout();
   router.push("/");
 };
+
+const openCart = () => {
+  router.push('/client');
+}
 </script>
 
 <template>
@@ -45,6 +49,16 @@ const logoutHandler = async () => {
         </li>
         <li class="list__item auth">
           <div class="auth__wrapper">
+            <BaseBadge
+              @click="openCart"
+              v-if="isLoggedIn"
+              popover
+              popover-text="Корзина"
+            >
+              <template #image>
+                <img src="@/assets/images/cart.png" alt="logout" />
+              </template>
+            </BaseBadge>
             <BaseBadge
               @click="logoutHandler"
               v-if="isLoggedIn"

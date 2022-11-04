@@ -44,4 +44,10 @@ export class DiscountService {
       throw new HttpException('Error occured, try later', 400);
     }
   }
+
+  async getFirstBookingDiscount() {
+    return await this.discountRepository.findOne({
+      where: { name: 'Первый заказ' },
+    });
+  }
 }

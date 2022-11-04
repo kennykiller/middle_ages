@@ -9,9 +9,11 @@ import { VuexModule, Module, Mutation, Action } from "vuex-class-modules";
 let AuthModule = class AuthModule extends VuexModule {
     isAuthenticated = false;
     isAdmin = false;
+    userId = null;
     setSuccessfulLoginData(userData) {
         this.isAuthenticated = !!userData.accessToken;
         this.isAdmin = !!userData?.isAdmin;
+        this.userId = userData.id || null;
         if (userData.accessToken) {
             localStorage.setItem("user", JSON.stringify(userData));
         }

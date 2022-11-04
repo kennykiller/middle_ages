@@ -5,6 +5,10 @@ import { axiosInstance as axios } from "../utils/axios";
 import { SessionSeatsResponse } from "@/interfaces/responses";
 import { ExpandedSeat } from '@/interfaces/models';
 import BaseBadge from './UI/BaseBadge.vue';
+import { authModule } from "@/store/auth/auth-actions";
+import { useRouter } from "vue-router";
+
+const isLoggedIn = authModule.isAuthenticated;
 
 interface Props {
   sessionId: number;
@@ -23,6 +27,7 @@ enum statuses {
   'free' = 3
 }
 
+const router = useRouter();
 const props = defineProps<Props>();
 //get seats
 
@@ -40,6 +45,19 @@ const getSeats = async (sessionId: number) => {
       status: el?.order?.status?.id || 3,
       isChosen: false,
     }))
+    const storedChosenSeats = localStorage.getItem('chosenSeats');
+    if (storedChosenSeats) {
+      const parsedChosenSeats: Seat[] = JSON.parse(storedChosenSeats);
+      if (parsedChosenSeats[0].sessionId === sessionId) {
+        parsedChosenSeats.forEach(el => {
+          chosenSeats.push(el);
+          const idx = seats.findIndex(s => s.id === el.id);
+          if (idx > -1) {
+            seats[idx].isChosen = true;
+          }
+        });
+      }
+    }
     
   } catch (e) {
     console.log(e);
@@ -68,6 +86,30 @@ const chosenSeatsSummary = computed(() => {
 const chosenSeatsPrice = computed(() => {
   return 'Общая сумма билетов: ' + chosenSeats.length * price.value + ' Руб';
 })
+const createOrder = async () => {
+  if (localStorage.getItem('chosenSeats')) {
+    localStorage.removeItem('chosenSeats');
+  }
+  const seatsIds = chosenSeats.map(el => el.id)
+  const data = {
+    userId: authModule.userId,
+    seats: seatsIds,
+    discountId: null,
+  }
+  try {
+    const response = await axios.post('orders/new-order', data);
+    router.push('/films');
+  } catch (e) {
+    throw new Error('Ошибка в создании заказа')
+  }
+}
+
+const loginHandler = async () => {
+  localStorage.setItem("chosenSeats", JSON.stringify(chosenSeats));
+  console.log('before routing', localStorage.getItem('chosenSeats'));
+  
+  router.push('/auth');
+}
 </script>
 
 <template>
@@ -114,7 +156,8 @@ const chosenSeatsPrice = computed(() => {
       <BaseBadge class="info--summary" v-else :text="chosenSeatsSummary" />
       <div v-if="chosenSeats.length" class="info--order">
         <BaseBadge :text="chosenSeatsPrice" />
-        <BaseBadge text="Оформить заказ"></BaseBadge>
+        <BaseBadge v-if="!isLoggedIn" text="Войти и оформить заказ" @click="loginHandler" />
+        <BaseBadge v-else text="Отправить заказ в корзину" @click.native="createOrder"></BaseBadge>
       </div>
     </div>
   </div>

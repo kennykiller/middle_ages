@@ -1,6 +1,7 @@
 import { BadRequestException, HttpException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Not, Repository } from 'typeorm';
+import { Order } from '../order/order.entity';
 import { Session } from '../session/session.entity';
 import { CreateSeatDto } from './dto/CreateSeatDto';
 import { Seat } from './seat.entity';
@@ -44,5 +45,18 @@ export class SeatService {
     } catch (e) {
       throw new BadRequestException('Seats for sessions were not found');
     }
+  }
+
+  async updateSeatStatus(seatsId: number[], order: Order) {
+    try {
+    } catch (e) {
+      throw new HttpException(e.message || 'Seat status was not updated', 400);
+    }
+  }
+
+  async checkSeatsAvailability(seatsIds: number[]) {
+    return await this.seatRepo.findOne({
+      where: { id: In(seatsIds), order: Not(null) },
+    });
   }
 }
