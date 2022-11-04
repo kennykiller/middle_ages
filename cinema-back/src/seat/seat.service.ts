@@ -33,8 +33,12 @@ export class SeatService {
 
   async getSeatsForSession(session: Session) {
     try {
-      const seats = await this.seatRepo.findAndCount({
+      const seats = await this.seatRepo.find({
         where: { session },
+        order: {
+          number: 'ASC',
+        },
+        relations: ['order', 'order.status'],
       });
       return seats;
     } catch (e) {

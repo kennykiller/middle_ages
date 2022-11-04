@@ -17,9 +17,9 @@ const emit = defineEmits<{
 <style lang="scss" scoped>
 .dialog {
   width: 100vw;
-  height: 100vh;
+  height: 100%;
   background: rgba(0, 0, 0, 0.6);
-  position: absolute;
+  position: fixed;
   left: 0;
   top: 0;
   z-index: 9999;

@@ -1,10 +1,14 @@
 <script setup lang="ts">
-import { onBeforeMount, reactive, ref } from "vue";
+import { computed, onBeforeMount, reactive, Ref, ref } from "vue";
 import { Schedules } from "@/interfaces/base";
+import { AxiosResponse } from "axios";
 import { axiosInstance as axios } from "../../utils/axios";
 import SessionsComponent from "@/components/sessions/SessionsComponent.vue";
 import AdminCalendar from "./AdminCalendar.vue";
 import BaseBadge from "../UI/BaseBadge.vue";
+import { CreateSessionResponse } from '@/interfaces/responses';
+import BaseSnack from "../UI/BaseSnack.vue";
+import { SnackType } from "../../interfaces/types";
 
 let schedules: { value: Schedules[] } | { value: undefined } = reactive({
   value: [],
@@ -12,6 +16,14 @@ let schedules: { value: Schedules[] } | { value: undefined } = reactive({
 let datesToPass: { value: string[] } | { value: undefined } = reactive({
   value: [],
 });
+
+const successText = "Сессия успешно добавлена";
+const failureText = "Проблема при создании сессии";
+const textToDisplay = computed(() =>
+  mode.value === "error" ? failureText : successText
+);
+let mode: Ref<SnackType> = ref("error");
+let snackIsVisible = ref(false);
 
 let openedScheduleIdx = ref(0);
 let isSaved = ref(false);
@@ -48,14 +60,24 @@ const saveSchedule = async () => {
         }
         const data = Object.values(session)[0];
 
-        await axios.post("admin/sessions", {
+        const response:AxiosResponse<CreateSessionResponse> = await axios.post("admin/sessions", {
           filmStart: dateOfStart.toUTCString(),
           price: data.price,
           filmId: data.id,
         });
+        if (response.status === 201) {
+          mode.value = response.data?.createdSession?.id ? "success" : "error";
+        } else {
+          mode.value = "error";
+        }
+        snackIsVisible.value = true;
+        setTimeout(() => (snackIsVisible.value = false), 10000);
       });
     });
   } catch (e) {
+    mode.value = "error";
+    snackIsVisible.value = true;
+    setTimeout(() => (snackIsVisible.value = false), 10000);
     console.log(e);
   }
   isSaved.value = true;
@@ -82,6 +104,11 @@ const saveSchedule = async () => {
         :data="schedules.value[openedScheduleIdx]"
       ></SessionsComponent>
     </div>
+    <BaseSnack
+      v-if="snackIsVisible"
+      :text="textToDisplay"
+      :mode="mode"
+    ></BaseSnack>
   </div>
 </template>
 

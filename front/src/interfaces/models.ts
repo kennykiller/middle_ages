@@ -10,28 +10,6 @@ export interface Film {
   genres: Genre[];
   endDate: string;
 }
-export interface FilmResponse {
-  data: {
-    id: number;
-    ageRestriction: string;
-    description: string;
-    createdAt: string;
-    name: string;
-    posterUrl: string;
-    updatedAt: string;
-    startDate: string;
-    endDate: string;
-  };
-}
-
-export interface SavedPosterResponse {
-  data: {
-    status: number;
-    url: string;
-    message: string;
-  };
-}
-
 export interface Genre {
   id: number;
   name: string;
@@ -44,17 +22,6 @@ export interface GenreCut {
   createdAt: string;
   updatedAt: string;
 }
-export interface DiscountResponse {
-  data: {
-    id: number;
-    ageRestriction: string;
-    description: string;
-    discountPercentage: string;
-    name: string;
-    posterUrl: string;
-    updatedAt: string;
-  };
-}
 export interface Discount {
   id?: number;
   name: string;
@@ -62,4 +29,29 @@ export interface Discount {
   posterUrl: string;
   discountPercentage: number;
   description: string;
+}
+
+export interface Session {
+  id: number;
+  filmStart: string;
+  seatsAvailable: number;
+  price: number;
+  film: {
+    id: number;
+  };
+}
+
+export interface Seat {
+  id: number;
+  number: number;
+}
+
+export interface ExpandedSeat extends Seat {
+  order: {
+    id: number | null;
+    status?: {
+      id: number;
+      name: 'booked' | 'sold' | 'free';
+    }
+  }
 }

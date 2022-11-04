@@ -13,6 +13,6 @@ export class Seat {
   @ManyToOne(() => Order, (order) => order.seats)
   order: Order;
 
-  @ManyToOne(() => Session, (session) => session.seats)
+  @ManyToOne(() => Session, (session) => session.seats, { onDelete: 'CASCADE' })
   session: Session;
 }

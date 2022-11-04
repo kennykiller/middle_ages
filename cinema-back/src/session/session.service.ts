@@ -96,7 +96,7 @@ export class SessionService {
     try {
       const session = await this.sessionRepo.save(sessionCreateReq);
       await this.seatService.createSeats({ session });
-      return { message: 'Сеанс добавлен.', createdFilm: session };
+      return { message: 'Сеанс добавлен.', createdSession: session };
     } catch {
       throw new Error('Session was not created');
     }

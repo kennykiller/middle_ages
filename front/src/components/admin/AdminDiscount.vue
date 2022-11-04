@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { Discount, DiscountResponse, SavedPosterResponse } from "@/interfaces/models";
+import { Discount } from "@/interfaces/models";
+import { DiscountResponse, SavedPosterResponse } from "@/interfaces/responses";
 import { SnackType } from "@/interfaces/types";
 import { FileUploader } from "../../utils/fileUpload";
 import { axiosInstance as axios } from "../../utils/axios";

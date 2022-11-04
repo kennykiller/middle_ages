@@ -13,7 +13,7 @@ export class Session {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'date' })
+  @Column({ type: 'datetime' })
   filmStart: Date;
 
   @Column({ default: 100, type: 'int' })

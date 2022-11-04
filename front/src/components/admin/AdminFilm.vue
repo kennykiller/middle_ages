@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { FileUploader } from "@/utils/fileUpload";
 import { SnackType } from "@/interfaces/types";
-import { Film, Genre, FilmResponse, SavedPosterResponse } from "@/interfaces/models";
+import { Film, Genre } from "@/interfaces/models";
+import { FilmResponse, SavedPosterResponse } from '@/interfaces/responses'
 import { axiosInstance as axios } from "../../utils/axios";
 import { reactive, onBeforeMount, ref, onMounted, Ref, computed } from "vue";
 import BaseSnack from "../UI/BaseSnack.vue";
@@ -36,18 +37,12 @@ onBeforeMount(async () => {
 const descriptionRef = ref<HTMLElement | null>(null);
 
 async function createFilm() {
-  const headers = {
-    "Access-Control-Allow-Origin": "*",
-  };
   const posterData = new FormData();
   posterData.append("posterUrl", film.posterUrl);
   try {
     const savedPoster:SavedPosterResponse = await axios.post(
       "http://localhost:3000/admin/poster",
       posterData,
-      {
-        headers,
-      }
     );
     
     if (savedPoster.data.status === 201) {

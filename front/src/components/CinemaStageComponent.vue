@@ -1,6 +1,10 @@
 <script setup lang="ts">
-import { reactive } from "vue";
+import { AxiosResponse } from "axios";
+import { computed, reactive, Ref, ref } from "vue";
 import { axiosInstance as axios } from "../utils/axios";
+import { SessionSeatsResponse } from "@/interfaces/responses";
+import { ExpandedSeat } from '@/interfaces/models';
+import BaseBadge from './UI/BaseBadge.vue';
 
 interface Props {
   sessionId: number;
@@ -9,79 +13,96 @@ interface Seat {
   id: number;
   number: number;
   sessionId: number;
-  createdAt: Date;
-  updatedAt: Date;
-  status: number | null;
+  status: statuses;
+  isChosen: boolean;
+}
+
+enum statuses {
+  'booked' = 1,
+  'sold' = 2,
+  'free' = 3
 }
 
 const props = defineProps<Props>();
 //get seats
 
 const seats: Seat[] = reactive([]);
+const chosenSeats: Seat[] = reactive([]);
+const price: Ref<number> = ref(0);
 const getSeats = async (sessionId: number) => {
   try {
-    const response = await axios.get(`seats/${sessionId}`);
-    console.log(response, "res");
+    const response: AxiosResponse<SessionSeatsResponse> = await axios.get(`sessions/${sessionId}`);
+    price.value = response.data.session.price;
+    response.data.seats.forEach((el: ExpandedSeat) => seats.push({
+      id: el.id,
+      number: el.number,
+      sessionId,
+      status: el?.order?.status?.id || 3,
+      isChosen: false,
+    }))
+    
   } catch (e) {
     console.log(e);
   }
 };
 getSeats(props.sessionId);
 const rows = [...Array(11).keys()].slice(1);
-const chosenSeats: { isBusy: Boolean; id: number; isBooked: boolean }[] =
-  reactive([]);
-let id = 1;
-// while (arr.length < 100) {
-//   arr.push(
-//     { isBusy: false, id: id++, isBooked: false },
-//     { isBusy: true, id: id++, isBooked: false }
-//   );
-// }
-// const toggleBooking = (idx: number) => {
-//   arr[idx].isBooked = !arr[idx].isBooked;
-//   if (arr[idx].isBooked) {
-//     chosenSeats.push(arr[idx]);
-//   } else {
-//     const idxToRemove = chosenSeats.findIndex(
-//       (seat) => seat.id === arr[idx].id
-//     );
-//     chosenSeats.splice(idxToRemove, 1);
-//   }
-// };
+const toggleBooking = (idx: number, status?: statuses) => {
+  seats[idx].isChosen = seats[idx].status === 3 ? !seats[idx].isChosen : false;
+  if (seats[idx].isChosen) {
+    chosenSeats.push(seats[idx]);
+  } else {
+    const idxToRemove = chosenSeats.findIndex(
+      (seat) => seat.id === seats[idx].id
+    );
+    if (idxToRemove > -1) {
+      chosenSeats.splice(idxToRemove, 1);
+    }
+  }
+};
+const chosenSeatsSummary = computed(() => {
+  return chosenSeats.map((el, idx) => {
+    if (!idx) return `Выбранные места: ${el.number} место - ${Math.ceil(el.number / 10)} ряд`;
+    return `${el.number} место - ${Math.ceil(el.number / 10)} ряд`}).join(', ');
+})
+const chosenSeatsPrice = computed(() => {
+  return 'Общая сумма билетов: ' + chosenSeats.length * price.value + ' Руб';
+})
 </script>
 
 <template>
   <div class="stage" @click.stop>
-    <!-- <div class="stage__screen"><span>Экран</span></div>
+    <BaseBadge class="stage__screen" text="Экран" />
     <div class="stage__scheme scheme">
       <ul class="scheme__rows">
         <li class="scheme__row" v-for="row of rows" :key="row">
           <span>{{ row }}</span>
         </li>
       </ul>
-      <ul class="stage__list">
+      <ul v-if="seats.length" class="stage__list">
         <li
           class="stage__list-item seat"
-          v-for="(seat, idx) of arr"
+          v-for="(seat, idx) of seats"
           :key="seat.id"
         >
           <img
             class="seat__image seat__image--busy"
-            v-if="seat.isBusy && !seat.isBooked"
+            v-if="seat.status === 2"
             src="@/assets/images/busy-seat.png"
             alt="busy"
           />
           <img
             class="seat__image seat__image--free"
-            v-if="!seat.isBusy && !seat.isBooked"
+            v-if="seat.status === 3 && !seat.isChosen"
             src="@/assets/images/free-seat.png"
             @click="toggleBooking(idx)"
             alt="free"
           />
           <img
             class="seat__image seat__image--booked"
-            v-if="seat.isBooked"
-            @click="toggleBooking(idx)"
+            :class="{'seat__image--chosen': seat.isChosen }"
+            v-if="seat.status === 1 || seat.isChosen"
+            @click="toggleBooking(idx, seat.status)"
             src="@/assets/images/booked-seat.png"
             alt="booked"
           />
@@ -89,10 +110,13 @@ let id = 1;
       </ul>
     </div>
     <div class="stage__info info">
-      <div class="info__warning" v-if="!chosenSeats.length">
-        Выберите свободные места (указаны зеленым)
+      <BaseBadge class="info--warning" v-if="!chosenSeats.length" text="Выберите свободные места (указаны зеленым)" />
+      <BaseBadge class="info--summary" v-else :text="chosenSeatsSummary" />
+      <div v-if="chosenSeats.length" class="info--order">
+        <BaseBadge :text="chosenSeatsPrice" />
+        <BaseBadge text="Оформить заказ"></BaseBadge>
       </div>
-    </div> -->
+    </div>
   </div>
 </template>
 
@@ -109,7 +133,6 @@ let id = 1;
   box-shadow: 0 4px 7px #88b8fe;
   &__screen {
     width: 90%;
-    height: 25px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -140,6 +163,45 @@ let id = 1;
       transform: scale(1.2);
     }
   }
+  &__info {
+    padding: 0.5rem 0;
+  }
+  .info--warning {
+    &::v-deep button {
+      width: 100%;
+      span {
+        text-align: center;
+      }
+    } 
+  }
+
+  .info {
+    margin-bottom: 10px;
+    &--summary {
+      &:first-of-type {
+        margin-bottom: 10px;
+      }
+      &::v-deep button {
+        width: 100%;
+        span {
+          font-size: 1.1rem;
+          text-align: left;
+        }
+      }
+    }
+    &--order {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      &::v-deep button {
+        width: 100%;
+        span {
+          font-size: 1.1rem;
+          text-align: left;
+        }
+      }
+    }
+  }
 }
 .scheme__rows {
   display: flex;
@@ -156,7 +218,16 @@ let id = 1;
 }
 .seat__image--free,
 .seat__image--booked {
-  cursor: pointer;
   transition: transform 0.4s ease;
+}
+
+.seat__image--free,
+.seat__image--chosen {
+  cursor: pointer;
+}
+.seat__image--chosen {
+  padding: 2px;
+  border-radius: 50%;
+  border: 1px solid black;
 }
 </style>

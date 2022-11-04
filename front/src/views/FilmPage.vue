@@ -61,12 +61,12 @@ const getSessions = async (date: Date) => {
   const day = date.getDate() < 10 ? `0${date.getDate()}` : date.getDate();
   const dateToSend = `${year}-${month}-${day}`;
   try {
-    const response: AxiosResponse<{ sessions: SessionResponse[] }> =
+    const response: AxiosResponse<SessionResponse[]> =
       await axios.get(`/sessions/${route.params.id}/${dateToSend}`);
 
-    if (response?.data?.sessions) {
+    if (response?.data) {
       sessionsSchedule.length = 0;
-      response.data.sessions = response.data.sessions.map((session) => {
+      response.data = response.data.map((session) => {
         const start = new Date(String(session.filmStart));
         const h =
           start.getHours() < 10 ? `0${start.getHours()}` : start.getHours();
@@ -81,7 +81,7 @@ const getSessions = async (date: Date) => {
         const filmStart = `${h}:${m}:${s}`;
         return { ...session, filmStart };
       });
-      response.data.sessions.forEach((s) => sessionsSchedule.push(s));
+      response.data.forEach((s) => sessionsSchedule.push(s));
       console.log(sessionsSchedule);
 
       return;
