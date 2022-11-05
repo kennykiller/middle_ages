@@ -34,4 +34,9 @@ export class UsersController {
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.remove(id);
   }
+
+  @Get('detailed/:id')
+  findByIdDetailed(@Param('id', ParseIntPipe) id: number) {
+    return this.usersService.findOneDetailed(id);
+  }
 }

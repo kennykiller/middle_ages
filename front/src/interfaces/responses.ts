@@ -1,4 +1,4 @@
-import { ExpandedSeat, Seat, Session } from "./models";
+import { ExpandedSeat, User, Session } from "./models";
 export interface CreateSessionResponse {
     message: string;
     createdSession: Session;

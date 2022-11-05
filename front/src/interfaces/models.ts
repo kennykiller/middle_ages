@@ -55,3 +55,21 @@ export interface ExpandedSeat extends Seat {
     }
   }
 }
+
+export interface User {
+  email: string;
+  id: number;
+  isAdmin: boolean;
+  name: string;
+  phone: string;
+  refreshToken: string;
+}
+
+export interface ExpandedUser extends User {
+  userStatus: null | {
+    id: number;
+    name: string;
+    endAmount: number;
+    startAmount: number;
+  }
+}

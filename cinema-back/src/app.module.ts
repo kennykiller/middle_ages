@@ -9,6 +9,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AdminModule } from './admin/admin.module';
 import { MulterModule } from '@nestjs/platform-express';
 import { OrderModule } from './order/order.module';
+import { UsersModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { OrderModule } from './order/order.module';
     AuthModule,
     AdminModule,
     OrderModule,
+    UsersModule,
     JwtModule,
     ConfigModule.forRoot({ isGlobal: true }),
     MulterModule.register(),

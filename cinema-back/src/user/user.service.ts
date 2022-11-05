@@ -6,6 +6,7 @@ import { User } from './user.entity';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import EmailHandler from '../utils/email';
+import { UserStatusService } from '../user_status/user_status.service';
 
 @Injectable()
 export class UsersService {
@@ -13,12 +14,14 @@ export class UsersService {
     @InjectRepository(User)
     private usersRepository: Repository<User>,
     private configService: ConfigService,
+    private userStatusService: UserStatusService,
   ) {}
   async createUser(createUserDto: CreateUserDto) {
     try {
       const hashedPw = await bcrypt.hash(createUserDto.password, 10);
       const isAdmin =
         createUserDto.name === this.configService.get<string>('ADMIN_NAME');
+      const defaultStatus = await this.userStatusService.getDefaultStatus();
       const user = this.usersRepository.create({
         name: createUserDto.name,
         email: createUserDto.email,
@@ -26,6 +29,7 @@ export class UsersService {
         phone: createUserDto.phone,
         isAdmin,
         refreshToken: createUserDto.refreshToken,
+        userStatus: defaultStatus,
       });
       const createdUser = await this.usersRepository.save(user);
       delete createdUser.password;
@@ -47,6 +51,17 @@ export class UsersService {
 
   async findOne(id: number): Promise<User> {
     return this.usersRepository.findOneBy({ id });
+  }
+
+  async findOneDetailed(id: number): Promise<User> {
+    return this.usersRepository.findOne({
+      where: {
+        id,
+      },
+      relations: {
+        userStatus: true,
+      },
+    });
   }
 
   async findOneByEmail(email: string): Promise<User> {

@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { axiosInstance as axios } from '../utils/axios';
 import { authModule } from '../store/auth/auth-actions';
+import { ExpandedUser } from '@/interfaces/models';
 import { ref } from '@vue/reactivity';
 import { AxiosResponse } from 'axios';
 
 const getUser = async () => {
     try {
-       const response: AxiosResponse = await axios.get(`users/detailed/${authModule.userId}`);
+       const response: AxiosResponse<ExpandedUser>= await axios.get(`users/detailed/${authModule.userId}`);
        if (response.status === 200) {
         return response.data;
        } 
@@ -234,7 +235,8 @@ const user = getUser().then(res => res);
 .cover {
   width: 0px;
   height: 0px;
-  background: url(https://api.lorem.space/image/movie?w=720&h=560) no-repeat center center;
+  background: url(https://api.lorem.space/image/movie?w=320&h=200) no-repeat;
+  background-size: contain;
   position: absolute;
   top: 50%;
   left: 50%;
