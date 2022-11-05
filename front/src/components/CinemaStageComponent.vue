@@ -95,10 +95,11 @@ const createOrder = async () => {
     userId: authModule.userId,
     seats: seatsIds,
     discountId: null,
+    sessionId: props.sessionId,
   }
   try {
     const response = await axios.post('orders/new-order', data);
-    router.push('/films');
+    router.push('/tickets');
   } catch (e) {
     throw new Error('Ошибка в создании заказа')
   }

@@ -11,6 +11,8 @@ import { Ticket } from '../src/ticket/ticket.entity';
 import { addGenres1664616153216 } from './migrations/1664616153216-addGenres';
 import { addStatuses1664642012469 } from './migrations/1664642012469-addStatuses';
 import { ResetToken } from '../src/reset_token/reset_token.entity';
+import { UserStatus } from '../src/user_status/user_status.entity';
+import { addUserStatuses1667647785471 } from './migrations/1667647785471-addUserStatuses';
 
 export default {
   type: 'mysql',
@@ -31,8 +33,13 @@ export default {
     Session,
     PaymentStatus,
     Ticket,
+    UserStatus,
   ],
-  migrations: [addGenres1664616153216, addStatuses1664642012469],
+  migrations: [
+    addGenres1664616153216,
+    addStatuses1664642012469,
+    addUserStatuses1667647785471,
+  ],
   migrationsRun: true,
   synchronize: true, //just for dev
 } as TypeOrmModuleOptions;

@@ -225,4 +225,25 @@ export class SessionService {
       throw new HttpException(e.message || 'Error occured', 400);
     }
   }
+
+  async updateAvailableSeats(
+    sessionId: number,
+    seatsAmount: number,
+    changeType: 'decrease' | 'increase',
+  ) {
+    const currentSeatsAmount = await this.sessionRepo.findOne({
+      where: { id: sessionId },
+    });
+    return await this.sessionRepo.update(
+      {
+        id: sessionId,
+      },
+      {
+        seatsAvailable:
+          changeType === 'decrease'
+            ? currentSeatsAmount.seatsAvailable - seatsAmount
+            : currentSeatsAmount.seatsAvailable + seatsAmount,
+      },
+    );
+  }
 }

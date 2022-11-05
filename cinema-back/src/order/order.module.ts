@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DiscountModule } from '../discount/discount.module';
 import { SeatModule } from '../seat/seat.module';
+import { SessionModule } from '../session/session.module';
 import { PaymentStatusModule } from '../status/payment_status.module';
 import { UsersModule } from '../user/user.module';
 import { OrdersController } from './order.controller';
@@ -15,6 +16,7 @@ import { OrderService } from './order.service';
     UsersModule,
     PaymentStatusModule,
     DiscountModule,
+    SessionModule,
   ],
   controllers: [OrdersController],
   providers: [OrderService],

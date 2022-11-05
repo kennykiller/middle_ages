@@ -20,7 +20,7 @@ const logoutHandler = async () => {
 };
 
 const openCart = () => {
-  router.push('/client');
+  router.push('/tickets');
 }
 </script>
 

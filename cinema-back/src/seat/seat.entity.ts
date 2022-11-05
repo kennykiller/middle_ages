@@ -10,7 +10,7 @@ export class Seat {
   @Column({ type: 'int' })
   number: number;
 
-  @ManyToOne(() => Order, (order) => order.seats)
+  @ManyToOne(() => Order, (order) => order.seats, { onDelete: 'SET NULL' })
   order: Order;
 
   @ManyToOne(() => Session, (session) => session.seats, { onDelete: 'CASCADE' })

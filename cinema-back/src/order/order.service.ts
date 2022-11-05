@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { DiscountService } from '../discount/discount.service';
 import { SeatService } from '../seat/seat.service';
+import { SessionService } from '../session/session.service';
 import { PaymentStatusService } from '../status/payment_status.service';
 import { User } from '../user/user.entity';
 import { UsersService } from '../user/user.service';
@@ -16,6 +17,7 @@ export class OrderService {
     private userService: UsersService,
     private statusService: PaymentStatusService,
     private discountService: DiscountService,
+    private sessionService: SessionService,
     @InjectRepository(Order)
     private orderRepo: Repository<Order>,
   ) {}
@@ -38,6 +40,11 @@ export class OrderService {
       });
       const createdOrder = await this.orderRepo.save(newOrder);
       await this.seatService.updateSeatStatus(dto.seats, createdOrder);
+      await this.sessionService.updateAvailableSeats(
+        dto.sessionId,
+        dto.seats.length,
+        'decrease',
+      );
       return createdOrder;
     } catch (e) {
       throw new HttpException(e.message || 'Order creation failed', 400);

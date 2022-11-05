@@ -6,6 +6,10 @@ export class CreateOrderDto {
   @IsInt()
   userId: number;
 
+  @Transform(({ value }) => Number(value))
+  @IsInt()
+  sessionId: number;
+
   @IsNumber({}, { each: true })
   seats: number[];
 
