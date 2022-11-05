@@ -36,6 +36,7 @@ let AuthModule = class AuthModule extends VuexModule {
             const parsedUser = JSON.parse(user);
             this.isAuthenticated = !!parsedUser.accessToken;
             this.isAdmin = !!parsedUser?.isAdmin;
+            this.userId = parsedUser.id;
         }
     }
     resetData() {

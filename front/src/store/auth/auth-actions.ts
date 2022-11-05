@@ -7,7 +7,7 @@ interface loginPayload {
   password: string;
 }
 interface userData {
-  id?: number;
+  id: number | null;
   email?: string;
   name?: string;
   accessToken?: string | null;
@@ -56,6 +56,7 @@ class AuthModule extends VuexModule {
       const parsedUser: userData = JSON.parse(user);
       this.isAuthenticated = !!parsedUser.accessToken;
       this.isAdmin = !!parsedUser?.isAdmin;
+      this.userId = parsedUser.id;
     }
   }
 

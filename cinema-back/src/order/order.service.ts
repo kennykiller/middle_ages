@@ -22,7 +22,7 @@ export class OrderService {
 
   async createOrder(dto: CreateOrderDto) {
     try {
-      if (this.seatService.checkSeatsAvailability(dto.seats)) {
+      if (await this.seatService.checkSeatsAvailability(dto.seats)) {
         throw new BadRequestException('Заказ на эти места уже существует');
       }
       const user = await this.userService.findOne(dto.userId);
@@ -31,22 +31,24 @@ export class OrderService {
       const discount = ordersOfUser
         ? dto.discountId
         : await this.discountService.getFirstBookingDiscount();
-
       const newOrder = this.orderRepo.create({
         user,
         status: newOrderStatus,
         discount,
       });
-
       const createdOrder = await this.orderRepo.save(newOrder);
       await this.seatService.updateSeatStatus(dto.seats, createdOrder);
+      return createdOrder;
     } catch (e) {
       throw new HttpException(e.message || 'Order creation failed', 400);
     }
   }
 
   async findUsersOrders(user: User) {
-    const foundOrders = await this.orderRepo.findOne({ where: user });
-    return foundOrders;
+    return await this.orderRepo.findOne({
+      where: {
+        user,
+      },
+    });
   }
 }

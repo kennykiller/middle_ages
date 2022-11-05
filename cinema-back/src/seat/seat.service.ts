@@ -49,14 +49,25 @@ export class SeatService {
 
   async updateSeatStatus(seatsId: number[], order: Order) {
     try {
+      return await this.seatRepo.update(
+        {
+          id: In(seatsId),
+        },
+        {
+          order,
+        },
+      );
     } catch (e) {
       throw new HttpException(e.message || 'Seat status was not updated', 400);
     }
   }
 
   async checkSeatsAvailability(seatsIds: number[]) {
-    return await this.seatRepo.findOne({
+    const foundTakenSeat = await this.seatRepo.findOne({
       where: { id: In(seatsIds), order: Not(null) },
     });
+    console.log(foundTakenSeat);
+    
+    return foundTakenSeat;
   }
 }
