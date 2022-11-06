@@ -2,14 +2,25 @@
 import { axiosInstance as axios } from '../utils/axios';
 import { authModule } from '../store/auth/auth-actions';
 import { ExpandedUser } from '@/interfaces/models';
-import { ref } from '@vue/reactivity';
+import { ref, Ref } from '@vue/reactivity';
 import { AxiosResponse } from 'axios';
+import { onMounted } from '@vue/runtime-core';
 
+const user: Ref<ExpandedUser> = ref({
+    email: '',
+    id: 0,
+    isAdmin: false,
+    refreshToken: '',
+    userStatus: null,
+    name: '',
+    phone: '',
+    orders: null,
+})
 const getUser = async () => {
     try {
        const response: AxiosResponse<ExpandedUser>= await axios.get(`users/detailed/${authModule.userId}`);
        if (response.status === 200) {
-        return response.data;
+        user.value = response.data;
        } 
        return {};
     } catch (e) {
@@ -18,294 +29,138 @@ const getUser = async () => {
     }
 }
 
-const user = getUser().then(res => res);
+onMounted(() => getUser());
 </script>
 
 <template>
-    <div class="card__wrapper">
-        <div class="card">
+    <div class="card">
+        <div class="avatar__wrapper">
             <div class="avatar"></div>
-            <div class="cover"></div>
-            <div class="userinfomain">
-                <h1>Jane Smith Doe</h1>
-                <h2>Creative Director</h2>
+        </div>
+        <div class="main-info">
+            <h1>{{ user.name }}</h1>
+            <h2>{{ user.userStatus?.name }}</h2>
+        </div>
+        <div class="divider"></div>
+        <div class="orders-info orders">
+            <div class="orders-amount">
+                <span class="orders-text">{{ user.orders?.length || 0 }}</span><br />
+                <span class="orders-subtitle">Сделано заказов</span>
             </div>
-            <div class="divider"></div>
-            <div class="socialinfo">
-                <div class="socialone">
-                    <span class="socialtext">323</span><br />
-                    <span class="socialheading">followers</span>
-                </div>
-                <div class="socialtwo">
-                    <span class="socialtext">2826</span><br />
-                    <span class="socialheading">following</span>
-                </div>
-                <div class="socialthree">
-                    <span class="socialtext">323</span><br />
-                    <span class="socialheading">Stories</span>
-                </div>
+            <div class="orders-discount">
+                <span class="orders-text">{{ user.userStatus?.discountPercentage || 0 + '%' }}</span><br />
+                <span class="orders-subtitle">Скидка за статус</span>
             </div>
         </div>
-    </div> 
+        <div class="divider"></div>
+        <h2 class="contacts-subheader">Контакты</h2>
+        <div class="contacts">
+            <div class="contacts-phone">
+                <span class="contacts-text">{{ user.phone }}</span><br />
+                <span class="contacts-subtitle">Телефон</span>
+            </div>
+            <div class="contacts-email">
+                <span class="contacts-text">{{ user.email }}</span><br />
+                <span class="contacts-subtitle">Email</span>
+            </div>
+        </div>
+    </div>
 </template>
 
 <style lang="scss" scoped>
-.card__wrapper {
-  width: 50%;
-  height: 100%;
-  position: absolute;
-  top: 0;
-  z-index: 1;
-}
-
 .card {
+  height: 100%;
+  border-radius: 4px;
+  box-shadow: 0 10px 15px -3px rgba(13, 49, 150, 0.8),
+    0 4px 6px -4px rgba(0, 0, 0, 0.8);
+  background-color: #fff;
   width: 320px;
-  height: 0px;
-  background: #FFF;
-  position: absolute;
-  z-index: 2;
-  top: 50%;
-  margin-top: 0px;
-  left: 50%;
-  margin-left: -160px;
-  box-shadow: 5px 5px 10px 2px rgba(0, 0, 0, 0.1);
+  margin-right: 2rem;
   overflow: hidden;
-  border-radius: 5px;
-  cursor: pointer;
   opacity: 1;
   filter: alpha(opacity=100);
-  -webkit-animation: card 2s forwards;
-  -webkit-animation-iteration-count: 1;
-  -webkit-animation-delay: 0s;
-  -webkit-animation: card 2s forwards;
   animation: card 2s forwards;
-  -webkit-animation-iteration-count: 1;
   animation-iteration-count: 1;
-  -webkit-animation-delay: 0s;
   animation-delay: 0s;
-  -webkit-transition-timing-function: ease-in-out;
   transition-timing-function: ease-in-out;
-  box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  -webkit-box-sizing: border-box;
-  border-left: 0px solid red;
-}
-
-@-webkit-keyframes card {
-  0% {
-    opacity: 1;
-    filter: alpha(opacity=100);
-    width: 320px;
-    height: 1px;
-    margin-top: 0px;
-    border-left: 0px solid #FFF;
-    background: #444a59;
-  }
-  60% {
-    opacity: 1;
-    filter: alpha(opacity=100);
-    width: 320px;
-    height: 1px;
-    margin-top: 0px;
-    border-left: 320px solid #FFF;
-    background: #444a59;
-  }
-  61% {
-    opacity: 1;
-    filter: alpha(opacity=100);
-    width: 320px;
-    height: 1px;
-    margin-top: 0px;
-    border-left: 0px solid #FFF;
-    background: #FFF;
-  }
-  100% {
-    opacity: 1;
-    filter: alpha(opacity=100);
-    width: 320px;
-    height: 420px;
-    margin-top: -210px;
-  }
 }
 
 @keyframes card {
   0% {
     opacity: 1;
     filter: alpha(opacity=100);
-    width: 320px;
     height: 1px;
-    margin-top: 0px;
     border-left: 0px solid #FFF;
     background: #444a59;
   }
   60% {
     opacity: 1;
     filter: alpha(opacity=100);
-    width: 320px;
     height: 1px;
-    margin-top: 0px;
-    border-left: 320px solid #FFF;
     background: #444a59;
   }
   61% {
     opacity: 1;
     filter: alpha(opacity=100);
-    width: 320px;
     height: 1px;
-    margin-top: 0px;
-    border-left: 0px solid #FFF;
     background: #FFF;
   }
   100% {
     opacity: 1;
     filter: alpha(opacity=100);
-    width: 320px;
-    height: 420px;
-    margin-top: -210px;
+    height: 380px;
   }
 }
 
 .avatar {
-  width: 110px;
-  height: 110px;
-  background: url('https://joeschmoe.io/api/v1/random') no-repeat center center #FFF;
-  border-radius: 100%;
-  border: 5px solid rgba(255, 255, 255, 1);
-  position: absolute;
-  z-index: 5;
-  top: 100px;
-  left: 50%;
-  margin-left: -55px;
-  box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  -webkit-box-sizing: border-box;
-  opacity: 0;
-  filter: alpha(opacity=0);
-  -webkit-animation: avatar 1.5s forwards;
-  -webkit-animation-iteration-count: 1;
-  -webkit-animation-delay: 1s;
-  -webkit-animation: avatar 1.5s forwards;
-  animation: avatar 1.5s forwards;
-  -webkit-animation-iteration-count: 1;
-  animation-iteration-count: 1;
-  -webkit-animation-delay: 1s;
-  animation-delay: 1s;
-  -webkit-transition-timing-function: ease-in-out;
-  transition-timing-function: ease-in-out;
-}
+    &__wrapper {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        padding: 0.5rem 0;
+        background: #acb6e5;
+        background: -webkit-linear-gradient(to right, #acb6e5, #86fde8);
+        background: linear-gradient(to right, #acb6e5, #86fde8);
 
-.avatar2 { border: 5px solid #2b303b; }
-
-@-webkit-keyframes avatar {
-  0% {
-    opacity: 0;
-    filter: alpha(opacity=0);
-    top: 1000px;
-  }
-  50% {
-    opacity: 1;
-    filter: alpha(opacity=100);
-    top: 125px;
-  }
-  100% {
-    opacity: 1;
-    filter: alpha(opacity=100);
-    top: 125px;
-  }
+        & div {
+            width: 110px;
+            height: 110px;
+            background: url('https://joeschmoe.io/api/v1/random') no-repeat center center #FFF;
+            border-radius: 100%;
+            border: 5px solid rgba(255, 255, 255, 1);
+            opacity: 0;
+            filter: alpha(opacity=0);
+            animation: avatar 1.5s forwards;
+            animation-iteration-count: 1;
+            animation-delay: 1s;
+            transition-timing-function: ease-in-out;
+        }
+    }
 }
 
 @keyframes avatar {
   0% {
     opacity: 0;
     filter: alpha(opacity=0);
-    top: 1000px;
   }
   50% {
     opacity: 1;
     filter: alpha(opacity=100);
-    top: 125px;
   }
   100% {
     opacity: 1;
     filter: alpha(opacity=100);
-    top: 125px;
   }
 }
 
-.cover {
-  width: 0px;
-  height: 0px;
-  background: url(https://api.lorem.space/image/movie?w=320&h=200) no-repeat;
-  background-size: contain;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  opacity: 0;
-  filter: alpha(opacity=0);
-  -webkit-animation: cover 1s forwards;
-  -webkit-animation-iteration-count: 1;
-  -webkit-animation-delay: 1.5s;
-  -webkit-animation: cover 1s forwards;
-  animation: cover 1s forwards;
-  -webkit-animation-iteration-count: 1;
-  animation-iteration-count: 1;
-  -webkit-animation-delay: 1.5s;
-  animation-delay: 1.5s;
-  -webkit-transition-timing-function: ease-in-out;
-  transition-timing-function: ease-in-out;
-  border-radius: 100%;
-}
-
-@-webkit-keyframes cover {
-  0% {
-    opacity: 0;
-    filter: alpha(opacity=0);
-    top: 40%;
-    left: 50%;
-    width: 0px;
-    height: 0px;
-  }
-  100% {
-    opacity: 1;
-    filter: alpha(opacity=100);
-    top: 20%;
-    margin-top: -150px;
-    left: 50%;
-    margin-left: -250px;
-    width: 500px;
-    height: 500px;
-  }
-}
-
-@keyframes cover {
-  0% {
-    opacity: 0;
-    filter: alpha(opacity=0);
-    top: 40%;
-    left: 50%;
-    width: 0px;
-    height: 0px;
-  }
-  100% {
-    opacity: 1;
-    filter: alpha(opacity=100);
-    top: 20%;
-    margin-top: -150px;
-    left: 50%;
-    margin-left: -250px;
-    width: 500px;
-    height: 500px;
-  }
-}
-
-.userinfomain {
-  width: 320px;
-  height: 240px;
+.main-info {
+  display: flex;
+  align-items: center;
+  padding-top: 0.5rem;
+  flex-direction: column;
+  width: 100%;
+  height: 80px;
   background: #FFF;
-  position: absolute;
-  top: 180px;
-  left: 0;
-  z-index: 2;
 }
 
 h1,
@@ -320,105 +175,50 @@ h6 {
 }
 
 h1 {
-  text-align: center;
   font-size: 1.7em;
   letter-spacing: -0.02em;
   font-weight: 700;
-  color: #2b303b;
+  color: #0c3779;
+  padding: .3rem 0;
   opacity: 0;
   filter: alpha(opacity=0);
-  z-index: 2;
-  position: absolute;
-  top: 60px;
-  left: 50%;
-  margin-left: -96px;
-  -webkit-animation: heading1 0.6s forwards;
-  -webkit-animation-iteration-count: 1;
-  -webkit-animation-delay: 1.8s;
-  -webkit-animation: heading1 1s forwards;
   animation: heading1 1s forwards;
-  -webkit-animation-iteration-count: 1;
   animation-iteration-count: 1;
-  -webkit-animation-delay: 1.8s;
   animation-delay: 1.8s;
-  -webkit-transition-timing-function: ease-in-out;
   transition-timing-function: ease-in-out;
-}
-
-@-webkit-keyframes heading1 {
-  0% {
-    opacity: 0;
-    filter: alpha(opacity=0);
-    top: 120px;
-  }
-  100% {
-    opacity: 1;
-    filter: alpha(opacity=100);
-    top: 65px;
-  }
 }
 
 @keyframes heading1 {
   0% {
     opacity: 0;
     filter: alpha(opacity=0);
-    top: 120px;
   }
   100% {
     opacity: 1;
     filter: alpha(opacity=100);
-    top: 65px;
   }
 }
 
 h2 {
-  text-align: center;
   font-size: 1em;
   font-weight: 300;
   color: #999;
   opacity: 0;
   filter: alpha(opacity=0);
-  z-index: 2;
-  position: absolute;
-  top: 60px;
-  left: 50%;
-  margin-left: -62px;
-  -webkit-animation: heading2 0.6s forwards;
-  -webkit-animation-iteration-count: 1;
-  -webkit-animation-delay: 2.2s;
-  -webkit-animation: heading2 0.6s forwards;
   animation: heading2 0.6s forwards;
-  -webkit-animation-iteration-count: 1;
   animation-iteration-count: 1;
-  -webkit-animation-delay: 2.2s;
   animation-delay: 2.2s;
-  -webkit-transition-timing-function: ease-in-out;
   transition-timing-function: ease-in-out;
-}
-
-@-webkit-keyframes heading2 {
-  0% {
-    opacity: 0;
-    filter: alpha(opacity=0);
-    top: 160px;
-  }
-  100% {
-    opacity: 1;
-    filter: alpha(opacity=100);
-    top: 98px;
-  }
 }
 
 @keyframes heading2 {
   0% {
     opacity: 0;
     filter: alpha(opacity=0);
-    top: 160px;
   }
   100% {
     opacity: 1;
     filter: alpha(opacity=100);
-    top: 98px;
   }
 }
 
@@ -426,39 +226,12 @@ h2 {
   width: 0px;
   height: 1px;
   background: #EAEAEA;
-  position: relative;
-  top: 320px;
-  left: 50%;
-  z-index: 4;
   opacity: 0;
   filter: alpha(opacity=0);
-  -webkit-animation: divider 1s forwards;
-  -webkit-animation-iteration-count: 1;
-  -webkit-animation-delay: 2.4s;
-  -webkit-animation: divider 1s forwards;
   animation: divider 1s forwards;
-  -webkit-animation-iteration-count: 1;
   animation-iteration-count: 1;
-  -webkit-animation-delay: 2.4s;
   animation-delay: 2.4s;
-  -webkit-transition-timing-function: ease-in-out;
   transition-timing-function: ease-in-out;
-}
-
-@-webkit-keyframes divider {
-  0% {
-    opacity: 1;
-    filter: alpha(opacity=100);
-    width: 0px;
-    left: 50%;
-  }
-  100% {
-    opacity: 1;
-    filter: alpha(opacity=100);
-    width: 320px;
-    left: 50%;
-    margin-left: -160px;
-  }
 }
 
 @keyframes divider {
@@ -466,110 +239,86 @@ h2 {
     opacity: 1;
     filter: alpha(opacity=100);
     width: 0px;
-    left: 50%;
   }
   100% {
     opacity: 1;
     filter: alpha(opacity=100);
     width: 320px;
-    left: 50%;
-    margin-left: -160px;
   }
 }
 
-.socialinfo {
-  width: 240px;
+.contacts-subheader {
+    padding: 1rem;
+    text-align: center;
+}
+
+.orders-info, .contacts {
+  width: 100%;
   height: 60px;
-  position: absolute;
-  bottom: -20px;
-  left: 40px;
-  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   opacity: 0;
   filter: alpha(opacity=0);
-  -webkit-animation: socialinfo 0.6s forwards;
-  -webkit-animation-iteration-count: 1;
-  -webkit-animation-delay: 1s;
-  -webkit-animation: socialinfo 0.6s forwards;
-  animation: socialinfo 0.6s forwards;
-  -webkit-animation-iteration-count: 1;
+  animation: orders-info 0.6s forwards;
   animation-iteration-count: 1;
-  -webkit-animation-delay: 1s;
   animation-delay: 1s;
-  -webkit-transition-timing-function: ease-in-out;
   transition-timing-function: ease-in-out;
 }
 
-@-webkit-keyframes socialinfo {
+@keyframes orders-info {
   0% {
     opacity: 0;
     filter: alpha(opacity=0);
-    bottom: -20px;
   }
   100% {
     opacity: 1;
     filter: alpha(opacity=100);
-    bottom: 17px;
   }
 }
 
-@keyframes socialinfo {
-  0% {
-    opacity: 0;
-    filter: alpha(opacity=0);
-    bottom: -20px;
-  }
-  100% {
-    opacity: 1;
-    filter: alpha(opacity=100);
-    bottom: 17px;
-  }
-}
-
-.socialone,
-.socialtwo,
-.socialthree {
+.orders-amount,
+.contacts-phone,
+.contacts-email,
+.orders-discount {
   opacity: 0;
   filter: alpha(opacity=0);
-  width: 60px;
-  position: absolute;
-  bottom: -20px;
+  width: 140px;
   text-align: center;
-  -webkit-animation: socialinfo 0.6s forwards;
-  animation: socialinfo 0.6s forwards;
+  animation: orders-info 0.6s forwards;
 }
 
-.socialone {
-  left: 0;
+.orders-amount, .contacts-phone {
   -webkit-animation-delay: 2.4s;
   animation-delay: 2.4s;
 }
 
-.socialtwo {
-  left: 93px;
+.orders-discount, .contacts-email {
   -webkit-animation-delay: 2.6s;
   animation-delay: 2.6s;
 }
 
-.socialthree {
-  left: 180px;
-  -webkit-animation-delay: 2.8s;
-  animation-delay: 2.8s;
-}
-
-.socialtext,
-.socialheading {
+.orders-text,
+.contacts-text,
+.contacts-subtitle,
+.orders-subtitle {
   font-family: 'Roboto', sans-serif;
 }
 
-.socialtext {
-  font-family: 'Roboto', sans-serif;
+.orders-text {
   font-weight: 700;
   font-size: 1.5em;
   color: #798191;
 }
 
-.socialheading {
-  font-family: 'Roboto', sans-serif;
+.contacts-text {
+    font-weight: 400;
+    font-size: 1em;
+    color: #798191;
+}
+
+.orders-subtitle,
+.contacts-subtitle {
   font-weight: 300;
   font-size: 0.8em;
   color: #999;

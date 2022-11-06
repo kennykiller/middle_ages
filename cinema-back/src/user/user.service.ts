@@ -60,6 +60,7 @@ export class UsersService {
       },
       relations: {
         userStatus: true,
+        orders: true,
       },
     });
   }

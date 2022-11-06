@@ -2,16 +2,15 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class addUserStatuses1667647785471 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
-    const result = await queryRunner.query(
-      `INSERT INTO user_status (name, startAmount, endAmount)
-            VALUES ('Начинающий фанат', 0, 5),
-                ('Придирчивый посетитель', 6, 10),
-                ('Киноман', 11, 20),
-                ('Участник комиссии Оскар', 21, 50),
-                ('Председатель комиссии Оскар', 51, 100),
-                ('Насмотрел на Оскар', 101, 100000);`,
+    await queryRunner.query(
+      `INSERT INTO user_status (name, startAmount, endAmount, discountPercentage)
+            VALUES ('Начинающий ходок', 0, 5, 0),
+                ('Придирчивый посетитель', 6, 10, 5),
+                ('Киноман', 11, 20, 10),
+                ('Участник комиссии Оскар', 21, 50, 15),
+                ('Председатель комиссии Оскар', 51, 100, 20),
+                ('Насмотрел на Оскар', 101, 100000, 25);`,
     );
-    console.log(result);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {

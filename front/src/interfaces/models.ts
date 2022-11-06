@@ -71,5 +71,11 @@ export interface ExpandedUser extends User {
     name: string;
     endAmount: number;
     startAmount: number;
+    discountPercentage: number;
   }
+  orders: null | {
+    id: number;
+    created_at: string;
+    updated_at: string;
+  }[]
 }

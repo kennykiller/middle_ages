@@ -47,3 +47,9 @@ export interface FilmResponse {
       price: number;
     }
   }
+
+  export interface UnpaidOrderResponse {
+    id: number;
+    created_at: string;
+    updated_at: string;
+  }

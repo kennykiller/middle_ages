@@ -15,6 +15,9 @@ export class UserStatus {
   @Column({ nullable: true })
   endAmount: number;
 
+  @Column()
+  discountPercentage: number;
+
   @OneToMany(() => User, (u) => u.userStatus)
   users: User[];
 }
