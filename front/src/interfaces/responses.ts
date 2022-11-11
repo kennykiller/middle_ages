@@ -1,4 +1,4 @@
-import { ExpandedSeat, User, Session } from "./models";
+import { ExpandedSeat, User, Session, Seat, ExtendedSeat } from "./models";
 export interface CreateSessionResponse {
     message: string;
     createdSession: Session;
@@ -52,4 +52,5 @@ export interface FilmResponse {
     id: number;
     created_at: string;
     updated_at: string;
+    seats: ExtendedSeat[]
   }

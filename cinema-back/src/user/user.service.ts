@@ -34,9 +34,9 @@ export class UsersService {
       const createdUser = await this.usersRepository.save(user);
       delete createdUser.password;
       const emailHandler = new EmailHandler(
-        'vadim2505@mail.ru',
+        createdUser.email,
         'welcome',
-        'Vadim',
+        createdUser.name,
       );
       emailHandler.sendMail();
       return user;

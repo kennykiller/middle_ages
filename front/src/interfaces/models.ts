@@ -38,14 +38,16 @@ export interface Session {
   price: number;
   film: {
     id: number;
+    posterUrl?: string;
   };
 }
 
 export interface Seat {
   id: number;
   number: number;
+  created_at: string;
+  updated_at: string;
 }
-
 export interface ExpandedSeat extends Seat {
   order: {
     id: number | null;
@@ -56,6 +58,9 @@ export interface ExpandedSeat extends Seat {
   }
 }
 
+export interface ExtendedSeat extends Seat {
+  session: Session;
+}
 export interface User {
   email: string;
   id: number;

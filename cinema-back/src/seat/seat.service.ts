@@ -47,6 +47,19 @@ export class SeatService {
     }
   }
 
+  async getTakenSeats(order: Order) {
+    try {
+      return await this.seatRepo
+        .createQueryBuilder('seat')
+        .where('seat.order = :orderId', { orderId: order.id })
+        .leftJoinAndSelect('seat.session', 'session')
+        .getMany();
+    } catch (e) {
+      console.log(e, 'error');
+      throw new BadRequestException('No taken seats found');
+    }
+  }
+
   async updateSeatStatus(seatsId: number[], order: Order) {
     try {
       return await this.seatRepo.update(
@@ -66,8 +79,6 @@ export class SeatService {
     const foundTakenSeat = await this.seatRepo.findOne({
       where: { id: In(seatsIds), order: Not(null) },
     });
-    console.log(foundTakenSeat);
-    
     return foundTakenSeat;
   }
 }

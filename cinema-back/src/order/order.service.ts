@@ -1,4 +1,9 @@
-import { BadRequestException, HttpException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { DiscountService } from '../discount/discount.service';
@@ -65,6 +70,7 @@ export class OrderService {
       const unpaidStatus = await this.statusService.getStatusByName('booked');
       const unpaidOrder = await this.orderRepo.findOne({
         where: { user, status: unpaidStatus },
+        relations: ['seats', 'seats.session', 'seats.session.film'],
       });
       if (unpaidOrder) return unpaidOrder;
       throw new NotFoundException({ message: 'No unpaid orders found!' });
@@ -75,6 +81,13 @@ export class OrderService {
 
   async removeOrder(orderId: number) {
     try {
+      const order = await this.orderRepo.findOne({ where: { id: orderId } });
+      const seatsTaken = await this.seatService.getTakenSeats(order);
+      await this.sessionService.updateAvailableSeats(
+        seatsTaken[0]?.session.id,
+        seatsTaken.length,
+        'increase',
+      );
       return await this.orderRepo.delete({ id: orderId });
     } catch (e) {
       throw new HttpException(e.message || 'Order removal failed', 400);
