@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, Ref, ref } from 'vue';
 import { axiosInstance as axios } from '../utils/axios';
+import { getUrl } from "@/utils/createUrl";
 import { authModule } from '../store/auth/auth-actions';
 import { AxiosResponse } from 'axios';
 import { UnpaidOrderResponse } from '@/interfaces/responses';
@@ -10,6 +11,7 @@ const order: Ref<UnpaidOrderResponse> = ref({
     id: 0,
     created_at: '',
     updated_at: '',
+    seats: []
 })
 
 const minutesLeft = ref(0);
@@ -41,7 +43,7 @@ const checkoutOrder = async () => {
 
 const setCountdown = () => {
     const dateOfCreation = new Date(order.value.created_at).getTime();
-    const dateOfFinish = new Date(dateOfCreation + 25 * 60 * 1000).getTime();
+    const dateOfFinish = new Date(dateOfCreation + 1 * 60 * 1000).getTime();
     const second = 1000;
     const minute = second * 60;
     const countdownId = setInterval(() => {
@@ -56,6 +58,8 @@ const setCountdown = () => {
         } 
     }, 1000)
 }
+
+const urlToSend = computed(() => order.value.seats[0]?.session?.film?.posterUrl ? getUrl('films', order.value.seats[0].session.film.posterUrl) : '');
 
 onMounted(async () => {
     await getOrder();
@@ -81,10 +85,24 @@ onMounted(async () => {
                 <h2 class="order__title">Нет новых заказов.</h2>
             </div>
         </div>
-        <BaseBadge text="Состав заказа"></BaseBadge>
+        <BaseBadge class="order-content__subheader" v-if="order.id && !isTimerExpired" text="Состав заказа"></BaseBadge>
         <div class="order-content__wrapper">
-            <div v-if="order.id && !isTimerExpired" class="order-content-body__wrapper">
-                <h2 class="order__title">Состав заказа</h2>
+            <div v-if="order.id && !isTimerExpired" class="order-content-body__wrapper content">
+                <div class="content-film__wrapper">
+                    <img v-if="urlToSend" :src="urlToSend" alt="booked film">
+                    <time>Начало сеанса: {{ order.seats[0].session.filmStart }}</time>
+                </div>
+                <h3>Выбранные места</h3>
+                <div class="content-seats__wrapper seats">
+                    <div class="seats__subheader">
+                        <span>Ряд</span>
+                        <span>Место</span>
+                    </div>
+                    <div v-for="seat of order.seats" :key="seat.id" class="seats__grid">
+                        <span>{{ Math.ceil(seat.number / 10) }}</span>
+                        <span>{{ seat.number }}</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>  
@@ -113,6 +131,10 @@ onMounted(async () => {
 
     &-countdown__wrapper {
         margin-bottom: 1.5rem;
+    }
+
+    &-content__subheader {
+        width: auto;
     }
 
     &__title {
