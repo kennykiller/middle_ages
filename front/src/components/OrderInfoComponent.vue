@@ -6,6 +6,7 @@ import { authModule } from '../store/auth/auth-actions';
 import { AxiosResponse } from 'axios';
 import { UnpaidOrderResponse } from '@/interfaces/responses';
 import BaseBadge from './UI/BaseBadge.vue';
+import { monthNumber } from '../interfaces/types';
 
 const order: Ref<UnpaidOrderResponse> = ref({
     id: 0,
@@ -13,6 +14,21 @@ const order: Ref<UnpaidOrderResponse> = ref({
     updated_at: '',
     seats: []
 })
+
+const months = {
+  "0": "января",
+  "1": "февраля",
+  "2": "марта",
+  "3": "апреля",
+  "4": "мая",
+  "5": "июня",
+  "6": "июля",
+  "7": "августа",
+  "8": "сентября",
+  "9": "октября",
+  "10": "ноября",
+  "11": "декабря",
+};
 
 const minutesLeft = ref(0);
 const secondsLeft = ref(0);
@@ -43,7 +59,7 @@ const checkoutOrder = async () => {
 
 const setCountdown = () => {
     const dateOfCreation = new Date(order.value.created_at).getTime();
-    const dateOfFinish = new Date(dateOfCreation + 1 * 60 * 1000).getTime();
+    const dateOfFinish = new Date(dateOfCreation + 25 * 60 * 1000).getTime();
     const second = 1000;
     const minute = second * 60;
     const countdownId = setInterval(() => {
@@ -60,6 +76,20 @@ const setCountdown = () => {
 }
 
 const urlToSend = computed(() => order.value.seats[0]?.session?.film?.posterUrl ? getUrl('films', order.value.seats[0].session.film.posterUrl) : '');
+const countdownText = computed(() => `Время на оплату заказа: ${minutesLeft.value} минут ${secondsLeft.value} секунд`)
+const sessionStartDate = computed(() => {
+    if (order.value.seats[0]?.session?.filmStart) {
+        const d = new Date(order.value.seats[0].session.filmStart);
+        const y = d.getFullYear();
+        const m = d.getMonth();
+        const date = d.getDate();
+        const h = d.getHours() > 9 ? d.getHours() : '0' + d.getHours();
+        const min = d.getMinutes() > 9 ? d.getMinutes() : '0' + d.getMinutes();
+        const sec = d.getSeconds() > 9 ? d.getSeconds() : '0' + d.getSeconds();
+        
+        return `${date} ${months[String(m) as monthNumber]} ${y} в ${h}:${min}:${sec}`;
+    }   return 'не установлено';
+})
 
 onMounted(async () => {
     await getOrder();
@@ -74,33 +104,25 @@ onMounted(async () => {
 
 <template>
     <div class="order">
-        <div class="order-info__wrapper">
-            <div v-if="order.id && !isTimerExpired" class="order-countdown__wrapper">
-                <h2 class="order__title">Время на оплату заказа: {{ minutesLeft + ' минут ' }} {{ secondsLeft + ' секунд' }}</h2>
-            </div>
-            <div v-else-if="isTimerExpired && order.id">
-                <h2 class="order__title">Время на оплату истекло, пожалуйста оформите заказ заново.</h2>
-            </div>
-            <div v-else class="order__notfound">
-                <h2 class="order__title">Нет новых заказов.</h2>
-            </div>
-        </div>
-        <BaseBadge class="order-content__subheader" v-if="order.id && !isTimerExpired" text="Состав заказа"></BaseBadge>
+        <BaseBadge class="order-countdown" v-if="order.id && !isTimerExpired" :text="countdownText" />
+        <BaseBadge class="order-countdown" v-else-if="isTimerExpired && order.id" text="Время на оплату истекло, пожалуйста оформите заказ заново." />
+        <BaseBadge class="order-countdown" v-else text="Нет новых заказов." />
+        <BaseBadge v-if="order.id && !isTimerExpired" text="Состав заказа" />
         <div class="order-content__wrapper">
             <div v-if="order.id && !isTimerExpired" class="order-content-body__wrapper content">
+                <img v-if="urlToSend" :src="urlToSend" alt="booked film">
+                <span>Начало сеанса: {{ sessionStartDate }}</span>
                 <div class="content-film__wrapper">
-                    <img v-if="urlToSend" :src="urlToSend" alt="booked film">
-                    <time>Начало сеанса: {{ order.seats[0].session.filmStart }}</time>
-                </div>
-                <h3>Выбранные места</h3>
-                <div class="content-seats__wrapper seats">
-                    <div class="seats__subheader">
-                        <span>Ряд</span>
-                        <span>Место</span>
-                    </div>
-                    <div v-for="seat of order.seats" :key="seat.id" class="seats__grid">
-                        <span>{{ Math.ceil(seat.number / 10) }}</span>
-                        <span>{{ seat.number }}</span>
+                    <h3>Выбранные места</h3>
+                    <div class="content-seats__wrapper seats">
+                        <div class="seats__subheader">
+                            <span>Ряд</span>
+                            <span>Место</span>
+                        </div>
+                        <div v-for="seat of order.seats" :key="seat.id" class="seats__grid">
+                            <span>{{ Math.ceil(seat.number / 10) }}</span>
+                            <span>{{ seat.number }}</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -113,33 +135,31 @@ onMounted(async () => {
     max-width: 70%;
     width: 100%;
     height: 100%;
-    &-info__wrapper, &-content__wrapper {
+    &::v-deep .badge__wrapper {
+        max-width: max-content;
+    }
+    & > div {
+        margin-bottom: 1rem;
+    }
+    &-content__wrapper {
         width: 100%;
+    }
+    &-content-body__wrapper {
+        box-shadow: 0 4px 15px #88b8fe;
         border-radius: 4px;
-        box-shadow: 0 10px 15px -3px rgba(13, 49, 150, 0.8),
-            0 4px 6px -4px rgba(0, 0, 0, 0.8);
-    }
-    &-countdown__wrapper, &-content-body__wrapper {
-        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid #ced4da;
         display: flex;
-        justify-content: center;
-        padding: 0.5rem 0;
-        background: #acb6e5;
-        background: -webkit-linear-gradient(to right, #acb6e5, #86fde8);
-        background: linear-gradient(to right, #acb6e5, #86fde8);
-    }
-
-    &-countdown__wrapper {
-        margin-bottom: 1.5rem;
-    }
-
-    &-content__subheader {
-        width: auto;
     }
 
     &__title {
         text-align: center;
     }
 
+    .content {
+        img {
+            height: 200px;
+        }
+    }
 }
 </style>
