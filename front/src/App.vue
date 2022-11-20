@@ -1,8 +1,9 @@
 <template>
   <div id="app-main">
-    <HeaderComponent />
+    <!-- <HeaderComponent /> -->
+    <Sidebar />
     <router-view />
-    <FooterComponent />
+    <!-- <FooterComponent /> -->
   </div>
 </template>
 
@@ -13,6 +14,7 @@ import FooterComponent from "./components/FooterComponent.vue";
 import { useStore } from "./store";
 import { onMounted, onBeforeMount } from "vue";
 import { authModule } from "./store/auth/auth-actions";
+import Sidebar from "./components/Sidebar.vue";
 
 const store = useStore();
 const resizeControl = () => {
@@ -37,13 +39,10 @@ onMounted(() => {
 <style lang="scss">
 #app-main {
   display: flex;
-  flex-direction: column;
   padding: 0;
   width: 100%;
   height: 100%;
   justify-content: space-between;
-  align-items: center;
-  max-width: 1280px;
 }
 ul {
   list-style: none;
