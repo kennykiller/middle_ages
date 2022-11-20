@@ -29,7 +29,8 @@ const navigationList = [
 .sidebar__wrapper {
     position: relative;
     min-height: 100vh;
-    width: 7rem;
+    min-width: 7rem;
+    max-width: 7rem;
 }
 .menu {
     display: flex;
@@ -72,7 +73,7 @@ const navigationList = [
         position: relative;
         grid-template-columns: 1fr 1fr;
         width: 100%;
-        height: 100%;
+        min-height: 13rem;
         div, a {
             span {
                 position: absolute;
