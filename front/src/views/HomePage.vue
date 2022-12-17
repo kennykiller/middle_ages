@@ -19,7 +19,8 @@ import DiscountCarousel from "@/components/carousel/DiscountCarousel.vue";
   display: grid;
   padding: 1rem;
   grid-template-columns: 1fr;
-  background: url('../../../../../Downloads/for_project/Minions-The-Rise-of-Gru-movie-film-comedy-animation-2022-trailer-poster-2.jpg') no-repeat center;
+  background: url('@/assets/images/Minions-The-Rise-of-Gru-movie-film-comedy-animation-2022-trailer-poster-2.jpg') no-repeat center;
+  background-size: cover;
   .homepage-content__container {
     display: flex;
     flex-direction: column;

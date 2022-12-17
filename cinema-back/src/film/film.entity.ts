@@ -27,6 +27,9 @@ export class Film {
   posterUrl: string;
 
   @Column({ type: 'text', nullable: true })
+  posterUrlBig: string;
+
+  @Column({ type: 'text', nullable: true })
   description: string;
 
   @Column({ type: 'time' })

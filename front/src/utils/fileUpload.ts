@@ -2,6 +2,7 @@ import { IInputElement } from "@/interfaces/events";
 interface basicObj extends Object {
   [prop: string]: any;
 }
+type order = 1 | 2;
 
 export class FileUploader {
   animationStarted = 0;
@@ -12,79 +13,80 @@ export class FileUploader {
     return [...this.imagesTypes].join(", .");
   }
 
-  dragOver(event: DragEvent) {
+  dragOver(event: DragEvent, order: order) {
     event.preventDefault();
-    const dropZone = document.querySelector("#dropZone")!;
+    const dropZone = document.querySelector(`#dropZone${order}`)!;
     dropZone.classList.add("drop-zone--over");
   }
 
-  dragLeave(event: DragEvent) {
+  dragLeave(event: DragEvent, order: order) {
     event.preventDefault();
-    const dropZone = document.querySelector("#dropZone")!;
+    const dropZone = document.querySelector(`#dropZone${order}`)!;
     dropZone.classList.remove("drop-zone--over");
   }
 
-  drop(event: DragEvent, object: Object) {
+  drop(event: DragEvent, object: Object, order: order) {
     event.preventDefault();
-    const dropZone = document.querySelector("#dropZone")!;
+    const dropZone = document.querySelector(`#dropZone${order}`)!;
     dropZone.classList.remove("drop-zone--over");
     const file = event.dataTransfer?.files[0] as File;
-    this.setDroppedFile(event, object, file);
+    this.setDroppedFile(event, object, file, order);
   }
 
-  chooseFile() {
-    const fileInput: HTMLElement = document.querySelector("#fileInput")!;
+  chooseFile(order: order) {
+    const fileInput: HTMLElement = document.querySelector(`#fileInput${order}`)!;
     fileInput.click();
   }
 
-  setDroppedFile(event: DragEvent, obj: basicObj, file: File) {
-    this.uploadFile(file);
+  setDroppedFile(event: DragEvent, obj: basicObj, file: File, order: order) {
+    this.uploadFile(file, order);
     obj.posterUrl = file;
   }
 
-  setFile(event: IInputElement, obj: basicObj): void {
+  setFile(event: IInputElement, obj: basicObj, order: order): void {
     if (!event.target.files) return;
     const file: File = event.target.files[0];
-    this.uploadFile(file);
+    this.uploadFile(file, order);
     const key = Object.keys(obj).find((el) => el.includes("Url"));
     obj.posterUrl = file;
   }
 
-  uploadFile(file: File) {
+  uploadFile(file: File, order: order) {
     const fileReader = new FileReader();
     const fileType = file.type;
     const fileSize = file.size;
-    const dropZone = document.querySelector("#dropZone")!;
-    const uploadArea: HTMLElement = document.querySelector("#uploadArea")!;
-    const loadingText: HTMLElement = document.querySelector("#loadingText")!;
-    const previewImage: HTMLElement = document.querySelector("#previewImage")!;
-    const fileDetails = document.querySelector("#fileDetails")!;
-    const uploadedFile = document.querySelector("#uploadedFile")!;
-    const uploadedFileInfo = document.querySelector("#uploadedFileInfo")!;
-    const uploadedFileName = document.querySelector(".uploaded-file__name")!;
+    const dropZone = document.querySelector(`#dropZone${order}`)!;
+    
+    const uploadArea: HTMLElement = document.querySelector(`#uploadArea${order}`)!;
+    const loadingText: HTMLElement = document.querySelector(`#loadingText${order}`)!;
+    const previewImage: HTMLElement = document.querySelector(`#previewImage${order}`)!;
+    const fileDetails = document.querySelector(`#fileDetails${order}`)!;
+    const uploadedFile = document.querySelector(`#uploadedFile${order}`)!;
+    const uploadedFileInfo = document.querySelector(`#uploadedFileInfo${order}`)!;
+    const uploadedFileName = document.querySelector(`.uploaded-file__name${order}`)!;
 
     if (this.fileValidate(fileType, fileSize)) {
-      dropZone.classList.add("drop-zone--Uploaded");
+      dropZone.classList.add(`drop-zone--Uploaded${order}`);
       loadingText.style.display = "block";
       previewImage.style.display = "none";
-      uploadedFile.classList.remove("uploaded-file--open");
-      uploadedFileInfo.classList.remove("uploaded-file__info--active");
+      uploadedFile.classList.remove(`uploaded-file--open${order}`);
+      uploadedFileInfo.classList.remove(`uploaded-file__info--active${order}`);
 
       fileReader.addEventListener("load", () => {
         setTimeout(() => {
-          uploadArea.classList.add("upload-area--open");
+          uploadArea.classList.add(`upload-area--open${order}`);
           loadingText.style.display = "none";
           previewImage.style.display = "block";
-          fileDetails.classList.add("file-details--open");
-          uploadedFile.classList.add("uploaded-file--open");
-          uploadedFileInfo.classList.add("uploaded-file__info--active");
+          fileDetails.classList.add(`file-details--open${order}`);
+          uploadedFile.classList.add(`uploaded-file--open${order}`);
+          uploadedFileInfo.classList.add(`uploaded-file__info--active${order}`);
         }, 500);
 
         previewImage.setAttribute("src", fileReader.result as string);
         uploadedFileName.innerHTML = file.name;
 
         this.animationId = window.requestAnimationFrame((timestamp) =>
-          this.animateCounter(timestamp)
+          this.animateCounter(timestamp, order)
         );
       });
       fileReader.readAsDataURL(file);
@@ -93,18 +95,18 @@ export class FileUploader {
     }
   }
 
-  animateCounter(timestamp: number) {
+  animateCounter(timestamp: number, order:order) {
     if (!this.animationStarted) {
       this.animationStarted = timestamp;
     }
     let counter = timestamp - this.animationStarted;
     const uploadedFileCounter = document.querySelector(
-      ".uploaded-file__counter"
+      `.uploaded-file__counter${order}`
     )!;
     if (counter < 2000) {
       uploadedFileCounter.innerHTML = `${Math.round(counter / 20)}%`;
       window.requestAnimationFrame((timestamp) =>
-        this.animateCounter(timestamp)
+        this.animateCounter(timestamp, order)
       );
     } else {
       uploadedFileCounter.innerHTML = "100%";

@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { FileUploader } from "@/utils/fileUpload";
+
 import { SnackType } from "@/interfaces/types";
 import { Film, Genre } from "@/interfaces/models";
 import { FilmResponse, SavedPosterResponse } from '@/interfaces/responses'
 import { axiosInstance as axios } from "../../utils/axios";
 import { reactive, onBeforeMount, ref, onMounted, Ref, computed } from "vue";
 import BaseSnack from "../UI/BaseSnack.vue";
+import ImageUploader from './ImageUploader.vue';
 
-const filmFileUploader = new FileUploader();
 
 const successText = "Фильм успешно добавлен";
 const failureText = "Проблема при сохранении фильма";
@@ -111,62 +111,7 @@ const resize = () => {
       </div>
     </div>
     <div class="base-form__row">
-      <div id="uploadArea" class="upload-area">
-        <div class="upload-area__header">
-          <h1 class="upload-area__title">Загрузите Ваш файл</h1>
-          <p class="upload-area__paragraph">
-            Файл должен быть изображением
-            <br />
-            <strong class="upload-area__tooltip">
-              Следующих форматов
-              <span class="upload-area__tooltip-data">{{
-                filmFileUploader.getTooltipData()
-              }}</span>
-            </strong>
-          </p>
-        </div>
-
-        <div
-          @click="filmFileUploader.chooseFile"
-          @dragover="filmFileUploader.dragOver"
-          @dragleave="filmFileUploader.dragLeave"
-          @drop="filmFileUploader.drop($event, film)"
-          id="dropZone"
-          class="upload-area__drop-zone drop-zone"
-        >
-          <p class="drop-zone__paragraph">
-            Перетащите свое изображение или щелкните для выбора
-          </p>
-          <span id="loadingText" class="drop-zone__loading-text"
-            >Пожалуйста, подождите</span
-          >
-          <img
-            src=""
-            alt="Preview Image"
-            id="previewImage"
-            class="drop-zone__preview-image"
-            draggable="false"
-          />
-          <input
-            @change="filmFileUploader.setFile($event, film)"
-            type="file"
-            id="fileInput"
-            class="drop-zone__file-input"
-            accept="image/*"
-          />
-        </div>
-
-        <div id="fileDetails" class="upload-area__file-details file-details">
-          <h3 class="file-details__title">Загруженный файл</h3>
-
-          <div id="uploadedFile" class="uploaded-file">
-            <div id="uploadedFileInfo" class="uploaded-file__info">
-              <span class="uploaded-file__name">Project 1</span>
-              <span class="uploaded-file__counter">0%</span>
-            </div>
-          </div>
-        </div>
-      </div>
+      <ImageUploader :film="film" :order="1"></ImageUploader>
 
       <select class="select-genres" multiple v-model="film.genres">
         <option v-for="genre in genres.value" :key="genre.name" :value="genre">
@@ -220,6 +165,7 @@ const resize = () => {
         ></textarea>
         <label for="description" class="">Описание фильма</label>
       </div>
+      <ImageUploader :film="film" :order="2"></ImageUploader>
       <button class="save-button" @click="createFilm">SAVE FILM</button>
     </div>
     <BaseSnack
@@ -232,7 +178,6 @@ const resize = () => {
 
 <style lang="scss" scoped>
 @import "@/assets/styles/date-input.scss";
-@import "@/assets/styles/file-uploader.scss";
 @import "@/assets/styles/base-form.scss";
 @import "@/assets/styles/base-button.scss";
 form {

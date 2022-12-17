@@ -33,4 +33,7 @@ export class CreateFilmDto {
 
   @IsString()
   posterUrl: string;
+
+  @IsString()
+  posterUrlBig: string;
 }
