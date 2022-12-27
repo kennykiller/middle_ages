@@ -24,6 +24,11 @@ export class FilmController {
     return this.filmService.getUpcomingFilms(+page);
   }
 
+  @Get('/now')
+  async getCurrentFilms(@Query('page') page: string) {
+    return this.filmService.getCurrentFilms(+page);
+  }
+
   @Get('/poster/:posterUrl')
   async servePoster(
     @Param('posterUrl') posterUrl: string,

@@ -6,6 +6,7 @@ import DiscountCarousel from "@/components/carousel/DiscountCarousel.vue";
 <template>
   <div class="homepage__container">
     <main class="homepage-content__container">
+      <FilmCarousel carousel-type="now" />
       <!-- <FilmCarousel carousel-type="all" />
       <DiscountCarousel />
       <FilmCarousel carousel-type="upcoming" /> -->
@@ -19,8 +20,8 @@ import DiscountCarousel from "@/components/carousel/DiscountCarousel.vue";
   display: grid;
   padding: 1rem;
   grid-template-columns: 1fr;
-  background: url('@/assets/images/Minions-The-Rise-of-Gru-movie-film-comedy-animation-2022-trailer-poster-2.jpg') no-repeat center;
-  background-size: cover;
+  // background: url('@/assets/images/3840vivo.webp') no-repeat center;
+  // background-size: cover;
   .homepage-content__container {
     display: flex;
     flex-direction: column;

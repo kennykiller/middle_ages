@@ -49,6 +49,15 @@ export class AdminController {
       }),
       fileFilter: imageFileFilter,
     }),
+    // FileInterceptor('posterUrlBig', {
+    //   storage: diskStorage({
+    //     destination: (req, file, cb) => {
+    //       cb(null, './src/assets/posters');
+    //     },
+    //     filename: editFileName,
+    //   }),
+    //   fileFilter: imageFileFilter,
+    // }),
   )
   async savePoster(@UploadedFile() poster: Express.Multer.File) {
     if (poster?.path)

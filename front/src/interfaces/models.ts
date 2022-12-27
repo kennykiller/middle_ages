@@ -3,6 +3,7 @@ export interface Film {
   name: string;
   ageRestriction: string;
   posterUrl: string;
+  posterUrlBig: string;
   description: string;
   startDate: string;
   filmDuration: string;

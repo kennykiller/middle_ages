@@ -5,6 +5,7 @@ import { Film } from "@/interfaces/models";
 interface Props {
   film: Film;
   order: 1 | 2;
+  title?: string; 
 }
 const fileUploader = new FileUploader();
 
@@ -15,7 +16,7 @@ const props = defineProps<Props>()
 <template>
   <div :id="'uploadArea' + order" :class="'upload-area' + order">
     <div :class="'upload-area__header' + order">
-      <h1 :class="'upload-area__title' + order">Загрузите Ваш файл</h1>
+      <h1 :class="'upload-area__title' + order">{{ title || 'Загрузите Ваш файл' }}</h1>
       <p :class="'upload-area__paragraph' + order">
         Файл должен быть изображением
         <br />

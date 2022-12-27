@@ -28,7 +28,7 @@ export class FileUploader {
     }
     setDroppedFile(event, obj, file, order) {
         this.uploadFile(file, order);
-        obj.posterUrl = file;
+        obj[order === 1 ? 'posterUrl' : 'posterUrlBig'] = file;
     }
     setFile(event, obj, order) {
         if (!event.target.files)
@@ -36,7 +36,7 @@ export class FileUploader {
         const file = event.target.files[0];
         this.uploadFile(file, order);
         const key = Object.keys(obj).find((el) => el.includes("Url"));
-        obj.posterUrl = file;
+        obj[order === 1 ? 'posterUrl' : 'posterUrlBig'] = file;
     }
     uploadFile(file, order) {
         const fileReader = new FileReader();
@@ -93,11 +93,11 @@ export class FileUploader {
     fileValidate(fileType, fileSize) {
         let isImage = this.imagesTypes.filter((type) => fileType.indexOf(`image/${type}`) !== -1);
         if (isImage.length !== 0) {
-            if (fileSize <= 2000000) {
+            if (fileSize <= 5000000) {
                 return true;
             }
             else {
-                return alert("Файл не должен превышать 2Мб");
+                return alert("Файл не должен превышать 5Мб");
             }
         }
         else {

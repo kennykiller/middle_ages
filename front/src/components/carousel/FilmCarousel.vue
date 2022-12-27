@@ -4,6 +4,9 @@ import { reactive, onBeforeMount, ref, Ref, computed } from "vue";
 import { Film } from "@/interfaces/models";
 import { axiosInstance as axios } from "../../utils/axios";
 import BaseSubheader from "../UI/BaseSubheader.vue";
+import { Carousel, Pagination, Slide } from 'vue3-carousel';
+
+import 'vue3-carousel/dist/carousel.css'
 
 type mode = "inc" | "dec";
 interface FilmsFromDB {
@@ -12,7 +15,7 @@ interface FilmsFromDB {
 }
 
 interface Props {
-  carouselType: "all" | "upcoming";
+  carouselType: "all" | "upcoming" | "now";
 }
 const props = defineProps<Props>();
 
@@ -42,7 +45,7 @@ onBeforeMount(async () => {
 });
 const getFilms = async (page: number) => {
   try {
-    const url = props.carouselType === "all" ? `films/all?page=${page}` : `films/upcoming?page=${page}`;
+    const url = `films/${props.carouselType}?page=${page}`;
     const response = await axios.get(url);
     if (response?.data?.count) {
       return response.data;
@@ -77,7 +80,21 @@ const carouselControl = async () => {
 </script>
 
 <template>
-  <section v-if="films.value.length" class="current-films__container">
+  <Carousel :itemsToShow="4" :wrapAround="true" :transition="500">
+    <Slide v-for="film in filmsToShow.value" :key="film.id">
+      <FilmCarouselItem
+        :url="film.posterUrl"
+        :name="film.name"
+        :genres="film.genres"
+        :id="(film.id as number)"
+      >
+      </FilmCarouselItem>
+    </Slide>
+
+    
+  </Carousel>
+
+  <!-- <section v-if="films.value.length" class="current-films__container">
     <BaseSubheader
       :subtitle="carouselType === 'all' ? 'Фильмы' : 'Анонсы'"
       :page="page"
@@ -97,7 +114,7 @@ const carouselControl = async () => {
       >
       </FilmCarouselItem>
     </div>
-  </section>
+  </section> -->
 </template>
 
 <style lang="scss" scoped>

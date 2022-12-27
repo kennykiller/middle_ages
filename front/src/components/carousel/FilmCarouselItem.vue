@@ -21,10 +21,10 @@ const filmRoute = `/films/${props.id}`;
         <div class="special-box-shadow">
           <img :src="urlToSend" alt="" class="film__image" />
         </div>
-        <div class="film__details">
+        <!-- <div class="film__details">
           <h2>{{ props.name }}</h2>
           <p class="film__genres">{{ filmTypes }}</p>
-        </div>
+        </div> -->
       </router-link>
     </div>
   </Transition>

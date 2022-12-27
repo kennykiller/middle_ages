@@ -4,6 +4,7 @@ import {
   Between,
   Brackets,
   createQueryBuilder,
+  LessThanOrEqual,
   MoreThanOrEqual,
   Repository,
 } from 'typeorm';
@@ -26,6 +27,7 @@ export class FilmService {
       name: createFilmDto.name,
       ageRestriction: createFilmDto.ageRestriction,
       posterUrl: createFilmDto.posterUrl,
+      posterUrlBig: createFilmDto.posterUrlBig,
       description: createFilmDto.description,
       filmDuration: createFilmDto.filmDuration,
       basePrice: createFilmDto.basePrice,
@@ -38,6 +40,7 @@ export class FilmService {
       return createdFilm;
     } catch (e) {
       await unlink(createFilmDto.posterUrl);
+      await unlink(createFilmDto.posterUrlBig);
       throw new HttpException('Creation did not succeed', 400);
     }
   }
@@ -80,6 +83,33 @@ export class FilmService {
       return { films, count };
     } catch {
       throw new HttpException('Upcoming films were not found, try later', 400);
+    }
+  }
+
+  async getCurrentFilms(page = 1) {
+    const offset: number = +page === 1 ? 0 : page * this.ITEMS_PER_PAGE;
+    const limitItems = offset ? this.ITEMS_PER_PAGE : this.ITEMS_PER_PAGE * 2;
+    const d = new Date();
+    const date = d.getDate() > 9 ? d.getDate() : `0${d.getDate()}`;
+    const month =
+      d.getMonth() + 1 > 9 ? d.getMonth() + 1 : `0${d.getMonth() + 1}`;
+    const year = d.getFullYear();
+    const fullDate = `${year}-${month}-${date}`;
+    try {
+      const [films, count] = await this.filmRepository.findAndCount({
+        take: limitItems,
+        skip: offset,
+        relations: {
+          genres: true,
+        },
+        where: {
+          startDate: LessThanOrEqual(new Date(fullDate)),
+          endDate: MoreThanOrEqual(new Date(fullDate)),
+        },
+      });
+      return { films, count };
+    } catch {
+      throw new HttpException('Current films were not found, try later', 400);
     }
   }
 

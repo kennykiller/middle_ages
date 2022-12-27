@@ -1,5 +1,5 @@
 <script setup lang="ts">
-
+import { AxiosResponse } from "axios";
 import { SnackType } from "@/interfaces/types";
 import { Film, Genre } from "@/interfaces/models";
 import { FilmResponse, SavedPosterResponse } from '@/interfaces/responses'
@@ -21,6 +21,7 @@ let film: Film = reactive({
   name: "",
   ageRestriction: "",
   posterUrl: "",
+  posterUrlBig: "",
   startDate: "",
   description: "",
   filmDuration: "",
@@ -39,16 +40,16 @@ const descriptionRef = ref<HTMLElement | null>(null);
 async function createFilm() {
   const posterData = new FormData();
   posterData.append("posterUrl", film.posterUrl);
+  const posterDataBig = new FormData();
+  posterDataBig.append("posterUrl", film.posterUrlBig)
   try {
-    const savedPoster:SavedPosterResponse = await axios.post(
-      "http://localhost:3000/admin/poster",
-      posterData,
-    );
+    const [savedPoster, savedWidePoster]:[SavedPosterResponse, SavedPosterResponse] = await Promise.all([
+      axios.post("admin/poster", posterData,), axios.post("admin/poster", posterDataBig)]);
     
-    if (savedPoster.data.status === 201) {
+    if (savedPoster.data.status === 201 && savedWidePoster.data.status === 201) {
       const addedFilm:FilmResponse = await axios.post(
-        "http://localhost:3000/admin/film",
-        { ...film, posterUrl: savedPoster.data.url }
+        "admin/film",
+        { ...film, posterUrl: savedPoster.data.url, posterUrlBig: savedWidePoster.data.url }
       );
       mode.value = addedFilm.data?.id ? "success" : "error";
     } else {
@@ -111,7 +112,7 @@ const resize = () => {
       </div>
     </div>
     <div class="base-form__row">
-      <ImageUploader :film="film" :order="1"></ImageUploader>
+      <ImageUploader title="Постер по умолчанию" :film="film" :order="1"></ImageUploader>
 
       <select class="select-genres" multiple v-model="film.genres">
         <option v-for="genre in genres.value" :key="genre.name" :value="genre">
@@ -165,7 +166,7 @@ const resize = () => {
         ></textarea>
         <label for="description" class="">Описание фильма</label>
       </div>
-      <ImageUploader :film="film" :order="2"></ImageUploader>
+      <ImageUploader title="Широкоформатный постер" :film="film" :order="2"></ImageUploader>
       <button class="save-button" @click="createFilm">SAVE FILM</button>
     </div>
     <BaseSnack
