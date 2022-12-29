@@ -22,7 +22,11 @@ const props = defineProps<Props>();
 const films: { value: Film[] } = reactive({ value: [] });
 const filmsToShow: { value: Film[] } = reactive({ value: [] });
 let totalFilmsAmt: Ref<number> = ref(0);
-let page = ref(1);
+const page = ref(1);
+const currentSlide = ref(0);
+const widePoster = ref('');
+const slideTo = (val:number) => currentSlide.value = val;
+const updateBackground = (url:string) => widePoster.value = url;
 
 let isLastPage = computed(() => {
   return page.value * 4 >= totalFilmsAmt.value;
@@ -80,44 +84,44 @@ const carouselControl = async () => {
 </script>
 
 <template>
-  <Carousel :itemsToShow="4" :wrapAround="true" :transition="500">
-    <Slide v-for="film in filmsToShow.value" :key="film.id">
-      <FilmCarouselItem
-        :url="film.posterUrl"
-        :name="film.name"
-        :genres="film.genres"
-        :id="(film.id as number)"
-      >
-      </FilmCarouselItem>
-    </Slide>
-
-    
-  </Carousel>
-
-  <!-- <section v-if="films.value.length" class="current-films__container">
-    <BaseSubheader
-      :subtitle="carouselType === 'all' ? 'Фильмы' : 'Анонсы'"
-      :page="page"
-      :is-last-page="isLastPage"
-      :all-data-received="allFilmsReceived"
-      @next-page="changePage('inc')"
-      @prev-page="changePage('dec')"
-    ></BaseSubheader>
-    <div class="film-carousel">
-      <FilmCarouselItem
-        v-for="film in filmsToShow.value"
-        :key="JSON.stringify(film)"
-        :url="film.posterUrl"
-        :name="film.name"
-        :genres="film.genres"
-        :id="(film.id as number)"
-      >
-      </FilmCarouselItem>
-    </div>
-  </section> -->
+  <div class="carousel__wrapper" :style="{ 'background-image': `url(${widePoster})` }">
+    <Carousel
+      id="thumbnails"
+      :items-to-show="4"
+      :wrap-around="true"
+      v-model="currentSlide"
+      ref="carousel"
+    >
+      <Slide v-for="(film, idx) in filmsToShow.value" :key="idx">
+        <FilmCarouselItem
+          :url="film.posterUrl"
+          :name="film.name"
+          :genres="film.genres"
+          :id="(film.id as number)"
+          :urlBig="film.posterUrlBig || film.posterUrl"
+          @click="slideTo(idx)"
+          @update-background="updateBackground"
+        />
+      </Slide>
+    </Carousel>
+  </div>
 </template>
 
 <style lang="scss" scoped>
+.carousel__wrapper {
+  height: 100%;
+  width: 100%;
+  background-size: cover;
+}
+.carousel {
+  height: 400px;
+  &__viewport {
+    height: 100%;
+  }
+  &__track {
+    height: 100%;
+  }
+}
 .current-films__container {
   display: flex;
   justify-content: space-between;

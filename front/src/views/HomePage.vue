@@ -18,10 +18,7 @@ import DiscountCarousel from "@/components/carousel/DiscountCarousel.vue";
 .homepage__container {
   width: 100%;
   display: grid;
-  padding: 1rem;
   grid-template-columns: 1fr;
-  // background: url('@/assets/images/3840vivo.webp') no-repeat center;
-  // background-size: cover;
   .homepage-content__container {
     display: flex;
     flex-direction: column;

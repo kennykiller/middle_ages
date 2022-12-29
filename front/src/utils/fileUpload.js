@@ -93,12 +93,11 @@ export class FileUploader {
     fileValidate(fileType, fileSize) {
         let isImage = this.imagesTypes.filter((type) => fileType.indexOf(`image/${type}`) !== -1);
         if (isImage.length !== 0) {
-            if (fileSize <= 5000000) {
-                return true;
-            }
-            else {
-                return alert("Файл не должен превышать 5Мб");
-            }
+            // if (fileSize <= 5000000) {
+            return true;
+            // } else {
+            //   return alert("Файл не должен превышать 5Мб");
+            // }
         }
         else {
             return alert("Убедитесь, что используете необходимый тип данных");
