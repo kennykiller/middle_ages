@@ -100,7 +100,6 @@ const carouselControl = async () => {
           :genres="film.genres"
           :id="(film.id as number)"
           :urlBig="film.posterUrlBig || film.posterUrl"
-          :currentWidePoster="widePoster"
           @click="slideTo(idx)"
           @update-background="updateBackground"
         />
@@ -118,6 +117,7 @@ const carouselControl = async () => {
   align-items: center;
   background-color: rgb(0, 0, 0, .3);
   position: relative;
+  transition: background-image .5s ease-in-out;
 }
 .carousel {
   min-height: 400px;

@@ -9,7 +9,6 @@ interface Props {
   name: string;
   id: number;
   urlBig: string;
-  currentWidePoster: string;
 }
 const props = defineProps<Props>();
 const emit = defineEmits<{
@@ -17,8 +16,7 @@ const emit = defineEmits<{
 }>();
 const urlToSend = getUrl('films', props.url);
 const wideUrl = getUrl('films', props.urlBig || props.url);
-const isCurrentlyActive = computed(() => props.currentWidePoster === getUrl('films', props.urlBig) || props.currentWidePoster === getUrl('films', props.url))
-// const filmTypes = props.genres.map((genre) => genre.name).join(", ");
+const filmTypes = props.genres.map((genre) => genre.name).join(" / ");
 // const filmRoute = `/films/${props.id}`;
 </script>
 
@@ -26,15 +24,15 @@ const isCurrentlyActive = computed(() => props.currentWidePoster === getUrl('fil
   <!-- <Transition name="slide" appear> -->
     <div class="film__container" @click="emit('update-background', wideUrl)">
       <!-- <router-link :to="filmRoute"> -->
-        <div :class="{ 'special-box-shadow--active': isCurrentlyActive }" class="special-box-shadow">
+        <div class="special-box-shadow">
           <img :src="urlToSend" alt="base-poster" class="film__image" />
+          <div class="film__details">
+            <h2>{{ props.name }}</h2>
+            <p class="film__genres">{{ filmTypes }}</p>
+          </div>
         </div>
         <!-- <div v-else class="wide-poster">
           <img :src="urlToSend" alt="wide-poster" class="film__image">
-        </div> -->
-        <!-- <div class="film__details">
-          <h2>{{ props.name }}</h2>
-          <p class="film__genres">{{ filmTypes }}</p>
         </div> -->
       <!-- </router-link> -->
     </div>
@@ -59,26 +57,40 @@ const isCurrentlyActive = computed(() => props.currentWidePoster === getUrl('fil
 .film__container {
   height: 100%;
   cursor: pointer;
-  margin-right: 1rem;
   align-items: center;
+  &:hover .film__details {
+    display: block;
+  }
+  &:hover .film__image {
+    opacity: 0.5;
+  }
+  &:hover .special-box-shadow {
+    box-shadow: $yellow-color 0px 4px 12px;
+  }
   .special-box-shadow {
     border-radius: 4px;
     min-height: 17rem;
-    &--active {
-      box-shadow: $yellow-color 0px 4px 12px;
-    }
+    position: relative;
+    transition: box-shadow .3s ease-out;
     .film__image {
       width: 100%;
       border-radius: 4px;
       height: 400px;
       display: block;
-      transition: transform 1s ease;
+      transition: opacity .3s ease-out;
     }
   }
   .film__details {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #fff;
     text-align: center;
     width: 208px;
     font-weight: 400;
+    margin: 1rem auto 0;
+    display: none;
     h2 {
       margin: 5px;
     }
