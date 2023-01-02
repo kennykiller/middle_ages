@@ -119,11 +119,11 @@ export class FileUploader {
       (type) => fileType.indexOf(`image/${type}`) !== -1
     );
     if (isImage.length !== 0) {
-      // if (fileSize <= 5000000) {
+      if (fileSize <= 10000000) {
         return true;
-      // } else {
-      //   return alert("Файл не должен превышать 5Мб");
-      // }
+      } else {
+        return alert("Файл не должен превышать 5Мб");
+      }
     } else {
       return alert("Убедитесь, что используете необходимый тип данных");
     }

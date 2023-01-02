@@ -85,6 +85,7 @@ const carouselControl = async () => {
 
 <template>
   <div class="carousel__wrapper" :style="{ 'background-image': `url(${widePoster})` }">
+    <div class="carousel__bgc"></div>
     <Carousel
       id="thumbnails"
       :items-to-show="4"
@@ -99,6 +100,7 @@ const carouselControl = async () => {
           :genres="film.genres"
           :id="(film.id as number)"
           :urlBig="film.posterUrlBig || film.posterUrl"
+          :currentWidePoster="widePoster"
           @click="slideTo(idx)"
           @update-background="updateBackground"
         />
@@ -112,14 +114,25 @@ const carouselControl = async () => {
   height: 100%;
   width: 100%;
   background-size: cover;
+  display: flex;
+  align-items: center;
+  background-color: rgb(0, 0, 0, .3);
+  position: relative;
 }
 .carousel {
-  height: 400px;
-  &__viewport {
+  min-height: 400px;
+  padding: 1rem 0;
+  background-color: rgb(0, 0, 0, .7);
+  &__bgc {
+    position: fixed;
+    top: 0;
+    left: 7rem;
+    background-color: rgb(0, 0, 0, .6);
+    width: 100%;
     height: 100%;
   }
-  &__track {
-    height: 100%;
+  &::v-deep .carousel__viewport {
+    padding: 1rem 0;
   }
 }
 .current-films__container {

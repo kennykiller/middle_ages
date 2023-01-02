@@ -2,12 +2,14 @@
 import { Genre } from "@/interfaces/models";
 import { axiosInstance as axios } from "../../utils/axios";
 import { getUrl } from "@/utils/createUrl";
+import { computed } from "@vue/reactivity";
 interface Props {
   url: string;
   genres: Genre[];
   name: string;
   id: number;
   urlBig: string;
+  currentWidePoster: string;
 }
 const props = defineProps<Props>();
 const emit = defineEmits<{
@@ -15,6 +17,7 @@ const emit = defineEmits<{
 }>();
 const urlToSend = getUrl('films', props.url);
 const wideUrl = getUrl('films', props.urlBig || props.url);
+const isCurrentlyActive = computed(() => props.currentWidePoster === getUrl('films', props.urlBig) || props.currentWidePoster === getUrl('films', props.url))
 // const filmTypes = props.genres.map((genre) => genre.name).join(", ");
 // const filmRoute = `/films/${props.id}`;
 </script>
@@ -23,7 +26,7 @@ const wideUrl = getUrl('films', props.urlBig || props.url);
   <!-- <Transition name="slide" appear> -->
     <div class="film__container" @click="emit('update-background', wideUrl)">
       <!-- <router-link :to="filmRoute"> -->
-        <div class="special-box-shadow">
+        <div :class="{ 'special-box-shadow--active': isCurrentlyActive }" class="special-box-shadow">
           <img :src="urlToSend" alt="base-poster" class="film__image" />
         </div>
         <!-- <div v-else class="wide-poster">
@@ -39,6 +42,7 @@ const wideUrl = getUrl('films', props.urlBig || props.url);
 </template>
 
 <style lang="scss">
+@import '@/assets/styles/vars.scss';
 @keyframes slide-in {
   from {
     transform: translateX(150px);
@@ -53,22 +57,15 @@ const wideUrl = getUrl('films', props.urlBig || props.url);
   animation: slide-in 1s;
 }
 .film__container {
-  display: flex;
-  flex-direction: column;
   height: 100%;
   cursor: pointer;
   margin-right: 1rem;
   align-items: center;
   .special-box-shadow {
-    box-shadow: 0 10px 15px -3px rgba(13, 49, 150, 0.8),
-      0 4px 6px -4px rgba(0, 0, 0, 0.8);
-    background-color: azure;
     border-radius: 4px;
-    // width: 13rem;
     min-height: 17rem;
-    margin-bottom: 0.5rem;
-    &:hover .film__image {
-      transform: translate(-10px, -10px) scale(1.05);
+    &--active {
+      box-shadow: $yellow-color 0px 4px 12px;
     }
     .film__image {
       width: 100%;
