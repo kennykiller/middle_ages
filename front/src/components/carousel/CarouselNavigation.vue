@@ -41,7 +41,7 @@ const totalPagesAmt = computed(() => Math.ceil(props.totalFilmsCount / 4))
 @import '@/assets/styles/vars.scss';
 
 .navigation-wrapper {
-  width: 100%;
+  width: 70%;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -52,6 +52,7 @@ const totalPagesAmt = computed(() => Math.ceil(props.totalFilmsCount / 4))
   &-wrapper {
     display: flex;
     align-items: center;
+    padding: 0 1rem;
   }
   &--prev {
     margin-right: 1rem;
@@ -74,8 +75,8 @@ const totalPagesAmt = computed(() => Math.ceil(props.totalFilmsCount / 4))
         height: 4px;
         width: 4px;
         border-radius: 50%;
-        color: $gray-color;
-        background: $gray-color;
+        color: #fff;
+        background: #fff;
         box-shadow: 0 0 5px 3px;
     }
   }

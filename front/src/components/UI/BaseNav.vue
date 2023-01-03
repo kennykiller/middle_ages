@@ -31,7 +31,6 @@ const emit = defineEmits<{
   align-items: center;
   justify-content: center;
   color: $yellow-color;
-  margin-bottom: 1rem;
   cursor: pointer;
 }
 span {

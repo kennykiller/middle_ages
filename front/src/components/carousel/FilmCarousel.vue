@@ -149,7 +149,7 @@ const carouselControl = async () => {
     position: fixed;
     top: 0;
     left: 7rem;
-    background-color: rgb(0, 0, 0, .6);
+    background: linear-gradient(#00000080 20%, #00000099 40%, #000000d9 75%);
     width: 100%;
     height: 100%;
   }
