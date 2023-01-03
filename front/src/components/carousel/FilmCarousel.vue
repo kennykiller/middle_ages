@@ -3,12 +3,10 @@ import FilmCarouselItem from "./FilmCarouselItem.vue";
 import { reactive, onBeforeMount, ref, Ref, computed } from "vue";
 import { Film } from "@/interfaces/models";
 import { axiosInstance as axios } from "../../utils/axios";
-import BaseSubheader from "../UI/BaseSubheader.vue";
-import { Carousel, Pagination, Slide } from 'vue3-carousel';
+import CarouselNavigation from "./CarouselNavigation.vue";
+import { getUrl } from "@/utils/createUrl";
 
-import 'vue3-carousel/dist/carousel.css'
-
-type mode = "inc" | "dec";
+type direction = 'next' | 'prev';
 interface FilmsFromDB {
   films: Film[];
   count: number;
@@ -21,12 +19,16 @@ const props = defineProps<Props>();
 
 const films: { value: Film[] } = reactive({ value: [] });
 const filmsToShow: { value: Film[] } = reactive({ value: [] });
-let totalFilmsAmt: Ref<number> = ref(0);
+const totalFilmsAmt: Ref<number> = ref(0);
 const page = ref(1);
 const currentSlide = ref(0);
 const widePoster = ref('');
-const slideTo = (val:number) => currentSlide.value = val;
-const updateBackground = (url:string) => widePoster.value = url;
+const slideTo = (val: number) => currentSlide.value = val;
+const updateBackground = (url: string) => widePoster.value = url;
+const choosePage = (val: number) => {
+  page.value = val;
+  carouselControl();
+}
 
 let isLastPage = computed(() => {
   return page.value * 4 >= totalFilmsAmt.value;
@@ -44,8 +46,8 @@ onBeforeMount(async () => {
     filmsToShow.value = films.value.slice(0, 4);
   } else {
     filmsToShow.value = films.value.slice(0);
-    console.log(filmsToShow.value);
   }
+  updateBackground(getUrl('films', filmsToShow.value[0].posterUrlBig || filmsToShow.value[0].posterUrl))
 });
 const getFilms = async (page: number) => {
   try {
@@ -60,8 +62,8 @@ const getFilms = async (page: number) => {
   }
 };
 
-function changePage(mode: mode) {
-  mode === "inc" ? page.value++ : page.value--;
+function changePage(mode: direction) {
+  mode === 'next' ? page.value++ : page.value--;
   carouselControl();
 }
 
@@ -78,7 +80,7 @@ const carouselControl = async () => {
     ) {
       res.films.forEach((film) => films.value.push(film));
     }
-    filmsToShow.value = films.value.slice((page.value - 1) * 4, page.value * 4);
+    filmsToShow.value = films.value.slice((page.value - 1) * 4, page.value * 4); 
   }
 };
 </script>
@@ -86,15 +88,10 @@ const carouselControl = async () => {
 <template>
   <div class="carousel__wrapper" :style="{ 'background-image': `url(${widePoster})` }">
     <div class="carousel__bgc"></div>
-    <Carousel
-      id="thumbnails"
-      :items-to-show="4"
-      :wrap-around="true"
-      v-model="currentSlide"
-      ref="carousel"
-    >
-      <Slide v-for="(film, idx) in filmsToShow.value" :key="idx">
-        <FilmCarouselItem
+    <div class="film-carousel" :class="{ 'solo-grid': filmsToShow.value.length === 1, 'double-grid' : filmsToShow.value.length === 2, 'triple-grid': filmsToShow.value.length === 3 }">
+      <FilmCarouselItem
+          v-for="(film, idx) in filmsToShow.value"
+          :key="film.id"
           :url="film.posterUrl"
           :name="film.name"
           :genres="film.genres"
@@ -103,26 +100,51 @@ const carouselControl = async () => {
           @click="slideTo(idx)"
           @update-background="updateBackground"
         />
-      </Slide>
-    </Carousel>
+    </div>
+    <CarouselNavigation
+      :totalFilmsCount="totalFilmsAmt"
+      :page="page"
+      :isLastPage="isLastPage"
+      @change-page="changePage"
+      @choose-page="choosePage"
+    ></CarouselNavigation>
   </div>
 </template>
 
 <style lang="scss" scoped>
-.carousel__wrapper {
-  height: 100%;
-  width: 100%;
-  background-size: cover;
-  display: flex;
-  align-items: center;
-  background-color: rgb(0, 0, 0, .3);
-  position: relative;
-  transition: background-image .5s ease-in-out;
-}
 .carousel {
-  min-height: 400px;
-  padding: 1rem 0;
-  background-color: rgb(0, 0, 0, .7);
+  &__wrapper {
+    height: 100%;
+    width: 100%;
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    background-color: rgb(0, 0, 0, .3);
+    position: relative;
+    transition: background-image .5s ease-in-out;
+    .film-carousel {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      justify-items: center;
+      width: 100%;
+      padding: 10px 5px;
+      border-radius: 0.5rem;
+      min-height: 400px;
+      padding: 1rem 0;
+      background-color: rgb(0, 0, 0, .7);
+    }
+    .solo-grid {
+      grid-template-columns: 1fr;
+    }
+    .double-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    .triple-grid {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+  }
   &__bgc {
     position: fixed;
     top: 0;
@@ -130,31 +152,6 @@ const carouselControl = async () => {
     background-color: rgb(0, 0, 0, .6);
     width: 100%;
     height: 100%;
-  }
-  &::v-deep .carousel__viewport {
-    padding: 1rem 0;
-  }
-}
-.current-films__container {
-  display: flex;
-  justify-content: space-between;
-  flex-direction: column;
-  .film-carousel {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
-    background: #fff;
-    padding: 10px 5px;
-    border-radius: 0.5rem;
-    box-shadow: 0 4px 15px #88b8fe;
-    div {
-      transition: opacity 0.6s ease;
-    }
-    &:hover div {
-      opacity: 0.5;
-    }
-    div:hover {
-      opacity: 1;
-    }
   }
 }
 </style>

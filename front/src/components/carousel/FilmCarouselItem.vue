@@ -21,7 +21,7 @@ const filmTypes = props.genres.map((genre) => genre.name).join(" / ");
 </script>
 
 <template>
-  <!-- <Transition name="slide" appear> -->
+  <Transition name="slide" appear>
     <div class="film__container" @click="emit('update-background', wideUrl)">
       <!-- <router-link :to="filmRoute"> -->
         <div class="special-box-shadow">
@@ -31,12 +31,9 @@ const filmTypes = props.genres.map((genre) => genre.name).join(" / ");
             <p class="film__genres">{{ filmTypes }}</p>
           </div>
         </div>
-        <!-- <div v-else class="wide-poster">
-          <img :src="urlToSend" alt="wide-poster" class="film__image">
-        </div> -->
       <!-- </router-link> -->
     </div>
-  <!-- </Transition> -->
+  </Transition>
 </template>
 
 <style lang="scss">
