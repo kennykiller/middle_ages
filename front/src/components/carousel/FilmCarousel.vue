@@ -1,15 +1,23 @@
 <script setup lang="ts">
 import FilmCarouselItem from "./FilmCarouselItem.vue";
-import { reactive, onBeforeMount, ref, Ref, computed } from "vue";
+import { reactive, onBeforeMount, ref, Ref, computed, watch } from "vue";
 import { Film } from "@/interfaces/models";
 import { axiosInstance as axios } from "../../utils/axios";
 import CarouselNavigation from "./CarouselNavigation.vue";
+import ScheduleBadge from "../UI/ScheduleBadge.vue";
 import { getUrl } from "@/utils/createUrl";
+import { scheduleModule } from "@/store/schedule/schedule";
+import { stringify } from "querystring";
 
 type direction = 'next' | 'prev';
 interface FilmsFromDB {
   films: Film[];
   count: number;
+}
+interface chosenFilm {
+  widePoster: string;
+  filmId?: number;
+  schedule?: string[];
 }
 
 interface Props {
@@ -21,19 +29,40 @@ const films: { value: Film[] } = reactive({ value: [] });
 const filmsToShow: { value: Film[] } = reactive({ value: [] });
 const totalFilmsAmt: Ref<number> = ref(0);
 const page = ref(1);
-const currentSlide = ref(0);
-const widePoster = ref('');
-const slideTo = (val: number) => currentSlide.value = val;
-const updateBackground = (url: string) => widePoster.value = url;
+const activeFilm: Ref<Film> = ref({
+    name: '',
+    ageRestriction: '',
+    posterUrl: '',
+    posterUrlBig: '',
+    description: '',
+    startDate: '',
+    filmDuration: '',
+    basePrice: 300,
+    genres: [],
+    endDate: ''
+});
+const chosenFilm: chosenFilm = reactive({
+  widePoster: '',
+  filmId: undefined,
+  schedule: undefined
+})
+
+const setFilmId = (id?: number) => chosenFilm.filmId = id;
+const slideTo = (film: Film) => {
+  activeFilm.value = film;
+  setFilmId(film.id);
+};
+const updateBackground = (url: string) => chosenFilm.widePoster = url;
 const choosePage = (val: number) => {
   page.value = val;
   carouselControl();
+  setFilmId();
 }
 
-let isLastPage = computed(() => {
+const isLastPage = computed(() => {
   return page.value * 4 >= totalFilmsAmt.value;
 });
-let allFilmsReceived = computed(() => {
+const allFilmsReceived = computed(() => {
   return totalFilmsAmt.value === films.value.length;
 });
 
@@ -65,6 +94,7 @@ const getFilms = async (page: number) => {
 function changePage(mode: direction) {
   mode === 'next' ? page.value++ : page.value--;
   carouselControl();
+  setFilmId();
 }
 
 const carouselControl = async () => {
@@ -83,23 +113,41 @@ const carouselControl = async () => {
     filmsToShow.value = films.value.slice((page.value - 1) * 4, page.value * 4); 
   }
 };
+
+watch(activeFilm, async (film) => {
+  console.log(film, 'new value');
+  await scheduleModule.getSchedule(film.id as number);
+  chosenFilm.schedule = scheduleModule.chosenFilm?.time;
+})
 </script>
 
 <template>
-  <div class="carousel__wrapper" :style="{ 'background-image': `url(${widePoster})` }">
+  <div class="carousel__wrapper" :style="{ 'background-image': `url(${chosenFilm.widePoster})` }">
     <div class="carousel__bgc"></div>
-    <div class="film-carousel" :class="{ 'solo-grid': filmsToShow.value.length === 1, 'double-grid' : filmsToShow.value.length === 2, 'triple-grid': filmsToShow.value.length === 3 }">
+    <div class="film-carousel" :class="{ 
+      'solo-grid': filmsToShow.value.length === 1,
+      'double-grid' : filmsToShow.value.length === 2,
+      'triple-grid': filmsToShow.value.length === 3,
+      'film-chosen': chosenFilm.filmId
+      }">
       <FilmCarouselItem
-          v-for="(film, idx) in filmsToShow.value"
+          v-for="film in filmsToShow.value"
           :key="film.id"
           :url="film.posterUrl"
           :name="film.name"
           :genres="film.genres"
           :id="(film.id as number)"
           :urlBig="film.posterUrlBig || film.posterUrl"
-          @click="slideTo(idx)"
+          @click="slideTo(film)"
           @update-background="updateBackground"
         />
+    </div>
+    <div :class="{ 'film-details--active': activeFilm.name }" class="film-details details">
+      <div class="details-genres">{{ activeFilm.genres.map((genre) => genre.name).join(" / ") }}</div>
+      <h2 class="details-title">{{ activeFilm.name }}</h2>
+      <div class="details-schedule">
+        <ScheduleBadge v-for="time in chosenFilm.schedule" :key="time" :time="time"/>
+      </div>
     </div>
     <CarouselNavigation
       :totalFilmsCount="totalFilmsAmt"
@@ -144,6 +192,9 @@ const carouselControl = async () => {
     .triple-grid {
       grid-template-columns: 1fr 1fr 1fr;
     }
+    .film-chosen {
+      display: none;
+    }
   }
   &__bgc {
     position: fixed;
@@ -152,6 +203,23 @@ const carouselControl = async () => {
     background: linear-gradient(#00000080 20%, #00000099 40%, #000000d9 75%);
     width: 100%;
     height: 100%;
+  }
+}
+.film-details {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  &--active {
+    display: flex;
+  }
+}
+.details {
+  &-schedule {
+    display: flex;
+    align-items: center;
+    &:not(:last-child) {
+      margin-right: 1rem;
+    }
   }
 }
 </style>

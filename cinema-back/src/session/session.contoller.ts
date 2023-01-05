@@ -6,6 +6,12 @@ import { SessionService } from './session.service';
 @Controller('sessions')
 export class SessionController {
   constructor(private sessionService: SessionService) {}
+
+  @Get('/:filmId/base-schedule')
+  async getBaseSchedule(@Param('filmId', ParseIntPipe) filmId: number) {
+    return this.sessionService.getBaseFilmSchedule(filmId);
+  }
+
   @Get(':filmId/:date')
   async findSessions(@Param(new GenericValidation()) dto: FindSessionDto) {
     return this.sessionService.findSessions(dto);

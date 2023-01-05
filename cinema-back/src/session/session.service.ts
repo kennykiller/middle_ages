@@ -8,7 +8,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Between, Repository } from 'typeorm';
+import { Between, MoreThan, Repository } from 'typeorm';
 import { Film } from '../film/film.entity';
 import { FilmService } from '../film/film.service';
 import { DailySchedule, FilmForSession } from '../interfaces/schedule';
@@ -245,5 +245,20 @@ export class SessionService {
             : currentSeatsAmount.seatsAvailable + seatsAmount,
       },
     );
+  }
+
+  async getBaseFilmSchedule(id: number) {
+    try {
+      const film = await this.filmService.getFilmWithoutModify(id);
+      const sessions = await this.sessionRepo.find({
+        where: { film, filmStart: MoreThan(new Date()) },
+      });
+      return {
+        timeArray: sessions.map((s) => s.filmStart),
+        filmId: id,
+      };
+    } catch (e) {
+      throw new HttpException('Fail to find sessions', 404);
+    }
   }
 }
