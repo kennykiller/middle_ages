@@ -39,7 +39,6 @@ class ScheduleModule extends VuexModule {
   @Mutation
   updateChosenFilm(filmId: number) {
     this.chosenFilm = this.scheduleTime.find((el) => el.filmId === filmId);
-    console.log(this.chosenFilm);
   }
 
   @Action
@@ -53,10 +52,8 @@ class ScheduleModule extends VuexModule {
       );
       console.log(res, "res");
 
-      if (res.data.timeArray?.length) {
-        this.pushScheduleTime(res.data);
-        this.updateChosenFilm(filmId);
-      }
+      this.pushScheduleTime(res.data);
+      this.updateChosenFilm(filmId);
     } catch (e) {
       console.log(e);
 

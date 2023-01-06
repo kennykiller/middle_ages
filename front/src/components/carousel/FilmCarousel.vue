@@ -7,7 +7,6 @@ import CarouselNavigation from "./CarouselNavigation.vue";
 import ScheduleBadge from "../UI/ScheduleBadge.vue";
 import { getUrl } from "@/utils/createUrl";
 import { scheduleModule } from "@/store/schedule/schedule";
-import { stringify } from "querystring";
 
 type direction = 'next' | 'prev';
 interface FilmsFromDB {
@@ -146,8 +145,9 @@ watch(activeFilm, async (film) => {
       <div class="details-genres">{{ activeFilm.genres.map((genre) => genre.name).join(" / ") }}</div>
       <h2 class="details-title">{{ activeFilm.name }}</h2>
       <div class="details-schedule">
-        <span>Купить билеты:</span>
-        <ScheduleBadge class="badge" v-for="time in chosenFilm.schedule" :key="time" :time="time"/>
+        <span v-if="!chosenFilm.schedule?.length">Билетов на этот фильм пока нет.</span>
+        <span v-else>Купить билеты:</span>
+        <ScheduleBadge v-if="chosenFilm.schedule?.length" class="badge" v-for="time in chosenFilm.schedule" :key="time" :time="time"/>
       </div>
     </div>
     <CarouselNavigation
