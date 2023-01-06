@@ -13,14 +13,16 @@ const props = defineProps<Props>();
 <style lang="scss" scoped>
 @import '@/assets/styles/vars.scss';
 .schedule-badge {
-  width: 2.5rem;
-  height: 1.5rem;
+  width: 6rem;
+  height: 3rem;
   padding: 0.5rem;
   background-color: $black-color;
-  opacity: 0.6;
+  font-size: 1.5rem;
+  border-radius: 0.5rem;
   color: $yellow-color;
   transition: all 0.3s ease-out;
-  margin: 0 auto;
+  text-align: center;
+  cursor: pointer;
   &:hover {
     color: $black-color;
     background-color: $yellow-color;

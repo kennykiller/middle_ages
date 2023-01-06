@@ -142,11 +142,12 @@ watch(activeFilm, async (film) => {
           @update-background="updateBackground"
         />
     </div>
-    <div :class="{ 'film-details--active': activeFilm.name }" class="film-details details">
+    <div :class="{ 'film-details--active': chosenFilm.filmId }" class="film-details details">
       <div class="details-genres">{{ activeFilm.genres.map((genre) => genre.name).join(" / ") }}</div>
       <h2 class="details-title">{{ activeFilm.name }}</h2>
       <div class="details-schedule">
-        <ScheduleBadge v-for="time in chosenFilm.schedule" :key="time" :time="time"/>
+        <span>Купить билеты:</span>
+        <ScheduleBadge class="badge" v-for="time in chosenFilm.schedule" :key="time" :time="time"/>
       </div>
     </div>
     <CarouselNavigation
@@ -209,16 +210,31 @@ watch(activeFilm, async (film) => {
   display: none;
   flex-direction: column;
   justify-content: center;
+  z-index: 100;
   &--active {
     display: flex;
   }
 }
 .details {
+  &-genres {
+    color: #fff;
+    font-size: 1.5rem;
+  }
+  &-title {
+    color: #fff;
+    font-size: 5rem;
+    margin: 2rem 0;
+  }
   &-schedule {
     display: flex;
     align-items: center;
-    &:not(:last-child) {
-      margin-right: 1rem;
+    span {
+      font-size: 1.2rem;
+      color: #fff;
+      margin-right: 1.5rem;
+    }
+    .badge:not(:last-child) {
+      margin-right: 1.5rem;
     }
   }
 }
