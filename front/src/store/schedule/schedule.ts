@@ -30,7 +30,10 @@ class ScheduleModule extends VuexModule {
       return `${hourOfStart}:${minOfStart}`;
     });
     const startingTime = [...new Set(formattedTime)];
-    this.scheduleTime.push({ filmId: filmData.filmId, time: startingTime });
+    this.scheduleTime.push({
+      filmId: filmData.filmId,
+      time: startingTime.sort(),
+    });
   }
 
   @Mutation
