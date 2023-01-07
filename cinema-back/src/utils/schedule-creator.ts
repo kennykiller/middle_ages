@@ -86,30 +86,32 @@ export class multipleFilmsScheduleCreator extends scheduleCreator {
         [el]: [],
       };
       this.setSchedule(el);
-      this.updateFilms();
+      this.updateFilms(el);
       this.checkConditions();
       this.fillSchedule(el, daySchedule);
       return daySchedule;
     });
   }
 
-  updateFilms() {
-    this.adjustedFilms = this.films.map((film) => {
-      const [hDur, mDur, sDur] = film.filmDuration.split(':');
-      const d = new Date();
-      d.setUTCHours(+hDur, +mDur + 15, +sDur);
-      const totalDuration = this.calculateTime(d, 'utc');
-      const dateForOldCheck = new Date(film.startDate);
-      dateForOldCheck.setUTCDate(dateForOldCheck.getUTCDate() + 6);
+  updateFilms(el: string) {
+    this.adjustedFilms = this.films
+      .filter((f) => !(new Date(f.startDate) > new Date(el)))
+      .map((film) => {
+        const [hDur, mDur, sDur] = film.filmDuration.split(':');
+        const d = new Date();
+        d.setUTCHours(+hDur, +mDur + 15, +sDur);
+        const totalDuration = this.calculateTime(d, 'utc');
+        const dateForOldCheck = new Date(film.startDate);
+        dateForOldCheck.setUTCDate(dateForOldCheck.getUTCDate() + 6);
 
-      const fullDay = parseInt(film.ageRestriction, 10) > 11;
-      return {
-        ...film,
-        totalDuration,
-        isOld: dateForOldCheck <= this.start,
-        fullDay,
-      };
-    });
+        const fullDay = parseInt(film.ageRestriction, 10) > 11;
+        return {
+          ...film,
+          totalDuration,
+          isOld: dateForOldCheck <= this.start,
+          fullDay,
+        };
+      });
   }
 
   checkConditions() {
